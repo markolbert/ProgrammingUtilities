@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>J4JSoftware.VisualUtilities</AssemblyName>
+    <RootNamespace>J4JSoftware.VisualUtilities</RootNamespace>
+    <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;NuGetRelease</Configurations>
+  </PropertyGroup>
+
+</Project>

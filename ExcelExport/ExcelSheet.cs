@@ -1,0 +1,191 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using J4JSoftware.Logging;
+using NPOI.SS.UserModel;
+
+namespace J4JSoftware.Excel
+{
+    public class ExcelSheet
+    {
+        private readonly IJ4JLogger _logger;
+        private readonly List<IRow> _rows = new List<IRow>();
+        private readonly List<ICell> _cells = new List<ICell>();
+
+        public ExcelSheet( 
+            IJ4JLogger logger
+        )
+        {
+            _logger = logger;
+            _logger.SetLoggedType( this.GetType() );
+        }
+
+        public bool IsValid => Sheet != null;
+        public ISheet? Sheet { get; private set; }
+        public int ActiveRowNumber { get; private set; }
+        public int ActiveColumnNumber { get; private set; }
+
+        public bool Initialize( ExcelWorkbook workbook, string name )
+        {
+            if( workbook.WorkbookInternal == null )
+            {
+                _logger.Fatal<string>(
+                    "Tried to create new worksheet '{0}' but internal workbook reference was undefined", 
+                    name );
+
+                return false;
+            }
+
+            Sheet = workbook.WorkbookInternal.CreateSheet( name );
+            
+            return true;
+        }
+
+        public ICell? this[ int row, int col ]
+        {
+            get
+            {
+                if( !IsValid )
+                {
+                    _logger.Error("Worksheet is not initialized");
+                    return null;
+                }
+
+                if ( row < 0 )
+                {
+                    _logger.Error( "Invalid row# {0}", row );
+                    return null;
+                }
+
+                if( col < 0 )
+                {
+                    _logger.Error( "Invalid column #{0}", col );
+                    return null;
+                }
+
+                var theRow = _rows.FirstOrDefault( r => r.RowNum == row );
+
+                if( theRow == null )
+                {
+                    theRow = Sheet!.CreateRow( row );
+                    _rows.Add( theRow );
+                }
+
+                var retVal = _cells.FirstOrDefault( c => c.RowIndex == row && c.ColumnIndex == col );
+
+                if( retVal != null )
+                    return retVal;
+
+                retVal = theRow.CreateCell( col );
+                _cells.Add( retVal );
+
+                return retVal;
+            }
+        }
+
+        public IRow? ActiveRow
+        {
+            get
+            {
+                if (!IsValid)
+                {
+                    _logger.Error("Worksheet is not initialized");
+                    return null;
+                }
+
+                var retVal = _rows.FirstOrDefault( r => r.RowNum == ActiveRowNumber );
+
+                if( retVal != null ) 
+                    return retVal;
+
+                retVal = Sheet!.CreateRow( ActiveRowNumber );
+                _rows.Add( retVal );
+
+                return retVal;
+            }
+        }
+
+        public ICell? ActiveCell
+        {
+            get
+            {
+                if (!IsValid)
+                {
+                    _logger.Error("Worksheet is not initialized");
+                    return null;
+                }
+
+                var row = ActiveRow;
+
+                var retVal = _cells.FirstOrDefault( c => c.RowIndex == row!.RowNum
+                                                         && c.ColumnIndex == ActiveColumnNumber );
+
+                if( retVal != null ) 
+                    return retVal;
+                
+                retVal = row!.CreateCell( ActiveColumnNumber );
+                _cells.Add( retVal );
+
+                return retVal;
+            }
+        }
+
+        public ExcelSheet MoveTo( int row, int col )
+        {
+            if( row < 0 )
+            {
+                _logger.Error( "Row # cannot be < 0 ({0})", row );
+                return this;
+            }
+
+            if( col < 0 )
+            {
+                _logger.Error( "{Column # cannot be < 0 ({0})", col );
+                return this;
+            }
+
+            ActiveRowNumber = row;
+            ActiveColumnNumber = col;
+
+            return this;
+        }
+
+        public ExcelSheet Move( int rows, int cols )
+        {
+            if( rows + ActiveRowNumber < 0 )
+            {
+                _logger.Error( "Cannot move before row 0 ({0})", rows );
+                return this;
+            }
+
+            if( cols + ActiveColumnNumber < 0 )
+            {
+                _logger.Error( "Cannot move before column 0 ({0})", cols );
+                return this;
+            }
+
+            ActiveRowNumber += rows;
+            ActiveColumnNumber += cols;
+
+            return this;
+        }
+
+        public ExcelSheet AddNameValueRow( string name, object value )
+        {
+            if (!IsValid)
+            {
+                _logger.Error("Worksheet is not initialized");
+                return this;
+            }
+
+            ActiveCell!.SetCellValue(name);
+            ActiveColumnNumber++;
+
+            ActiveCell.SetValue( value );
+
+            ActiveColumnNumber--;
+            ActiveRowNumber++;
+
+            return this;
+        }
+    }
+}

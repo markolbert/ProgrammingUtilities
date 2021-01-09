@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>J4JSoftware.ExcelExport</AssemblyName>
+    <RootNamespace>J4JSoftware.Excel</RootNamespace>
+    <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;NuGetRelease</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.0.0" />
+    <PackageReference Include="NPOI" Version="2.5.1" />
+  </ItemGroup>
+
+</Project>
