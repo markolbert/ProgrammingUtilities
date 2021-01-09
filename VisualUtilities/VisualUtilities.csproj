@@ -1,11 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <AssemblyName>J4JSoftware.VisualUtilities</AssemblyName>
-    <RootNamespace>J4JSoftware.VisualUtilities</RootNamespace>
-    <Nullable>enable</Nullable>
-    <Configurations>Debug;Release;NuGetRelease</Configurations>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<AssemblyName>J4JSoftware.VisualUtilities</AssemblyName>
+		<RootNamespace>J4JSoftware.VisualUtilities</RootNamespace>
+		<Nullable>enable</Nullable>
+		<Authors>Mark A. Olbert</Authors>
+		<Company>Jump for Joy Software</Company>
+		<Product>J4JSoftware Utilities for Visual/Media Elements</Product>
+		<Description>Utilities for visual/media elements</Description>
+		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
+		<PackageDescription>Utilities for visual/media elements</PackageDescription>
+		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<PackageIcon>Diego nuspec.png</PackageIcon>
+		<RepositoryType>git</RepositoryType>
+		<Version>0.8.0.0</Version>
+		<AssemblyVersion>0.8.0.0</AssemblyVersion>
+		<PackageReleaseNotes>targeting Net5; nullability enforced</PackageReleaseNotes>
+		<Configurations>Debug;Release;NuGetRelease</Configurations>
+	</PropertyGroup>
 
 </Project>

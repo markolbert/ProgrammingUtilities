@@ -1,2 +1,2 @@
 # ProgrammingUtilities
-NET 5 utilities
+A collection of utilities used in various J4JSoftware projects.
