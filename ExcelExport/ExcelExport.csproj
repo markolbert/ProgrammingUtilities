@@ -13,4 +13,8 @@
     <PackageReference Include="NPOI" Version="2.5.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
+  </ItemGroup>
+
 </Project>

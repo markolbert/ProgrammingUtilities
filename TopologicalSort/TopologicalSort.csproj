@@ -8,4 +8,8 @@
     <Configurations>Debug;Release;NuGetRelease</Configurations>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
+  </ItemGroup>
+
 </Project>
