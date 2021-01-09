@@ -35,4 +35,11 @@
 		</Otherwise>
 	</Choose>
 
+	<ItemGroup>
+		<None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
 </Project>
