@@ -15,7 +15,8 @@ namespace J4JSoftware.DependencyInjection
 
         private J4JCachedLogger? _cachedLogger = null;
 
-        protected J4JCompositionRoot()
+        protected J4JCompositionRoot( string? dataProtectionPurpose = null )
+            : base( dataProtectionPurpose )
         {
         }
 

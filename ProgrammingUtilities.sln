@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoFacJ4JLogging", "..\J4J
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLogging", "..\J4JLogging\J4JLogging\J4JLogging.csproj", "{BF7C19D5-2FB6-4B94-B73C-337880DF5582}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUtilities", "ConsoleUtilities\ConsoleUtilities.csproj", "{FF7C4C81-7A1D-4993-B84C-FAF638524772}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,12 @@ Global
 		{BF7C19D5-2FB6-4B94-B73C-337880DF5582}.NuGetRelease|Any CPU.Build.0 = NuGetRelease|Any CPU
 		{BF7C19D5-2FB6-4B94-B73C-337880DF5582}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF7C19D5-2FB6-4B94-B73C-337880DF5582}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF7C4C81-7A1D-4993-B84C-FAF638524772}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF7C4C81-7A1D-4993-B84C-FAF638524772}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF7C4C81-7A1D-4993-B84C-FAF638524772}.NuGetRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{FF7C4C81-7A1D-4993-B84C-FAF638524772}.NuGetRelease|Any CPU.Build.0 = Release|Any CPU
+		{FF7C4C81-7A1D-4993-B84C-FAF638524772}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF7C4C81-7A1D-4993-B84C-FAF638524772}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
