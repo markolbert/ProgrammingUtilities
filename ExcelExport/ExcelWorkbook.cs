@@ -13,20 +13,20 @@ namespace J4JSoftware.Excel
     {
         private readonly Func<ExcelSheet> _sheetFactory;
         private readonly List<ExcelSheet> _worksheets = new List<ExcelSheet>();
-        private readonly IJ4JLogger _logger;
+        private readonly IJ4JLogger? _logger;
 
         private FileStream? _excelStream;
         private int _activeSheetIndex = -1;
 
         public ExcelWorkbook(  
             Func<ExcelSheet> sheetFactory,
-            IJ4JLogger logger 
+            IJ4JLogger? logger = null
             )
         {
             _sheetFactory = sheetFactory;
 
             _logger = logger;
-            _logger.SetLoggedType( this.GetType() );
+            _logger?.SetLoggedType( this.GetType() );
         }
 
         public bool IsValid => _excelStream != null;
@@ -40,13 +40,13 @@ namespace J4JSoftware.Excel
             {
                 if( _worksheets.Count == 0 )
                 {
-                    _logger.Error("No worksheets are defined");
+                    _logger?.Error("No worksheets are defined");
                     return null;
                 }
 
                 if( _activeSheetIndex < 0 || _activeSheetIndex >= ( _worksheets.Count - 1 ) )
                 {
-                    _logger.Error("No active worksheet defined");
+                    _logger?.Error("No active worksheet defined");
                     return null;
                 }
 
@@ -61,7 +61,7 @@ namespace J4JSoftware.Excel
 
             if( idx < 0 )
             {
-                _logger.Error<string>( "No worksheet named '{0}' exists in the workbook", name );
+                _logger?.Error<string>( "No worksheet named '{0}' exists in the workbook", name );
                 return false;
             }
 
@@ -79,7 +79,7 @@ namespace J4JSoftware.Excel
                         w.Sheet?.SheetName.Equals( name, StringComparison.OrdinalIgnoreCase ) ?? false );
 
                 if( retVal == null )
-                    _logger.Error<string>("Could not find worksheet '{0}'", name);
+                    _logger?.Error<string>("Could not find worksheet '{0}'", name);
 
                 return retVal;
             }
@@ -93,14 +93,14 @@ namespace J4JSoftware.Excel
             }
             catch
             {
-                _logger.Error<string>( "Invalid valid name '{0}'", filePath );
+                _logger?.Error<string>( "Invalid valid name '{0}'", filePath );
             }
 
             if( IsValid )
             {
                 WorkbookInternal = new XSSFWorkbook();
 
-                _logger.Information( $"Opened Excel file '{_excelStream!.Name}', created workbook" );
+                _logger?.Information( $"Opened Excel file '{_excelStream!.Name}', created workbook" );
             }
             else WorkbookInternal = null;
 
@@ -113,13 +113,13 @@ namespace J4JSoftware.Excel
 
             if( WorkbookInternal == null )
             {
-                _logger.Error<string>( "Workbook '{0}' is not defined", name );
+                _logger?.Error<string>( "Workbook '{0}' is not defined", name );
                 return false;
             }
 
             if( Worksheets.Any( w => w.Sheet?.SheetName.Equals( name, StringComparison.OrdinalIgnoreCase ) ?? false ) )
             {
-                _logger.Error<string>( "Duplicate worksheet name '{0}'", name );
+                _logger?.Error<string>( "Duplicate worksheet name '{0}'", name );
                 return false;
             }
 
@@ -140,7 +140,7 @@ namespace J4JSoftware.Excel
         {
             if( !IsValid )
             {
-                _logger.Error( $"{nameof(ExcelWorkbook)} is invalid, can't close workbook" );
+                _logger?.Error( $"{nameof(ExcelWorkbook)} is invalid, can't close workbook" );
                 return false;
             }
 

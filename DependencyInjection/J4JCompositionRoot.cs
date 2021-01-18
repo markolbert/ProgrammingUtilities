@@ -125,9 +125,7 @@ namespace J4JSoftware.DependencyInjection
                 var encryptedBytes = dataProtection.Protector.Protect( bytesToEncrypt );
                 encrypted = Convert.ToBase64String( encryptedBytes );
             }
-#pragma warning disable 168
-            catch( Exception e )
-#pragma warning restore 168
+            catch
             {
                 return false;
             }
@@ -150,9 +148,7 @@ namespace J4JSoftware.DependencyInjection
                 var encryptedBytes = Convert.FromBase64String( encryptedText );
                 decryptedBytes = dataProtection.Protector.Unprotect( encryptedBytes );
             }
-#pragma warning disable 168
-            catch( Exception e )
-#pragma warning restore 168
+            catch
             {
                 return false;
             }

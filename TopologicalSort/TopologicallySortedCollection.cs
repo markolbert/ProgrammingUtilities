@@ -14,11 +14,11 @@ namespace J4JSoftware.Utilities
 
         protected TopologicallySortedCollection(
             IEnumerable<T> items,
-            IJ4JLogger logger
+            IJ4JLogger? logger = null
         )
         {
             Logger = logger;
-            Logger.SetLoggedType(this.GetType());
+            Logger?.SetLoggedType(this.GetType());
 
             ExecutionSequence = new List<T>();
 
@@ -37,7 +37,7 @@ namespace J4JSoftware.Utilities
             switch( _available.Count )
             {
                 case 0:
-                    Logger.Error<Type>( "No root {0} defined", typeof(T) );
+                    Logger?.Error<Type>( "No root {0} defined", typeof(T) );
                     break;
 
                 case 1:
@@ -49,17 +49,17 @@ namespace J4JSoftware.Utilities
                     if (TopologicalSorter.Sort(_items, out var result))
                         ExecutionSequence.AddRange(result!);
                     else
-                        Logger.Error<Type>("Couldn't create execution sequence for {0}", typeof(T));
+                        Logger?.Error<Type>("Couldn't create execution sequence for {0}", typeof(T));
 
                     break;
 
                 default:
-                    Logger.Error<Type>( "Multiple root {0} objects defined", typeof(T) );
+                    Logger?.Error<Type>( "Multiple root {0} objects defined", typeof(T) );
                     break;
             }
         }
 
-        protected IJ4JLogger Logger { get; }
+        protected IJ4JLogger? Logger { get; }
 
         protected abstract bool SetPredecessors();
 
@@ -76,7 +76,7 @@ namespace J4JSoftware.Utilities
 
             if( selectedIdx < 0 )
             {
-                Logger.Error<Type>( "Couldn't find '{nodeType}'", nodeType );
+                Logger?.Error<Type>( "Couldn't find '{nodeType}'", nodeType );
                 return false;
             }
 
@@ -84,7 +84,7 @@ namespace J4JSoftware.Utilities
 
             if( predecessor == null )
             {
-                Logger.Error<Type>( $"Couldn't find '{predecessorType}'", predecessorType );
+                Logger?.Error<Type>( $"Couldn't find '{predecessorType}'", predecessorType );
                 return false;
             }
 

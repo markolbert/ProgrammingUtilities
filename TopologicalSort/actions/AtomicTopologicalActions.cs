@@ -7,16 +7,16 @@ namespace J4JSoftware.Utilities
     {
         protected AtomicTopologicalActions( 
             ExecutionContextBase context,
-            IJ4JLogger logger 
+            IJ4JLogger? logger = null
             )
         {
             Context = context;
 
             Logger = logger;
-            Logger.SetLoggedType( this.GetType() );
+            Logger?.SetLoggedType( this.GetType() );
         }
 
-        protected IJ4JLogger Logger { get; }
+        protected IJ4JLogger? Logger { get; }
         protected ExecutionContextBase Context { get; }
 
         // symbols must be able to reset so it can be iterated multiple times
@@ -27,9 +27,9 @@ namespace J4JSoftware.Utilities
 
             var allOkay = true;
 
-            if( !Sort( out var procesorNodes, out var remainingEdges ) )
+            if( !Sort( out var procesorNodes, out var _ ) )
             {
-                Logger.Error( "Couldn't topologically sort processors" );
+                Logger?.Error( "Couldn't topologically sort processors" );
                 return false;
             }
 

@@ -7,16 +7,14 @@ namespace J4JSoftware.Excel
 {
     public class ExcelSheet
     {
-        private readonly IJ4JLogger _logger;
+        private readonly IJ4JLogger? _logger;
         private readonly List<IRow> _rows = new List<IRow>();
         private readonly List<ICell> _cells = new List<ICell>();
 
-        public ExcelSheet( 
-            IJ4JLogger logger
-        )
+        public ExcelSheet( IJ4JLogger? logger = null )
         {
             _logger = logger;
-            _logger.SetLoggedType( this.GetType() );
+            _logger?.SetLoggedType( this.GetType() );
         }
 
         public bool IsValid => Sheet != null;
@@ -28,7 +26,7 @@ namespace J4JSoftware.Excel
         {
             if( workbook.WorkbookInternal == null )
             {
-                _logger.Fatal<string>(
+                _logger?.Fatal<string>(
                     "Tried to create new worksheet '{0}' but internal workbook reference was undefined", 
                     name );
 
@@ -46,19 +44,19 @@ namespace J4JSoftware.Excel
             {
                 if( !IsValid )
                 {
-                    _logger.Error("Worksheet is not initialized");
+                    _logger?.Error("Worksheet is not initialized");
                     return null;
                 }
 
                 if ( row < 0 )
                 {
-                    _logger.Error( "Invalid row# {0}", row );
+                    _logger?.Error( "Invalid row# {0}", row );
                     return null;
                 }
 
                 if( col < 0 )
                 {
-                    _logger.Error( "Invalid column #{0}", col );
+                    _logger?.Error( "Invalid column #{0}", col );
                     return null;
                 }
 
@@ -88,7 +86,7 @@ namespace J4JSoftware.Excel
             {
                 if (!IsValid)
                 {
-                    _logger.Error("Worksheet is not initialized");
+                    _logger?.Error("Worksheet is not initialized");
                     return null;
                 }
 
@@ -110,7 +108,7 @@ namespace J4JSoftware.Excel
             {
                 if (!IsValid)
                 {
-                    _logger.Error("Worksheet is not initialized");
+                    _logger?.Error("Worksheet is not initialized");
                     return null;
                 }
 
@@ -133,13 +131,13 @@ namespace J4JSoftware.Excel
         {
             if( row < 0 )
             {
-                _logger.Error( "Row # cannot be < 0 ({0})", row );
+                _logger?.Error( "Row # cannot be < 0 ({0})", row );
                 return this;
             }
 
             if( col < 0 )
             {
-                _logger.Error( "{Column # cannot be < 0 ({0})", col );
+                _logger?.Error( "{Column # cannot be < 0 ({0})", col );
                 return this;
             }
 
@@ -153,13 +151,13 @@ namespace J4JSoftware.Excel
         {
             if( rows + ActiveRowNumber < 0 )
             {
-                _logger.Error( "Cannot move before row 0 ({0})", rows );
+                _logger?.Error( "Cannot move before row 0 ({0})", rows );
                 return this;
             }
 
             if( cols + ActiveColumnNumber < 0 )
             {
-                _logger.Error( "Cannot move before column 0 ({0})", cols );
+                _logger?.Error( "Cannot move before column 0 ({0})", cols );
                 return this;
             }
 
@@ -173,7 +171,7 @@ namespace J4JSoftware.Excel
         {
             if (!IsValid)
             {
-                _logger.Error("Worksheet is not initialized");
+                _logger?.Error("Worksheet is not initialized");
                 return this;
             }
 

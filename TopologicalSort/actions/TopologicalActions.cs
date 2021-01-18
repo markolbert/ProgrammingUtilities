@@ -16,16 +16,16 @@ namespace J4JSoftware.Utilities
 
         protected TopologicalActions(
             IEnumerable<TAction> items,
-            IJ4JLogger logger
+            IJ4JLogger? logger = null
         )
         {
             _items = items.ToList();
 
             Logger = logger;
-            Logger.SetLoggedType(this.GetType());
+            Logger?.SetLoggedType(this.GetType());
         }
 
-        protected IJ4JLogger Logger { get; }
+        protected IJ4JLogger? Logger { get; }
 
         public int NumRoots => _collection.GetRoots().Count;
 
@@ -38,7 +38,7 @@ namespace J4JSoftware.Utilities
 
             if (item == null)
             {
-                Logger.Error<Type>("No instance of type ({0}) exists in the available items", itemType);
+                Logger?.Error<Type>("No instance of type ({0}) exists in the available items", itemType);
                 return false;
             }
 
@@ -56,21 +56,21 @@ namespace J4JSoftware.Utilities
 
             if( curType == predType )
             {
-                Logger.Error("Current and predecessor types of are equal, which is not allowed"  );
+                Logger?.Error("Current and predecessor types of are equal, which is not allowed"  );
                 return false;
             }
 
             var current = _items.FirstOrDefault( x => x.GetType() == curType );
             if( current == null )
             {
-                Logger.Error<Type>("No instance of current type ({0}) exists in the available items", curType  );
+                Logger?.Error<Type>("No instance of current type ({0}) exists in the available items", curType  );
                 return false;
             }
 
             var predecessor = _items.FirstOrDefault( x => x.GetType() == predType );
             if( predecessor == null )
             {
-                Logger.Error<Type>( "No instance of end type ({0}) exists in the available items", predType );
+                Logger?.Error<Type>( "No instance of end type ({0}) exists in the available items", predType );
                 return false;
             }
 
@@ -89,9 +89,9 @@ namespace J4JSoftware.Utilities
 
         public IEnumerator<TAction> GetEnumerator()
         {
-            if( !_collection.Sort( out var sorted, out var remainingEdges ) )
+            if( !_collection.Sort( out var sorted, out var _ ) )
             {
-                Logger.Error("Failed to sort the items");
+                Logger?.Error( "Failed to sort the items" );
                 yield break;
             }
 

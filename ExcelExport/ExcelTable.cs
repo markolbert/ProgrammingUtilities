@@ -7,12 +7,12 @@ namespace J4JSoftware.Excel
 {
     public class ExcelTable
     {
-        private readonly IJ4JLogger _logger;
+        private readonly IJ4JLogger? _logger;
 
-        public ExcelTable( IJ4JLogger logger )
+        public ExcelTable( IJ4JLogger? logger = null )
         {
             _logger = logger ?? throw new NullReferenceException( nameof(logger) );
-            _logger.SetLoggedType( this.GetType() );
+            _logger?.SetLoggedType( this.GetType() );
         }
 
         public bool IsValid => ExcelSheet != null;
@@ -28,13 +28,13 @@ namespace J4JSoftware.Excel
         {
             if( upperLeftRow < 0 )
             {
-                _logger.Error("Upper left row cannot be < 0 ({0})", upperLeftRow);
+                _logger?.Error("Upper left row cannot be < 0 ({0})", upperLeftRow);
                 return false;
             }
 
             if( upperLeftColumn < 0 )
             {
-                _logger.Error("Upper left column cannot be < 0 ({0})", upperLeftColumn);
+                _logger?.Error("Upper left column cannot be < 0 ({0})", upperLeftColumn);
                 return false;
             }
 
@@ -104,7 +104,7 @@ namespace J4JSoftware.Excel
 
             if( values.Count == 0 )
             {
-                _logger.Error( "To properties found on instance of type '{0}' to add to the table", typeof(TEntity) );
+                _logger?.Error( "To properties found on instance of type '{0}' to add to the table", typeof(TEntity) );
                 return false;
             }
 
@@ -150,13 +150,13 @@ namespace J4JSoftware.Excel
         {
             if (!IsValid)
             {
-                _logger.Error("Table is invalid");
+                _logger?.Error("Table is invalid");
                 return false;
             }
 
             if (!ExcelSheet!.IsValid)
             {
-                _logger.Error("ExcelSheet is invalid");
+                _logger?.Error("ExcelSheet is invalid");
                 return false;
             }
 
