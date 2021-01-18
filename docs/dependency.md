@@ -6,14 +6,14 @@ capabilities are provided by Autofac.
 
 This assembly targets Net5 and has nullability enabled.
 
-#### [Table of Contents](#contents)
+#### Table of Contents
 - [Initialization](#initialization)
-- [IJ4JLogger Configuration](#loggerconfig)
-- [Configuring IHost Capabilities](#configihost)
-- [Logging During Setup](#setuplogging)
-- [Data Protection Services](#protect)
+- [IJ4JLogger Configuration](#IJ4JLogger-Configuration)
+- [Configuring IHost Capabilities](#Configuring-IHost-Capabilities)
+- [Logging During Setup](#Logging-During-Setup)
+- [Data Protection Services](#Data-Protection-Services)
 
-#### [Initialization](#initialization)
+#### [Initialization]
 I'm a huge fan of Autofac and use it in just about everything I write.
 But I found there was a lot of boilerplate code I had to use to 
 integrate it with the Net5 `IConfiguration` system, my own `IJ4JLogger`
@@ -74,9 +74,9 @@ The publisher and app name jointly define (again, on Windows at least) the
 user's local settings folder. On Windows this is generally located at 
 C:\\Users\\**[user name]**\\AppData\\Local\\**[publisher]**\\**[appName]**\\.
 
-[table of contents](#contents)
+[table of contents](#Table-of-Contents)
 
-#### [IJ4JLogger Configuration](#loggerconfig)
+#### IJ4JLogger Configuration
 The `IJ4JLogger` system needs configuration information for the logging
 channels being used. This is done by specifying the
 `LoggingSectionKey` and adding channel information to the protected
@@ -97,7 +97,9 @@ You can also access the *include last event* functionality of
 shown here). For information on configuring `IJ4JLogger` see the 
 [github documentation](https://github.com/markolbert/J4JLogging).
 
-#### [Configuring IHost Capabilities](#configihost)
+[table of contents](#Table-of-Contents)
+
+#### Configuring IHost Capabilities
 At this point your composition root won't work because you haven't told
 it how to load any configuration information, and it needs at least the
 logging configuration information. It also wouldn't be able to act as
@@ -124,7 +126,9 @@ override a protected virtual method than I do to use lambda expressions for
 complicated setups. And registering types for dependency injection
 *always* involves a bunch of code :).
 
-#### [Logging During Setup](#setuplogging)
+[table of contents](#Table-of-Contents)
+
+#### Logging During Setup
 Another nice feature of `J4JCompositionRoot<>` is that you can log events
 and problems. This normally can't be done because the logging system
 (at least `IJ4JLogger` and the underlying `Serilog` logger it uses) isn't
@@ -173,7 +177,9 @@ by the command line parser can be capture.
 The second code block is an example of recording a fatal problem (which
 is dealt with later in the application code).
 
-#### [Data Protection Services](#protect)
+[table of contents](#Table-of-Contents)
+
+#### Data Protection Services
 `J4JCompositionRoot<>` provides encryption and decryption functionality
 via the `Microsoft.AspNetCore.DataProtection` system. You access it
 with two methods:
@@ -184,3 +190,5 @@ with two methods:
 |Unprotect|decrypts text|<ul><li>**encryptedText** (string): the text to decrypt</li><li>**decrypted** (out string?): the decrypted text, if the decryption succeeded</li></ul>|
 
 Both methods return true if they succeed or false if they fail.
+
+[table of contents](#Table-of-Contents)
