@@ -13,7 +13,7 @@ This assembly targets Net5 and has nullability enabled.
 - [Logging During Setup](#Logging-During-Setup)
 - [Data Protection Services](#Data-Protection-Services)
 
-#### [Initialization]
+#### Initialization
 I'm a huge fan of [Autofac](https://autofac.org/) and use it in just about everything I write.
 But I found there was a lot of boilerplate code I had to use to 
 integrate it with the Net5 `IConfiguration` system, my own `IJ4JLogger`
