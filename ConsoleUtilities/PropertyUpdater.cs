@@ -21,28 +21,9 @@ namespace J4JSoftware.ConsoleUtilities
 
         public string Indent { get; set; } = new string( ' ', 4 );
 
-        public abstract UpdaterResult Validate( TProp? origValue, out TProp? newValue );
+        public abstract UpdaterResult Update( TProp? origValue, out TProp? newValue );
 
         public Type ValidatorType => typeof(TProp);
-
-        UpdaterResult IPropertyUpdater.Update( object? origValue, out object? newValue )
-        {
-            newValue = origValue;
-
-            if( origValue is TProp castValue )
-            {
-                var result = Validate( castValue, out var innerNew );
-
-                if( result == UpdaterResult.Changed)
-                    newValue = innerNew;
-
-                return result;
-            }
-
-            Logger?.Error( "Expected a {0} but got a {1}", typeof(TProp), origValue?.GetType() );
-
-            return UpdaterResult.InvalidValidator;
-        }
 
         protected T GetEnum<T>(T curValue, T defaultValue, List<T>? values = null, IJ4JLogger? logger = null )
             where T : Enum
@@ -175,34 +156,53 @@ namespace J4JSoftware.ConsoleUtilities
                 yield return sb.ToString();
         }
 
-        protected string GetText(string curValue, string prompt, string? defaultValue = null )
+        //protected string GetText(string curValue, string prompt, string? defaultValue = null )
+        //{
+        //    defaultValue ??= curValue;
+
+        //    Colors.WriteLine( "Enter ", prompt.Green(), " (current value is '".White(), curValue.Green(), "'): ");
+        //    Console.Write("> ");
+
+        //    var retVal = Console.ReadLine();
+
+        //    return string.IsNullOrEmpty(retVal) ? defaultValue : retVal;
+        //}
+
+        //protected string GetText(string curValue, string? defaultValue, params Span[] prompts)
+        //{
+        //    defaultValue ??= curValue;
+
+        //    var promptList = prompts.ToList();
+        //    promptList.Insert( 0, "Enter ".White() );
+        //    promptList.Add(" (current value is '".White()  );
+        //    promptList.Add(curValue.Green()  );
+        //    promptList.Add( "') :".White() );
+
+        //    Colors.WriteLine( promptList );
+        //    Console.Write("> ");
+
+        //    var retVal = Console.ReadLine();
+
+        //    return string.IsNullOrEmpty(retVal) ? defaultValue : retVal;
+        //}
+ 
+        UpdaterResult IPropertyUpdater.Update( object? origValue, out object? newValue )
         {
-            defaultValue ??= curValue;
+            newValue = origValue;
 
-            Colors.WriteLine( "Enter ", prompt.Green(), " (current value is '".White(), curValue.Green(), "'): ");
-            Console.Write("> ");
+            if( origValue is TProp castValue )
+            {
+                var result = Update( castValue, out var innerNew );
 
-            var retVal = Console.ReadLine();
+                if( result == UpdaterResult.Changed)
+                    newValue = innerNew;
 
-            return string.IsNullOrEmpty(retVal) ? defaultValue : retVal;
-        }
+                return result;
+            }
 
-        protected string GetText(string curValue, string? defaultValue, params Span[] prompts)
-        {
-            defaultValue ??= curValue;
+            Logger?.Error( "Expected a {0} but got a {1}", typeof(TProp), origValue?.GetType() );
 
-            var promptList = prompts.ToList();
-            promptList.Insert( 0, "Enter ".White() );
-            promptList.Add(" (current value is '".White()  );
-            promptList.Add(curValue.Green()  );
-            promptList.Add( "') :".White() );
-
-            Colors.WriteLine( promptList );
-            Console.Write("> ");
-
-            var retVal = Console.ReadLine();
-
-            return string.IsNullOrEmpty(retVal) ? defaultValue : retVal;
+            return UpdaterResult.InvalidValidator;
         }
     }
 }

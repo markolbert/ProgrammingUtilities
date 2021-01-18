@@ -46,8 +46,8 @@ namespace J4JSoftware.DependencyInjection
         public string UserConfigurationFolder { get; }
 
         public ChannelInformation ChannelInformation { get; } = new();
-        public string LoggingSectionKey { get; set; } = "Logging";
-        public bool IncludeLastEvent { get; set; }
+        protected string LoggingSectionKey { get; set; } = "Logging";
+        protected bool IncludeLastEvent { get; set; }
         public IJ4JLogger GetJ4JLogger() => Host?.Services.GetRequiredService<IJ4JLogger>()!;
 
         public void Initialize()

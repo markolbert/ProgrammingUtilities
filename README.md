@@ -1,2 +1,17 @@
-# ProgrammingUtilities
-A collection of utilities used in various J4JSoftware projects.
+## Programming Utilities
+A collection of utilities I use in most [J4JSoftware](https://www.jumpforjoysoftware.com)
+projects.
+
+### TL;DR
+All these assemblies target Net5 and have nullability enabled.
+
+|Assembly|Focus|
+|-------------------|--------------------------------|
+|[ConsoleUtilities](docs/console-util.md)|as needed run-time parameter configuration|
+|[DependencyInjection](docs/dependency.md)|general purpose composition root using Autofac and J4JLogging|
+|[EFCoreUtilities](docs/efcore.md)|organized definition of table rules|
+|[ExcelExport](docs/excelexport.md)|wrapper to simplify use of NPOI|
+|MiscellaneousUtilities|nothing to see here yet :)|
+|[TopologicalSort](docs/toposort.md)|implementation of topological sort|
+|[VisualUtilities](docs/visualutil.md)|utilities for dealing with images, media, etc.|
+

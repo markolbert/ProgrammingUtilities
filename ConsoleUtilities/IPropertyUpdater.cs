@@ -11,6 +11,6 @@ namespace J4JSoftware.ConsoleUtilities
 
     public interface IPropertyUpdater<TProp> : IPropertyUpdater
     {
-        UpdaterResult Validate( TProp? origValue, out TProp? newValue );
+        UpdaterResult Update( TProp? origValue, out TProp? newValue );
     }
 }

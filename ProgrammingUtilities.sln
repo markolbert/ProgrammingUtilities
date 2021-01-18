@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.VisualUtilities", "Tes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{227978C5-DDD3-4B0E-8A15-1322EEE164A2}"
 	ProjectSection(SolutionItems) = preProject
+		docs\console-util.md = docs\console-util.md
+		docs\dependency.md = docs\dependency.md
 		LICENSE.md = LICENSE.md
 		README.md = README.md
 	EndProjectSection
@@ -29,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoFacJ4JLogging", "..\J4J
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLogging", "..\J4JLogging\J4JLogging\J4JLogging.csproj", "{BF7C19D5-2FB6-4B94-B73C-337880DF5582}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUtilities", "ConsoleUtilities\ConsoleUtilities.csproj", "{FF7C4C81-7A1D-4993-B84C-FAF638524772}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleUtilities", "ConsoleUtilities\ConsoleUtilities.csproj", "{FF7C4C81-7A1D-4993-B84C-FAF638524772}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
