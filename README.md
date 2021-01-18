@@ -1,5 +1,5 @@
 ## Programming Utilities
-A collection of utilities I use in most [J4JSoftware](https://www.jumpforjoysoftware.com)
+A collection of utilities used in [J4JSoftware](https://www.jumpforjoysoftware.com)
 projects.
 
 ### TL;DR

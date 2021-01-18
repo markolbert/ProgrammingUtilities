@@ -2,7 +2,7 @@
 Provides a general purpose composition root, which also sets up
 `IJ4JLogger` and provides data encryption/decryption capabilities via 
 `Microsoft.AspNetCore.DataProtection`. The dependency injection
-capabilities are provided by Autofac.
+capabilities are provided by [Autofac](https://autofac.org/).
 
 This assembly targets Net5 and has nullability enabled.
 
@@ -14,7 +14,7 @@ This assembly targets Net5 and has nullability enabled.
 - [Data Protection Services](#Data-Protection-Services)
 
 #### [Initialization]
-I'm a huge fan of Autofac and use it in just about everything I write.
+I'm a huge fan of [Autofac](https://autofac.org/) and use it in just about everything I write.
 But I found there was a lot of boilerplate code I had to use to 
 integrate it with the Net5 `IConfiguration` system, my own `IJ4JLogger`
 functionality, etc. This assembly is my way of simplifying that setup.
@@ -131,8 +131,8 @@ complicated setups. And registering types for dependency injection
 #### Logging During Setup
 Another nice feature of `J4JCompositionRoot<>` is that you can log events
 and problems. This normally can't be done because the logging system
-(at least `IJ4JLogger` and the underlying `Serilog` logger it uses) isn't
-set up you (i.e., it's a chicken and egg problem).
+(at least `IJ4JLogger` and the underlying [`Serilog`](https://serilog.net/)
+logger it uses) isn't set up yet (i.e., it's a chicken and egg problem).
 
 `J4JCompositionRoot<>` avoids this by exposing a protected instance 
 of `J4JCachedLogger` which you can use in any of the method overrides
