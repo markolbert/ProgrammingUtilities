@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using Alba.CsConsoleFormat;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.ConsoleUtilities
@@ -8,26 +10,14 @@ namespace J4JSoftware.ConsoleUtilities
     {
         private class PropertyValidation
         {
-            public PropertyValidation( PropertyInfo propInfo, Func<IJ4JLogger>? loggerFactory )
+            public PropertyValidation( PropertyInfo propInfo, IPropertyUpdater updater )
             {
                 PropertyInfo = propInfo;
-
-                var logger = loggerFactory?.Invoke();
-
-                var valAttr = propInfo.GetCustomAttribute<UpdaterAttribute>();
-                if( valAttr == null )
-                    return;
-
-                if( logger == null )
-                    Validator = (IPropertyUpdater?) Activator.CreateInstance( valAttr.ValidatorType,
-                        new object?[] { null } );
-                else
-                    Validator = (IPropertyUpdater?) Activator.CreateInstance( valAttr.ValidatorType,
-                        new object[] { logger } );
+                Updater = updater;
             }
 
-            public PropertyInfo PropertyInfo { get; set; }
-            public IPropertyUpdater? Validator { get; set; }
+            public PropertyInfo PropertyInfo { get; }
+            public IPropertyUpdater Updater { get; }
         }
     }
 }

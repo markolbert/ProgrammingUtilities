@@ -2,12 +2,12 @@
 {
     public interface IConfigurationUpdater
     {
-        bool Validate( object config );
+        bool Update( object config );
     }
 
     public interface IConfigurationUpdater<in TConfig> : IConfigurationUpdater
         where TConfig: class
     {
-        bool Validate( TConfig config );
+        bool Update( TConfig config );
     }
 }

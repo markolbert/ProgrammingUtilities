@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Alba.CsConsoleFormat;
 using Alba.CsConsoleFormat.Fluent;
@@ -13,38 +14,60 @@ namespace J4JSoftware.ConsoleUtilities
     public partial class ConfigurationUpdater<TConfig> : IConfigurationUpdater<TConfig>
         where TConfig: class
     {
-        private readonly Dictionary<string, PropertyValidation> _properties;
+        private readonly Dictionary<string, PropertyValidation> _updaters = new();
 
         public ConfigurationUpdater(
-            IEnumerable<IPropertyUpdater> propValidators,
             Func<IJ4JLogger>? loggerFactory
         )
         {
-            _properties = typeof(TConfig)
-                .GetProperties()
-                .Where( pi => pi.GetCustomAttribute<UpdaterAttribute>() != null )
-                .ToDictionary(
-                    x => x.Name,
-                    x => new PropertyValidation( x, loggerFactory ) );
-
             Logger = loggerFactory?.Invoke();
             Logger?.SetLoggedType( GetType() );
         }
 
         protected IJ4JLogger? Logger { get; }
 
-        public virtual bool Validate( TConfig config )
+        public IConfigurationUpdater<TConfig> Property<TProp>( 
+            Expression<Func<TConfig, TProp>> propertySelector,
+            IPropertyUpdater<TProp> updater )
+        {
+            var curExpr = propertySelector.Body;
+            PropertyInfo? propInfo = null;
+
+            switch( curExpr )
+            {
+                case MemberExpression memExpr:
+                    propInfo = (PropertyInfo) memExpr.Member;
+                    break;
+
+                case UnaryExpression unaryExpr:
+                    if( unaryExpr.Operand is MemberExpression unaryMemExpr )
+                        propInfo = (PropertyInfo) unaryMemExpr.Member;
+
+                    break;
+            }
+
+            if( propInfo == null )
+            {
+                Logger?.Error("Could not bind to property");
+                return this;
+            }
+
+            if( _updaters.ContainsKey( propInfo.Name ) )
+                _updaters[ propInfo.Name ] = new PropertyValidation( propInfo, updater );
+            else _updaters.Add( propInfo.Name, new PropertyValidation( propInfo, updater ) );
+
+            return this;
+        }
+
+        public virtual bool Update( TConfig config )
         {
             var retVal = true;
 
-            foreach( var propVal in _properties
-                .Select(kvp=>kvp.Value))
+            foreach( var propVal in _updaters
+                .Select( kvp => kvp.Value ) )
             {
-                if( propVal.Validator == null )
-                    Logger?.Error<string>( "No IPropertyUpdater defined for {0}", propVal.PropertyInfo.Name );
-                else
-                {
-                    var result = propVal.Validator.Validate( propVal.PropertyInfo.GetValue( config ), out var newValue );
+                    var result =
+                        propVal.Updater.Update( propVal.PropertyInfo.GetValue( config ), out var newValue );
 
                     switch( result )
                     {
@@ -58,16 +81,15 @@ namespace J4JSoftware.ConsoleUtilities
 
                             break;
                     }
-                }
             }
 
             return retVal;
         }
 
-        bool IConfigurationUpdater.Validate( object config )
+        bool IConfigurationUpdater.Update( object config )
         {
             if( config is TConfig castConfig )
-                return Validate( castConfig );
+                return Update( castConfig );
 
             Logger?.Error( "Got a {0} but required a {1}", config.GetType(), typeof(TConfig) );
 

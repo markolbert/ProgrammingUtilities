@@ -6,7 +6,7 @@ namespace J4JSoftware.ConsoleUtilities
     public interface IPropertyUpdater
     {
         Type ValidatorType { get; }
-        UpdaterResult Validate( object? origValue, out object? newValue );
+        UpdaterResult Update( object? origValue, out object? newValue );
     }
 
     public interface IPropertyUpdater<TProp> : IPropertyUpdater
