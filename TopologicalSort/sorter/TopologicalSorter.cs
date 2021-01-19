@@ -11,7 +11,7 @@ namespace J4JSoftware.Utilities
             IEnumerable<TNode> items,
             out List<TNode>? result
         )
-            where TNode : class, ITopologicalSort<TNode>
+            where TNode : class, ISortable<TNode>
         {
             var available = items.ToList();
 

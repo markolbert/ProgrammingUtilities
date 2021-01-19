@@ -6,7 +6,7 @@ using J4JSoftware.Logging;
 namespace J4JSoftware.Utilities
 {
     public abstract class TopologicallySortedCollection<T> : ITopologicallySorted<T>
-        where T : class, ITopologicalSort<T>
+        where T : class, ISortable<T>
     {
         protected readonly List<T> _available;
         private readonly List<T> _items = new List<T>();

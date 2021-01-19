@@ -12,7 +12,6 @@ factory. For more information on `IJ4JLogger` see the
 Worksheets are created by callling the `AddWorksheet()` method on an
 `ExcelWorkbook` instance.
 
-Tables are created as standalone `ExcelTable` objects and then 
-initialized against an `ExcelSheet` instance by calling the
-`Initialize()` method on the `ExcelTable` instance.
+Tables are created by calling the `AddTable()` method on an `ExcelSheet`
+instance.
 
