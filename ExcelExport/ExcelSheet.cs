@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using J4JSoftware.Logging;
 using NPOI.SS.UserModel;
@@ -7,36 +8,27 @@ namespace J4JSoftware.Excel
 {
     public class ExcelSheet
     {
+        private readonly Func<IJ4JLogger>? _loggerFactory;
         private readonly IJ4JLogger? _logger;
         private readonly List<IRow> _rows = new List<IRow>();
         private readonly List<ICell> _cells = new List<ICell>();
 
-        public ExcelSheet( IJ4JLogger? logger = null )
+        internal ExcelSheet( 
+            ISheet xssfSheet,
+            Func<IJ4JLogger>? loggerFactory = null )
         {
-            _logger = logger;
+            _loggerFactory = loggerFactory;
+
+            _logger = _loggerFactory?.Invoke();
             _logger?.SetLoggedType( this.GetType() );
+
+            Sheet = xssfSheet;
         }
 
         public bool IsValid => Sheet != null;
-        public ISheet? Sheet { get; private set; }
+        public ISheet? Sheet { get; }
         public int ActiveRowNumber { get; private set; }
         public int ActiveColumnNumber { get; private set; }
-
-        public bool Initialize( ExcelWorkbook workbook, string name )
-        {
-            if( workbook.WorkbookInternal == null )
-            {
-                _logger?.Fatal<string>(
-                    "Tried to create new worksheet '{0}' but internal workbook reference was undefined", 
-                    name );
-
-                return false;
-            }
-
-            Sheet = workbook.WorkbookInternal.CreateSheet( name );
-            
-            return true;
-        }
 
         public ICell? this[ int row, int col ]
         {
@@ -184,6 +176,30 @@ namespace J4JSoftware.Excel
             ActiveRowNumber++;
 
             return this;
+        }
+
+        public bool AddTable( int upperLeftRow,
+            int upperLeftColumn,
+            TableOrientation orientation,
+            out ExcelTable? result )
+        {
+            result = null;
+
+            if( upperLeftRow < 0 )
+            {
+                _logger?.Error( "Upper left row cannot be < 0 ({0})", upperLeftRow );
+                return false;
+            }
+
+            if( upperLeftColumn < 0 )
+            {
+                _logger?.Error( "Upper left column cannot be < 0 ({0})", upperLeftColumn );
+                return false;
+            }
+
+            result = new ExcelTable( this, upperLeftRow, upperLeftColumn, orientation, _loggerFactory?.Invoke() );
+
+            return true;
         }
     }
 }

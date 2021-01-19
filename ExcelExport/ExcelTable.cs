@@ -9,43 +9,39 @@ namespace J4JSoftware.Excel
     {
         private readonly IJ4JLogger? _logger;
 
-        public ExcelTable( IJ4JLogger? logger = null )
+        internal ExcelTable( 
+            ExcelSheet sheet, 
+            int upperLeftRow, 
+            int upperLeftColumn, 
+            TableOrientation orientation,
+            IJ4JLogger? logger = null )
         {
+            ExcelSheet = sheet;
+
             _logger = logger ?? throw new NullReferenceException( nameof(logger) );
             _logger?.SetLoggedType( this.GetType() );
-        }
 
-        public bool IsValid => ExcelSheet != null;
-        public ExcelSheet? ExcelSheet { get; private set; }
-        public int UpperLeftRow { get; private set; }
-        public int UpperLeftColumn { get; private set; }
-        public TableOrientation Orientation { get; private set; }
-
-        public int NumHeaders { get; private set; }
-        public int NumEntries { get; private set; }
-
-        public bool Initialize( ExcelSheet sheet, int upperLeftRow, int upperLeftColumn, TableOrientation orientation )
-        {
             if( upperLeftRow < 0 )
-            {
-                _logger?.Error("Upper left row cannot be < 0 ({0})", upperLeftRow);
-                return false;
-            }
+                throw new ArgumentException( $"Upper left row cannot be < 0 ({upperLeftRow})" );
 
             if( upperLeftColumn < 0 )
-            {
-                _logger?.Error("Upper left column cannot be < 0 ({0})", upperLeftColumn);
-                return false;
-            }
+                throw new ArgumentException( $"Upper left column cannot be < 0 ({upperLeftColumn})" );
 
             ExcelSheet = sheet;
             UpperLeftRow = upperLeftRow;
             UpperLeftColumn = upperLeftColumn;
 
             Orientation = orientation;
-
-            return true;
         }
+
+        public bool IsValid => ExcelSheet != null;
+        public ExcelSheet? ExcelSheet { get; }
+        public int UpperLeftRow { get; private set; }
+        public int UpperLeftColumn { get; private set; }
+        public TableOrientation Orientation { get; private set; }
+
+        public int NumHeaders { get; private set; }
+        public int NumEntries { get; private set; }
 
         public bool AutoSize()
         {

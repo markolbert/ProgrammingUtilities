@@ -11,28 +11,76 @@ namespace J4JSoftware.Excel
 {
     public class ExcelWorkbook : IEnumerable<ExcelSheet>
     {
-        private readonly Func<ExcelSheet> _sheetFactory;
         private readonly List<ExcelSheet> _worksheets = new List<ExcelSheet>();
+        private readonly Func<IJ4JLogger>? _loggerFactory;
         private readonly IJ4JLogger? _logger;
+        private readonly XSSFWorkbook _xssfWorkbook;
 
+        private string? _filePath;
         private FileStream? _excelStream;
         private int _activeSheetIndex = -1;
 
         public ExcelWorkbook(  
-            Func<ExcelSheet> sheetFactory,
-            IJ4JLogger? logger = null
+            string? filePath = null,
+            Func<IJ4JLogger>? loggerFactory = null
             )
         {
-            _sheetFactory = sheetFactory;
+            _loggerFactory = loggerFactory;
 
-            _logger = logger;
+            _xssfWorkbook = new XSSFWorkbook();
+
+            _logger = _loggerFactory?.Invoke();
             _logger?.SetLoggedType( this.GetType() );
+
+            FilePath = filePath;
         }
 
-        public bool IsValid => _excelStream != null;
-        public ReadOnlyCollection<ExcelSheet> Worksheets => _worksheets.AsReadOnly();
+        public ExcelWorkbook(
+            Func<IJ4JLogger>? loggerFactory = null
+        )
+            : this( null, loggerFactory )
+        {
 
-        internal XSSFWorkbook? WorkbookInternal { get; private set; }
+        }
+
+        public string? FilePath
+        {
+            get => _filePath;
+
+            set
+            {
+                if( _excelStream != null )
+                {
+                    Save();
+                 
+                    _excelStream.Flush();
+                    _excelStream.Close();
+
+                    _excelStream = null;
+                }
+
+                if( string.IsNullOrEmpty( value ) )
+                {
+                    _filePath = null;
+                    return;
+                }
+
+                try
+                {
+                    _excelStream = File.Exists( value )
+                        ? File.Open( value, FileMode.OpenOrCreate, FileAccess.ReadWrite )
+                        : File.Create( value );
+
+                    _filePath = value;
+                }
+                catch
+                {
+                    _logger?.Error<string>( "Couldn't open or create file '{0}'", value );
+                }
+            }
+        }
+
+        public ReadOnlyCollection<ExcelSheet> Worksheets => _worksheets.AsReadOnly();
 
         public ExcelSheet? ActiveWorksheet
         {
@@ -85,37 +133,9 @@ namespace J4JSoftware.Excel
             }
         }
 
-        public bool Open( string filePath )
-        {
-            try
-            {
-                _excelStream = File.Create( filePath );
-            }
-            catch
-            {
-                _logger?.Error<string>( "Invalid valid name '{0}'", filePath );
-            }
-
-            if( IsValid )
-            {
-                WorkbookInternal = new XSSFWorkbook();
-
-                _logger?.Information( $"Opened Excel file '{_excelStream!.Name}', created workbook" );
-            }
-            else WorkbookInternal = null;
-
-            return IsValid;
-        }
-
         public bool AddWorksheet( string name, out ExcelSheet? result )
         {
             result = null;
-
-            if( WorkbookInternal == null )
-            {
-                _logger?.Error<string>( "Workbook '{0}' is not defined", name );
-                return false;
-            }
 
             if( Worksheets.Any( w => w.Sheet?.SheetName.Equals( name, StringComparison.OrdinalIgnoreCase ) ?? false ) )
             {
@@ -123,39 +143,28 @@ namespace J4JSoftware.Excel
                 return false;
             }
 
-            var worksheet = _sheetFactory();
+            result = new ExcelSheet( _xssfWorkbook.CreateSheet( name ), _loggerFactory );
+            _worksheets.Add( result );
 
-            if( worksheet.Initialize( this, name ) )
-            {
-                _worksheets.Add( worksheet );
-                result = worksheet;
-
-                return ActivateWorksheet(name);
-            }
-
-            return false;
+            return ActivateWorksheet( name );
         }
 
-        public bool Close()
+        public bool Save()
         {
-            if( !IsValid )
+            if( _excelStream == null )
             {
-                _logger?.Error( $"{nameof(ExcelWorkbook)} is invalid, can't close workbook" );
+                _logger?.Error( "ExcelWorkbook is not linked to a file, set FilePath property" );
                 return false;
             }
 
-            WorkbookInternal!.Write( _excelStream );
-            WorkbookInternal = null;
-
+            _xssfWorkbook!.Write( _excelStream );
+                 
             return true;
         }
 
         public IEnumerator<ExcelSheet> GetEnumerator()
         {
-            if( !IsValid )
-                yield break;
-
-            foreach( var sheet in Worksheets )
+            foreach( var sheet in _worksheets )
             {
                 yield return sheet;
             }

@@ -17,6 +17,6 @@ namespace J4JSoftware.EFCoreUtilities
         }
 
         public IEntityConfiguration GetConfigurator() =>
-            (IEntityConfiguration) Activator.CreateInstance( _configType );
+            (IEntityConfiguration) Activator.CreateInstance( _configType )!;
     }
 }

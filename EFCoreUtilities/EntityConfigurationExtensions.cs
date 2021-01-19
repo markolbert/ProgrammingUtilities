@@ -15,9 +15,9 @@ namespace J4JSoftware.EFCoreUtilities
             foreach( var entityType in assemblyToScan.DefinedTypes
                 .Where( t => ((MemberInfo) t).GetCustomAttribute<EntityConfigurationAttribute>() != null ) )
             {
-                entityType.GetCustomAttribute<EntityConfigurationAttribute>()
-                    .GetConfigurator()
-                    .Configure( modelBuilder );
+                var attr = entityType.GetCustomAttribute<EntityConfigurationAttribute>();
+
+                attr?.GetConfigurator().Configure( modelBuilder );
             }
         }
     }

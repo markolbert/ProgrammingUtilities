@@ -32,22 +32,20 @@ public class CompositionRoot : J4JCompositionRoot<J4JLoggerConfiguration>
 
     static CompositionRoot()
     {
-        Default = new CompositionRoot()
-        {
-            LoggingSectionKey = "Logging",
-            UseConsoleLifetime = true
-        };
-
-        Default.ChannelInformation
-            .AddChannel<ConsoleConfig>( "Logging:Channels:Console" )
-            .AddChannel<DebugConfig>( "Logging:Channels:Debug" );
-
+        Default = new CompositionRoot();
         Default.Initialize();
     }
 
     private CompositionRoot()
         : base( "J4JSoftware", Program.AppName, "J4JSoftware.GeoProcessor.DataProtection" )
     {
+        var provider = new ChannelConfigProvider( "Logging" )
+            .AddChannel<ConsoleConfig>( "Channels:Console" )
+            .AddChannel<DebugConfig>( "Channels:Debug" );
+
+        ConfigurationBasedLogging( provider );
+
+        UseConsoleLifetime = true;
     }
 ```
 I typically use this *static property/private constructor* pattern
@@ -59,7 +57,7 @@ instance for it to become functional. Behind the scenes this calls the
 builder method on the (also behind the scenes) instance of `IHostBuilder`
 which is used to create the instance of `IHost`.
 
-The `J4JCompositionRoute<>` constructor requires two parameters plus one
+The `J4JCompositionRoot<>` constructor requires two parameters plus one
 optional one:
 
 - **publisher**: this is the app's publisher/company/entity. It's part of
@@ -77,24 +75,17 @@ C:\\Users\\**[user name]**\\AppData\\Local\\**[publisher]**\\**[appName]**\\.
 [table of contents](#Table-of-Contents)
 
 #### IJ4JLogger Configuration
-The `IJ4JLogger` system needs configuration information for the logging
-channels being used. This is done by specifying the
-`LoggingSectionKey` and adding channel information to the protected
-property `ChannelInformation` *before you call* `Initialize()`:
-```csharp
-        Default = new CompositionRoot()
-        {
-            LoggingSectionKey = "Logging",
-            UseConsoleLifetime = true
-        };
+The `IJ4JLogger` system needs configuration information to function.
+It can be provided two ways:
 
-        Default.ChannelInformation
-            .AddChannel<ConsoleConfig>( "Logging:Channels:Console" )
-            .AddChannel<DebugConfig>( "Logging:Channels:Debug" );
-```
-You can also access the *include last event* functionality of 
-`IJ4JLogger` by setting the protected property `IncludeLastEvent` (not
-shown here). For information on configuring `IJ4JLogger` see the 
+- by calling `StaticConfiguredLogging()` with an instance of
+`IJ4JLoggerConfiguration`. This approach ignores any logger configuration
+information contained in the Net5 `IConfiguration` system.
+- by calling `ConfigurationBasedLogging()` with an instance of 
+`IChannelConfigProvider`. This utililzes the `IConfiguration` system
+information to configure the logger.
+
+For information on configuring `IJ4JLogger` see the 
 [github documentation](https://github.com/markolbert/J4JLogging).
 
 [table of contents](#Table-of-Contents)

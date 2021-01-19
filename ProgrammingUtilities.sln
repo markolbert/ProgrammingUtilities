@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{227978C5-D
 	ProjectSection(SolutionItems) = preProject
 		docs\console-util.md = docs\console-util.md
 		docs\dependency.md = docs\dependency.md
+		docs\efcore.md = docs\efcore.md
+		docs\excel-export.md = docs\excel-export.md
 		LICENSE.md = LICENSE.md
 		README.md = README.md
 	EndProjectSection

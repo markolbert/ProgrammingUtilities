@@ -14,10 +14,15 @@ namespace J4JSoftware.DependencyInjection
     public class J4JCompositionRoot<TJ4JLogger>
         where TJ4JLogger : IJ4JLoggerConfiguration, new()
     {
-        private readonly Dictionary<Type, string> _channels = new();
         private readonly string _dataProtectionPurpose;
 
-        protected J4JCompositionRoot(string publisher, string appName,  string? dataProtectionPurpose = null )
+        private IChannelConfigProvider? _channelProvider;
+        private IJ4JLoggerConfiguration? _loggerConfig;
+
+        protected J4JCompositionRoot(
+            string publisher, 
+            string appName,
+            string? dataProtectionPurpose = null )
         {
             ApplicationName = appName;
             ApplicationConfigurationFolder = Environment.CurrentDirectory;
@@ -26,7 +31,7 @@ namespace J4JSoftware.DependencyInjection
                 Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
                 publisher,
                 appName );
-            
+
             _dataProtectionPurpose = dataProtectionPurpose ?? GetType().Name;
         }
 
@@ -45,9 +50,12 @@ namespace J4JSoftware.DependencyInjection
         public string ApplicationConfigurationFolder { get; }
         public string UserConfigurationFolder { get; }
 
-        public ChannelInformation ChannelInformation { get; } = new();
-        protected string LoggingSectionKey { get; set; } = "Logging";
-        protected bool IncludeLastEvent { get; set; }
+        protected void ConfigurationBasedLogging( IChannelConfigProvider provider )
+            => _channelProvider = provider;
+
+        protected void StaticConfiguredLogging( IJ4JLoggerConfiguration loggerConfig )
+            => _loggerConfig = loggerConfig;
+
         public IJ4JLogger GetJ4JLogger() => Host?.Services.GetRequiredService<IJ4JLogger>()!;
 
         public void Initialize()
@@ -95,13 +103,19 @@ namespace J4JSoftware.DependencyInjection
                 .OnActivating( x => x.Instance.Purpose = _dataProtectionPurpose )
                 .SingleInstance();
 
-            var factory = new ChannelFactory( 
-                hbc.Configuration, 
-                ChannelInformation, 
-                LoggingSectionKey,
-                IncludeLastEvent );
+            // we configure J4JLogger one of two ways depending upon how we were constructed
+            // the channel provider way assumes the configuration information is contained 
+            // within the IConfiguration system
+            if( _channelProvider == null && _loggerConfig == null )
+                throw new NullReferenceException(
+                    $"J4JLogger can't be configured. Call either {nameof(ConfigurationBasedLogging)}() or {nameof(StaticConfiguredLogging)}()" );
 
-            builder.RegisterJ4JLogging<J4JLoggerConfiguration>(factory);
+            if( _channelProvider != null )
+            {
+                _channelProvider.Source = hbc.Configuration;
+                builder.RegisterJ4JLogging<J4JLoggerConfiguration>( _channelProvider );
+            }
+            else builder.RegisterJ4JLogging( _loggerConfig! );
         }
 
         protected virtual void SetupServices(HostBuilderContext hbc, IServiceCollection services)
