@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="5.0.2" />
   </ItemGroup>
 
 	<Choose>
