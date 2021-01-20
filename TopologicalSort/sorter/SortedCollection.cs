@@ -5,36 +5,70 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.Utilities
 {
-    public abstract class TopologicallySortedCollection<T> : ITopologicallySorted<T>
+    public abstract class SortedCollection<T> : ISortedCollection<T>
         where T : class, ISortable<T>
     {
-        protected readonly List<T> _available;
         private readonly List<T> _items = new List<T>();
         private readonly List<int> _activatedIndices = new List<int>();
+        
+        private List<T>? _sorted;
 
-        protected TopologicallySortedCollection(
-            IEnumerable<T> items,
+        protected SortedCollection(
             IJ4JLogger? logger = null
         )
         {
             Logger = logger;
             Logger?.SetLoggedType(this.GetType());
+        }
 
-            ExecutionSequence = new List<T>();
+        protected IJ4JLogger? Logger { get; }
 
-            _available = items.ToList();
+        protected abstract bool SetPredecessors();
+        protected List<T> Available { get; } = new List<T>();
+
+        public void Add( T item )
+        {
+            _items.Add( item );
+            _sorted = null;
+        }
+
+        public void AddRange( IEnumerable<T> items )
+        {
+            _items.AddRange( items );
+            _sorted = null;
+        }
+
+        public List<T> SortedSequence
+        {
+            get
+            {
+                if( _sorted != null )
+                    return _sorted;
+
+                _sorted = SortItems();
+
+                return _sorted;
+            }
+        }
+
+        private List<T> SortItems()
+        {
+            var retVal = new List<T>();
+
+            Available.Clear();
+            Available.AddRange( _items );
 
             if( !SetPredecessors() ) 
-                return;
+                return retVal;
 
             // remove the items that were activated. there should
             // be only one item left, the root item, afterwards
             foreach( var idx in _activatedIndices.OrderByDescending(x=>x) )
             {
-                _available.RemoveAt( idx );
+                Available.RemoveAt( idx );
             }
 
-            switch( _available.Count )
+            switch( Available.Count )
             {
                 case 0:
                     Logger?.Error<Type>( "No root {0} defined", typeof(T) );
@@ -42,12 +76,12 @@ namespace J4JSoftware.Utilities
 
                 case 1:
                     // should already be null, but just in case...
-                    _available[ 0 ].Predecessor = null;
+                    Available[ 0 ].Predecessor = null;
 
-                    _items.Add( _available[ 0 ] );
+                    _items.Add( Available[ 0 ] );
 
                     if (TopologicalSorter.Sort(_items, out var result))
-                        ExecutionSequence.AddRange(result!);
+                        SortedSequence.AddRange(result!);
                     else
                         Logger?.Error<Type>("Couldn't create execution sequence for {0}", typeof(T));
 
@@ -57,13 +91,9 @@ namespace J4JSoftware.Utilities
                     Logger?.Error<Type>( "Multiple root {0} objects defined", typeof(T) );
                     break;
             }
+            
+            return retVal;
         }
-
-        protected IJ4JLogger? Logger { get; }
-
-        protected abstract bool SetPredecessors();
-
-        public List<T> ExecutionSequence { get; }
 
         protected bool SetPredecessor<TNode, TPredecessorNode>()
             where TNode : T
@@ -72,7 +102,7 @@ namespace J4JSoftware.Utilities
             var nodeType = typeof(TNode);
             var predecessorType = typeof(TPredecessorNode);
 
-            var selectedIdx = _available.FindIndex( x => x.GetType() == nodeType );
+            var selectedIdx = Available.FindIndex( x => x.GetType() == nodeType );
 
             if( selectedIdx < 0 )
             {
@@ -80,7 +110,7 @@ namespace J4JSoftware.Utilities
                 return false;
             }
 
-            var predecessor = _available.FirstOrDefault( x => x.GetType() == predecessorType );
+            var predecessor = Available.FirstOrDefault( x => x.GetType() == predecessorType );
 
             if( predecessor == null )
             {
@@ -88,9 +118,9 @@ namespace J4JSoftware.Utilities
                 return false;
             }
 
-            _available[ selectedIdx ].Predecessor = predecessor;
+            Available[ selectedIdx ].Predecessor = predecessor;
 
-            _items.Add( _available[ selectedIdx ] );
+            _items.Add( Available[ selectedIdx ] );
             _activatedIndices.Add(selectedIdx  );
 
             return true;

@@ -10,8 +10,8 @@ All these assemblies target Net5 and have nullability enabled.
 |[ConsoleUtilities](docs/console-util.md)|as needed run-time parameter configuration|
 |[DependencyInjection](docs/dependency.md)|general purpose composition root using Autofac and J4JLogging|
 |[EFCoreUtilities](docs/efcore.md)|organized definition of table rules|
-|[ExcelExport](docs/excelexport.md)|wrapper to simplify use of NPOI|
+|[ExcelExport](docs/excel-export.md)|wrapper to simplify use of NPOI|
 |MiscellaneousUtilities|nothing to see here yet :)|
-|[TopologicalSort](docs/toposort.md)|implementation of topological sort|
-|[VisualUtilities](docs/visualutil.md)|utilities for dealing with images, media, etc.|
+|[TopologicalSort](docs/topo-sort.md)|implementation of topological sort|
+|[VisualUtilities](docs/visual-utils.md)|utilities for dealing with images, media, etc.|
 

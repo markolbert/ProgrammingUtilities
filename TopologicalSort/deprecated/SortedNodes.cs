@@ -4,17 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using J4JSoftware.Logging;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities.Deprecated
 {
-    public class TopologicalActions<TAction, TArg> : IEnumerable<TAction>
-        where TAction: class, IEquatable<TAction>, ITopologicalAction<TArg>
+    public class SortedNodes<TAction, TArg> : IEnumerable<TAction>
+        where TAction: class, IEquatable<TAction>, IAction<TArg>
     {
         private readonly List<TAction> _items;
+        private readonly Nodes<TAction> _collection = new();
 
-        private readonly TopologicalCollection<TAction> _collection =
-            new TopologicalCollection<TAction>();
-
-        protected TopologicalActions(
+        protected SortedNodes(
             IEnumerable<TAction> items,
             IJ4JLogger? logger = null
         )
@@ -29,7 +27,7 @@ namespace J4JSoftware.Utilities
 
         public int NumRoots => _collection.GetRoots().Count;
 
-        public bool Add<TItem>()
+        public bool AddIndependentAction<TItem>()
             where TItem : TAction
         {
             var itemType = typeof(TItem);
@@ -42,12 +40,12 @@ namespace J4JSoftware.Utilities
                 return false;
             }
 
-            _collection.AddValue( item );
+            _collection.AddIndependentNode( item );
 
             return true;
         }
 
-        public bool Add<TCurrent, TPredecessor>()
+        public bool AddDependentAction<TCurrent, TPredecessor>()
             where TCurrent : TAction
             where TPredecessor : TAction
         {
@@ -74,14 +72,14 @@ namespace J4JSoftware.Utilities
                 return false;
             }
 
-            _collection.AddDependency( predecessor, current );
+            _collection.AddDependentNode( predecessor, current );
 
             return true;
         }
 
         public void Clear() => _collection.Clear();
 
-        public void Remove( TAction toRemove )
+        public void RemoveAction( TAction toRemove )
         {
             if( _items.Any( x => x == toRemove ) )
                 _collection.Remove( toRemove );

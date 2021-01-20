@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace J4JSoftware.Utilities
 {
-    public class TopologicalNode<T>
+    public class Node<T>
         where T : class, IEquatable<T>
     {
         private readonly IEqualityComparer<T>? _comparer;
 
-        public TopologicalNode(
+        public Node(
             T value,
-            TopologicalCollection<T> collection,
+            Nodes<T> collection,
             IEqualityComparer<T>? comparer = null
         )
         {
@@ -20,11 +20,11 @@ namespace J4JSoftware.Utilities
         }
 
         public T Value { get; }
-        public TopologicalCollection<T> Collection { get; }
-        public List<TopologicalNode<T>> Dependents => Collection.GetDependents( this );
-        public List<TopologicalNode<T>> Ancestors => Collection.GetAncestors(this);
+        public Nodes<T> Collection { get; }
+        public List<Node<T>> Dependents => Collection.GetDependents( this );
+        public List<Node<T>> Ancestors => Collection.GetAncestors(this);
 
-        public bool Equals( TopologicalNode<T>? other )
+        public bool Equals( Node<T>? other )
         {
             if( other == null )
                 return false;

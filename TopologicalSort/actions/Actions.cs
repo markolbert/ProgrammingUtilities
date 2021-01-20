@@ -3,10 +3,10 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.Utilities
 {
-    public class AtomicTopologicalActions<TSymbol> : TopologicalCollection<IEnumerableProcessor<TSymbol>>, IProcessorCollection<TSymbol>
+    public class Actions<TSymbol> : Nodes<IAction<TSymbol>>, IActionProcessor<TSymbol>
     {
-        protected AtomicTopologicalActions( 
-            ExecutionContextBase context,
+        protected Actions( 
+            ActionsContext context,
             IJ4JLogger? logger = null
             )
         {
@@ -17,7 +17,7 @@ namespace J4JSoftware.Utilities
         }
 
         protected IJ4JLogger? Logger { get; }
-        protected ExecutionContextBase Context { get; }
+        protected ActionsContext Context { get; }
 
         // symbols must be able to reset so it can be iterated multiple times
         public virtual bool Process( IEnumerable<TSymbol> symbols )

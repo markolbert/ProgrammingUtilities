@@ -4,14 +4,14 @@ using System.Linq;
 
 namespace J4JSoftware.Utilities
 {
-    public class TopologicalCollection<T>
+    public class Nodes<T>
         where T : class, IEquatable<T>
     {
         private readonly IEqualityComparer<T>? _comparer;
-        private readonly HashSet<TopologicalNode<T>> _nodes = new HashSet<TopologicalNode<T>>();
-        private readonly HashSet<TopologicalDependency<T>> _dependencies = new HashSet<TopologicalDependency<T>>();
+        private readonly HashSet<Node<T>> _nodes = new HashSet<Node<T>>();
+        private readonly HashSet<NodeDependency<T>> _dependencies = new HashSet<NodeDependency<T>>();
 
-        public TopologicalCollection( IEqualityComparer<T>? comparer = null )
+        public Nodes( IEqualityComparer<T>? comparer = null )
         {
             _comparer = comparer;
         }
@@ -30,7 +30,7 @@ namespace J4JSoftware.Utilities
             return _comparer.Equals( x, y );
         }
 
-        public bool NodesAreEqual(TopologicalNode<T> x, TopologicalNode<T> y)
+        public bool NodesAreEqual(Node<T> x, Node<T> y)
         {
             if( _comparer == null )
                 return x.Value.Equals( y.Value );
@@ -38,7 +38,7 @@ namespace J4JSoftware.Utilities
             return _comparer.Equals(x.Value, y.Value);
         }
 
-        public bool DependenciesAreEqual( TopologicalDependency<T> x, TopologicalDependency<T> y )
+        public bool DependenciesAreEqual( NodeDependency<T> x, NodeDependency<T> y )
         {
             if( _comparer == null )
                 return x.AncestorNode.Value.Equals( y.AncestorNode.Value )
@@ -48,7 +48,7 @@ namespace J4JSoftware.Utilities
                    && _comparer.Equals( x.DependentNode.Value, y.DependentNode.Value );
         }
 
-        public List<TopologicalNode<T>> GetDependents( TopologicalNode<T> ancestor )
+        public List<Node<T>> GetDependents( Node<T> ancestor )
         {
             return _dependencies.Where( x => ValuesAreEqual(x.AncestorNode.Value, ancestor.Value) )
                 .Select( x => x.DependentNode )
@@ -56,7 +56,7 @@ namespace J4JSoftware.Utilities
                 .ToList();
         }
 
-        public List<TopologicalNode<T>> GetAncestors( TopologicalNode<T> dependent )
+        public List<Node<T>> GetAncestors( Node<T> dependent )
         {
             return _dependencies.Where( x => ValuesAreEqual( x.DependentNode.Value, dependent.Value ) )
                 .Select( x => x.AncestorNode )
@@ -64,7 +64,7 @@ namespace J4JSoftware.Utilities
                 .ToList();
         }
 
-        public List<TopologicalNode<T>> GetRoots()
+        public List<Node<T>> GetRoots()
         {
             return _nodes.Where( x => !_dependencies.Any( d => NodesAreEqual( d.AncestorNode, x ) ) )
                 .Select( x => x )
@@ -72,28 +72,28 @@ namespace J4JSoftware.Utilities
                 .ToList();
         }
 
-        public TopologicalNode<T> AddValue( T value )
+        public Node<T> AddIndependentNode( T value )
         {
             var retVal = _nodes.FirstOrDefault(n => ValuesAreEqual(n.Value, value));
 
             if (retVal != null)
                 return retVal;
 
-            retVal = new TopologicalNode<T>(value, this, _comparer);
+            retVal = new Node<T>(value, this, _comparer);
             _nodes.Add(retVal);
 
             return retVal;
         }
 
-        public TopologicalNode<T> AddDependency( T ancestorValue, T dependentValue )
+        public Node<T> AddDependentNode( T ancestorValue, T dependentValue )
         {
-            var ancestor = AddValue( ancestorValue );
-            var dependent = AddValue( dependentValue );
+            var ancestor = AddIndependentNode( ancestorValue );
+            var dependent = AddIndependentNode( dependentValue );
 
             if( ValuesAreEqual( ancestorValue, dependentValue ) )
                 return dependent;
 
-            var dependency = new TopologicalDependency<T>(ancestor, dependent, this);
+            var dependency = new NodeDependency<T>(ancestor, dependent, this);
 
             if( !_dependencies.Any( x => DependenciesAreEqual( x, dependency ) ) )
                 _dependencies.Add( dependency );
@@ -108,7 +108,7 @@ namespace J4JSoftware.Utilities
             if( node == null )
                 return false;
 
-            var edgesToRemove = new List<TopologicalDependency<T>>();
+            var edgesToRemove = new List<NodeDependency<T>>();
 
             foreach( var dependency in _dependencies )
             {
@@ -125,7 +125,7 @@ namespace J4JSoftware.Utilities
             return _nodes.Remove(node);
         }
 
-        public bool Sort(out List<T>? sorted, out List<TopologicalDependency<T>>? remainingEdges  )
+        public bool Sort(out List<T>? sorted, out List<NodeDependency<T>>? remainingEdges  )
         {
             sorted = null;
             remainingEdges = null;
@@ -143,13 +143,13 @@ namespace J4JSoftware.Utilities
             }
 
             // Empty list that will contain the sorted elements
-            var retVal = new Stack<TopologicalNode<T>>();
+            var retVal = new Stack<Node<T>>();
 
             // work with a copy of edges so we can keep re-sorting
-            var dependencies = new HashSet<TopologicalDependency<T>>( _dependencies.ToArray() );
+            var dependencies = new HashSet<NodeDependency<T>>( _dependencies.ToArray() );
 
             // Set of all nodes with no incoming edges
-            var noIncomingEdges = new HashSet<TopologicalNode<T>>( _nodes.Where( n =>
+            var noIncomingEdges = new HashSet<Node<T>>( _nodes.Where( n =>
                 dependencies.All( e => !NodesAreEqual( e.DependentNode, n ) ) ) );
 
             // while noIncomingEdges is non-empty do
