@@ -16,9 +16,9 @@
 	  <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 	  <PackageIcon>Diego nuspec.png</PackageIcon>
 	  <RepositoryType>git</RepositoryType>
-	  <Version>0.8.0.0</Version>
-	  <AssemblyVersion>0.8.0.0</AssemblyVersion>
-	  <PackageReleaseNotes>initial public release</PackageReleaseNotes>
+	  <Version>1.0.0.0</Version>
+	  <AssemblyVersion>1.0.0.0</AssemblyVersion>
+	  <PackageReleaseNotes>revised how logging configuration is handled; added data protection functionality</PackageReleaseNotes>
     <Configurations>Debug;Release;NuGetRelease</Configurations>
   </PropertyGroup>
 
@@ -37,8 +37,8 @@
 	<Choose>
 		<When Condition=" '$(Configuration)' == 'NuGetRelease' ">
 			<ItemGroup>
-				<PackageReference Include="J4JSoftware.Logging" Version="3.0.0" />
-				<PackageReference Include="J4JSoftware.Logging.Autofac" Version="3.0.0" />
+				<PackageReference Include="J4JSoftware.Logging" Version="3.1.0" />
+				<PackageReference Include="J4JSoftware.Logging.Autofac" Version="3.1.0" />
 			</ItemGroup>
 		</When>
 		<Otherwise>
