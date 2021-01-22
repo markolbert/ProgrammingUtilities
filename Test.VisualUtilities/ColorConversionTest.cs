@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.Linq;
-using System.Net.Security;
 using FluentAssertions;
 using J4JSoftware.VisualUtilities;
 using Xunit;

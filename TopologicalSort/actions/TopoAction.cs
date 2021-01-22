@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using J4JSoftware.Logging;
-using Microsoft.CodeAnalysis;
 
 namespace J4JSoftware.Utilities
 {

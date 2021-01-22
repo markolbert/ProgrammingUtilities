@@ -31,7 +31,7 @@ public class ProcessorTypeUpdater : PropertyUpdater<ProcessorType>
         Console.WriteLine();
         Colors.WriteLine( "\nProcessorType".Yellow(), " is undefined\n" );
 
-        newValue = GetEnum<ProcessorType>(
+        newValue = Prompters.GetEnum<ProcessorType>(
             origValue,
             ProcessorType.Google,
             Enum.GetValues<ProcessorType>()
@@ -42,7 +42,7 @@ public class ProcessorTypeUpdater : PropertyUpdater<ProcessorType>
     }
 }
 ```
-The base class `PropertyUpdater<>` has a number of protected methods
+The static class `Prompters` has a number of methods
 (e.g., `GetEnum<>()` in the exampel) that simplify getting values.
 
 After defining your property updaters you create one or more
