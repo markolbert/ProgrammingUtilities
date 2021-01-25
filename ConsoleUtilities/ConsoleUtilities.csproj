@@ -13,29 +13,18 @@
 		<PackageDescription>utilities for console applications</PackageDescription>
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
 		<Version>1.1.0.0</Version>
 		<AssemblyVersion>1.1.0.0</AssemblyVersion>
 		<PackageReleaseNotes>moved routines for prompting user for input from PropertyUpdater to static class Prompters</PackageReleaseNotes>
-		<Configurations>Debug;Release;NuGetRelease</Configurations>
 	</PropertyGroup>
 
-	<Choose>
-		<When Condition=" '$(Configuration)' == 'NuGetRelease' ">
-			<ItemGroup>
-				<PackageReference Include="J4JSoftware.Logging" Version="3.1.0" />
-				<PackageReference Include="J4JSoftware.Logging.Autofac" Version="3.1.0" />
-			</ItemGroup>
-		</When>
-		<Otherwise>
-			<ItemGroup>
-				<ProjectReference Include="..\..\J4JLogging\AutoFacJ4JLogging\AutofacJ4JLogging.csproj" />
-				<ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
-			</ItemGroup>
-		</Otherwise>
-	</Choose>
+	<ItemGroup>
+		<ProjectReference Include="..\..\J4JLogging\AutoFacJ4JLogging\AutofacJ4JLogging.csproj" />
+		<ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
