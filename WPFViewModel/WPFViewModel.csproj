@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows</TargetFramework>
+	  <UseWPF>true</UseWPF>
+    <AssemblyName>J4JSoftware.WPFViewModel</AssemblyName>
+    <RootNamespace>J4JSoftware.WPFViewModel</RootNamespace>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.5.0</Version>
+    <Authors>Mark Olbert</Authors>
+    <Company>Jump for Joy Software</Company>
+    <Description>viewmodel support for WPF projects</Description>
+    <Copyright>2021</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
+		  <Pack>True</Pack>
+		  <PackagePath></PackagePath>
+	  </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
+    <ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
+  </ItemGroup>
+
+</Project>

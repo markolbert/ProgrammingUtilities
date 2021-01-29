@@ -42,6 +42,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{1BD26D
 		docs\assets\topo-actions.png = docs\assets\topo-actions.png
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFViewModel", "WPFViewModel\WPFViewModel.csproj", "{6E3B9FA7-A9B7-45A2-A6C2-41DABACEBF1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{FF7C4C81-7A1D-4993-B84C-FAF638524772}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF7C4C81-7A1D-4993-B84C-FAF638524772}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF7C4C81-7A1D-4993-B84C-FAF638524772}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E3B9FA7-A9B7-45A2-A6C2-41DABACEBF1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E3B9FA7-A9B7-45A2-A6C2-41DABACEBF1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E3B9FA7-A9B7-45A2-A6C2-41DABACEBF1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E3B9FA7-A9B7-45A2-A6C2-41DABACEBF1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
