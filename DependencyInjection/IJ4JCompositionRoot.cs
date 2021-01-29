@@ -11,6 +11,7 @@ namespace J4JSoftware.DependencyInjection
         string ApplicationConfigurationFolder { get; }
         string UserConfigurationFolder { get; }
         IJ4JLogger GetJ4JLogger();
+        IJ4JProtection Protection { get; }
         void Initialize();
     }
 

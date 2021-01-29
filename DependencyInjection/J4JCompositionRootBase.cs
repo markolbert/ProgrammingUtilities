@@ -52,6 +52,7 @@ namespace J4JSoftware.DependencyInjection
             => _loggerConfig = loggerConfig;
 
         public IJ4JLogger GetJ4JLogger() => Host?.Services.GetRequiredService<IJ4JLogger>()!;
+        public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
 
         public void Initialize()
         {
@@ -90,6 +91,11 @@ namespace J4JSoftware.DependencyInjection
 
         protected virtual void SetupDependencyInjection(HostBuilderContext hbc, ContainerBuilder builder)
         {
+            builder.RegisterType<J4JProtection>()
+                .WithParameter( "purpose", _dataProtectionPurpose )
+                .As<IJ4JProtection>()
+                .SingleInstance();
+
             builder.RegisterType<DataProtection>()
                 .As<IDataProtection>()
                 .OnActivating( x => x.Instance.Purpose = _dataProtectionPurpose )

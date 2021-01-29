@@ -20,7 +20,7 @@ namespace J4JSoftware.DependencyInjection
         {
             get
             {
-                _protector ??= _provider.CreateProtector( "J4JSoftware.GeoProcessor.DataProtection" );
+                _protector ??= _provider.CreateProtector( Purpose );
 
                 return _protector;
             }

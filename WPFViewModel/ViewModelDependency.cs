@@ -7,46 +7,39 @@ namespace J4JSoftware.WPFViewModel
     {
         private readonly IJ4JLogger? _logger;
 
-        public ViewModelDependency( IJ4JLogger? logger )
+        public ViewModelDependency( Type vmInterface, IJ4JLogger? logger )
         {
             _logger = logger;
             _logger?.SetLoggedType( GetType() );
+
+            if( vmInterface.IsInterface )
+                ViewModelInterface = vmInterface;
+            else _logger?.Error("Type '{0}' is not an interface", vmInterface);
         }
 
         public bool IsValid => ViewModelInterface != null
                                && TypeImplementsInterface( RunTimeType )
                                && ( DesignTimeType == null || TypeImplementsInterface( DesignTimeType ) );
 
-        public Type? ViewModelInterface { get; private set; }
+        internal Type? ViewModelInterface { get; }
 
-        public ViewModelDependency UsingInterface<T>()
-        {
-            var iType = typeof(T);
+        internal Type? RunTimeType { get; private set; }
 
-            if( iType.IsInterface )
-                ViewModelInterface = iType;
-            else _logger?.Error("Type '{0}' is not an interface", iType);
-
-            return this;
-        }
-
-        public Type? RunTimeType { get; private set; }
-
-        public ViewModelDependency RegisterRunTime<T>()
+        public ViewModelDependency RunTime<T>()
         {
             RunTimeType = typeof(T);
             return this;
         }
 
-        public Type? DesignTimeType { get; private set; }
+        internal Type? DesignTimeType { get; private set; }
 
-        public ViewModelDependency RegisterDesignTime<T>()
+        public ViewModelDependency DesignTime<T>()
         {
             DesignTimeType = typeof(T);
             return this;
         }
 
-        public bool MultipleInstances { get; private set; } = false;
+        internal bool MultipleInstances { get; private set; } = false;
 
         public ViewModelDependency WithMultipleInstances()
         {
