@@ -12,7 +12,7 @@
     <Company>Jump for Joy Software</Company>
     <Description>viewmodel support for WPF projects</Description>
     <Copyright>2021</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

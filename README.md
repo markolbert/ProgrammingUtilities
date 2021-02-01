@@ -5,6 +5,10 @@ projects.
 ### TL;DR
 All these assemblies target Net5 and have nullability enabled.
 
+All the assemblies are licensed under the GNU GPL-v3 (or later). See the 
+[license file](LICENSE.md) for more details.
+
+
 |Assembly|Focus|
 |-------------------|--------------------------------|
 |[ConsoleUtilities](docs/console-util.md)|as needed run-time parameter configuration|

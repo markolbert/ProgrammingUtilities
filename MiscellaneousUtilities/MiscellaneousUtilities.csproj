@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>J4JSoftware.MiscellaneousUtilities</AssemblyName>
     <RootNamespace>J4JSoftware.Utilities</RootNamespace>
+	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Nullable>enable</Nullable>
   </PropertyGroup>
