@@ -16,9 +16,9 @@
 	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	  <PackageIcon>Diego nuspec.png</PackageIcon>
 	  <RepositoryType>git</RepositoryType>
-	  <Version>1.0.0.0</Version>
-	  <AssemblyVersion>1.0.0.0</AssemblyVersion>
-	  <PackageReleaseNotes>revised how logging configuration is handled; added data protection functionality</PackageReleaseNotes>
+	  <Version>1.1.0.0</Version>
+	  <AssemblyVersion>1.1.0.0</AssemblyVersion>
+	  <PackageReleaseNotes>minor modifications to support new WPFViewModel assembly</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

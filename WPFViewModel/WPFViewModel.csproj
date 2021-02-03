@@ -1,30 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
-	  <UseWPF>true</UseWPF>
-    <AssemblyName>J4JSoftware.WPFViewModel</AssemblyName>
-    <RootNamespace>J4JSoftware.WPFViewModel</RootNamespace>
-    <Nullable>enable</Nullable>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.5.0</Version>
-    <Authors>Mark Olbert</Authors>
-    <Company>Jump for Joy Software</Company>
-    <Description>viewmodel support for WPF projects</Description>
-    <Copyright>2021</Copyright>
-	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<AssemblyName>J4JSoftware.WPFViewModel</AssemblyName>
+		<RootNamespace>J4JSoftware.WPFViewModel</RootNamespace>
+		<Nullable>enable</Nullable>
+		<Authors>Mark Olbert</Authors>
+		<Company>Jump for Joy Software</Company>
+		<Description>viewmodel support for WPF projects</Description>
+		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
+		<PackageDescription>utilities for console applications</PackageDescription>
+		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
+		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>Diego nuspec.png</PackageIcon>
+		<RepositoryType>git</RepositoryType>
+		<Version>0.8.0.0</Version>
+		<AssemblyVersion>0.8.0.0</AssemblyVersion>
+		<PackageReleaseNotes>initial public release</PackageReleaseNotes>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
+		<Pack>True</Pack>
+		<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
-    <ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
+		<ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
+	</ItemGroup>
 
 </Project>
