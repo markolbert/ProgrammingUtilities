@@ -29,7 +29,7 @@ namespace J4JSoftware.WPFViewModel
         public bool InDesignMode => System.ComponentModel.DesignerProperties
             .GetIsInDesignMode( new DependencyObject() );
 
-        public override string ApplicationConfigurationFolder => AppContext.BaseDirectory;
+        public override string ApplicationConfigurationFolder => InDesignMode ? AppContext.BaseDirectory : Environment.CurrentDirectory;
 
         protected virtual void RegisterViewModels( ViewModelDependencyBuilder builder )
         {
