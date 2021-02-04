@@ -22,5 +22,5 @@ the documentation on these libraries.
 |MiscellaneousUtilities|nothing to see here yet :)|
 |[TopologicalSort](docs/topo-sort.md)|implementation of topological sort|[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.TopologicalSort?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.TopologicalSort/)|
 |[VisualUtilities](docs/visual-utils.md)|utilities for dealing with images, media, etc.|[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.VisualUtilities?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.VisualUtilities/)|
-|[WPFViewModel](docs/wpf-viewmodel.md)|composition root support and ancillary utilities for WPF applications|[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.VisualUtilities?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.VisualUtilities/)|
+|[WPFViewModel](docs/wpf-viewmodel.md)|composition root support and ancillary utilities for WPF applications|[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.WPFViewModel?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.WPFViewModel/)|
 
