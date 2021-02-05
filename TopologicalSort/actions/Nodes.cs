@@ -85,20 +85,20 @@ namespace J4JSoftware.Utilities
             return retVal;
         }
 
-        public Node<T> AddDependentNode( T ancestorValue, T dependentValue )
+        public Node<T> AddDependentNode( T value, T ancestorValue )
         {
+            var retVal = AddIndependentNode( value );
             var ancestor = AddIndependentNode( ancestorValue );
-            var dependent = AddIndependentNode( dependentValue );
 
-            if( ValuesAreEqual( ancestorValue, dependentValue ) )
-                return dependent;
+            if( ValuesAreEqual( value, ancestorValue ) )
+                return ancestor;
 
-            var dependency = new NodeDependency<T>(ancestor, dependent, this);
+            var dependency = new NodeDependency<T>( retVal, ancestor );
 
             if( !_dependencies.Any( x => DependenciesAreEqual( x, dependency ) ) )
                 _dependencies.Add( dependency );
 
-            return dependent;
+            return retVal;
         }
 
         public bool Remove( T toRemove )
@@ -143,7 +143,7 @@ namespace J4JSoftware.Utilities
             }
 
             // Empty list that will contain the sorted elements
-            var retVal = new Stack<Node<T>>();
+            var retVal = new List<Node<T>>();
 
             // work with a copy of edges so we can keep re-sorting
             var dependencies = new HashSet<NodeDependency<T>>( _dependencies.ToArray() );
@@ -159,11 +159,12 @@ namespace J4JSoftware.Utilities
                 var nodeToRemove = noIncomingEdges.First();
                 noIncomingEdges.Remove(nodeToRemove);
 
-                // add removed node to stack
-                retVal.Push(nodeToRemove);
+                // add removed node to return value
+                retVal.Add( nodeToRemove );
 
-                // for each targetNode with an edge from nodeToRemove to targetNode do
-                foreach (var edge in dependencies.Where(e => NodesAreEqual(e.AncestorNode, nodeToRemove) ).ToList())
+                foreach (var edge in dependencies
+                    .Where(e => NodesAreEqual(e.AncestorNode, nodeToRemove) )
+                    .ToList())
                 {
                     var targetNode = edge.DependentNode;
 
@@ -184,12 +185,7 @@ namespace J4JSoftware.Utilities
             if ( dependencies.Any() )
                 return false;
 
-            var tempSorted = retVal.ToList();
-
-            // for reasons I've never understood the list comes out backwards...
-            tempSorted.Reverse();
-
-            sorted = tempSorted.Select( x => x.Value )
+            sorted = retVal.Select( x => x.Value )
                 .ToList();
 
             return true;

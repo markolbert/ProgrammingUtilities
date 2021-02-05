@@ -3,8 +3,13 @@ using System.Collections.Generic;
 
 namespace J4JSoftware.Utilities
 {
-    public interface IAction<TArg> : IEquatable<IAction<TArg>>
+    public interface IAction
     {
-        bool Process( IEnumerable<TArg> items );
+        bool Process( object src );
+    }
+
+    public interface IAction<TSource> : IAction, IEquatable<IAction<TSource>>
+    {
+        bool Process( TSource src );
     }
 }

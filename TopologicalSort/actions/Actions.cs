@@ -3,7 +3,7 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.Utilities
 {
-    public class Actions<TSymbol> : Nodes<IAction<TSymbol>>, IActionProcessor<TSymbol>
+    public abstract class Actions<TSource> : Nodes<IAction<TSource>>, IAction<TSource>
     {
         protected Actions( 
             ActionsContext context,
@@ -19,34 +19,53 @@ namespace J4JSoftware.Utilities
         protected IJ4JLogger? Logger { get; }
         protected ActionsContext Context { get; }
 
-        // symbols must be able to reset so it can be iterated multiple times
-        public virtual bool Process( IEnumerable<TSymbol> symbols )
+        public virtual bool Process( TSource src )
         {
-            if( !Initialize( symbols ) )
+            if( !Initialize( src ) )
                 return false;
 
             var allOkay = true;
 
-            if( !Sort( out var procesorNodes, out var _ ) )
+            if( !Sort( out var actions, out var _ ) )
             {
-                Logger?.Error( "Couldn't topologically sort processors" );
+                Logger?.Error( "Couldn't topologically sort actions" );
                 return false;
             }
 
-            procesorNodes!.Reverse();
+            actions!.Reverse();
 
-            foreach( var node in procesorNodes! )
+            foreach( var action in actions! )
             {
-                allOkay &= node.Process( symbols );
+                allOkay &= action.Process( src );
 
                 if( !allOkay && Context.StopOnFirstError )
                     break;
             }
 
-            return allOkay && Finalize( symbols );
+            return allOkay && Finalize( src );
         }
 
-        protected virtual bool Initialize( IEnumerable<TSymbol> symbols ) => true;
-        protected virtual bool Finalize( IEnumerable<TSymbol> symbols ) => true;
+        protected virtual bool Initialize( TSource src ) => true;
+        protected virtual bool Finalize( TSource src ) => true;
+
+        // processors are equal if they are the same type, so duplicate instances of the 
+        // same type are always equal (and shouldn't be present in the processing set)
+        public bool Equals( IAction<TSource>? other )
+        {
+            if (other == null)
+                return false;
+
+            return other.GetType() == GetType();
+        }
+
+        bool IAction.Process( object src )
+        {
+            if( src is TSource castSrc )
+                return Process( castSrc );
+
+            Logger?.Error( "Expected a '{0}' but got a '{1}'", typeof(IAction<TSource>), src.GetType() );
+
+            return false;
+        }
     }
 }

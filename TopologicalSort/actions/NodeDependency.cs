@@ -1,23 +1,18 @@
 ﻿using System;
+using System.Runtime.Intrinsics.Arm;
 
 namespace J4JSoftware.Utilities
 {
     public class NodeDependency<T>
         where T : class, IEquatable<T>
     {
-        public NodeDependency(
-            Node<T> ancestor,
-            Node<T> dependent,
-            Nodes<T> collection
-        )
+        public NodeDependency( Node<T> dependent, Node<T> ancestor )
         {
-            AncestorNode = ancestor;
             DependentNode = dependent;
-            Collection = collection;
+            AncestorNode = ancestor;
         }
 
         public Node<T> AncestorNode { get; }
         public Node<T> DependentNode { get; }
-        public Nodes<T> Collection { get; }
     }
 }
