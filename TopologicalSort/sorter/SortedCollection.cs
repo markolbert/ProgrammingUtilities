@@ -1,4 +1,22 @@
-﻿using System;
+﻿#region license
+
+// Copyright 2021 Mark A. Olbert
+// 
+// This library or program 'TopologicalSort' is free software: you can redistribute it
+// and/or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation, either version 3 of the License,
+// or (at your option) any later version.
+// 
+// This library or program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with
+// this library or program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
 using System.Collections.Generic;
 using System.Linq;
 using J4JSoftware.Logging;
@@ -8,9 +26,9 @@ namespace J4JSoftware.Utilities
     public abstract class SortedCollection<T> : ISortedCollection<T>
         where T : class, ISortable<T>
     {
-        private readonly List<T> _items = new List<T>();
-        private readonly List<int> _activatedIndices = new List<int>();
-        
+        private readonly List<int> _activatedIndices = new();
+        private readonly List<T> _items = new();
+
         private List<T>? _sorted;
 
         protected SortedCollection(
@@ -18,25 +36,11 @@ namespace J4JSoftware.Utilities
         )
         {
             Logger = logger;
-            Logger?.SetLoggedType(this.GetType());
+            Logger?.SetLoggedType( GetType() );
         }
 
         protected IJ4JLogger? Logger { get; }
-
-        protected abstract bool SetPredecessors();
-        protected List<T> Available { get; } = new List<T>();
-
-        public void Add( T item )
-        {
-            _items.Add( item );
-            _sorted = null;
-        }
-
-        public void AddRange( IEnumerable<T> items )
-        {
-            _items.AddRange( items );
-            _sorted = null;
-        }
+        protected List<T> Available { get; } = new();
 
         public List<T> SortedSequence
         {
@@ -51,6 +55,20 @@ namespace J4JSoftware.Utilities
             }
         }
 
+        protected abstract bool SetPredecessors();
+
+        public void Add( T item )
+        {
+            _items.Add( item );
+            _sorted = null;
+        }
+
+        public void AddRange( IEnumerable<T> items )
+        {
+            _items.AddRange( items );
+            _sorted = null;
+        }
+
         private List<T> SortItems()
         {
             var retVal = new List<T>();
@@ -58,20 +76,17 @@ namespace J4JSoftware.Utilities
             Available.Clear();
             Available.AddRange( _items );
 
-            if( !SetPredecessors() ) 
+            if( !SetPredecessors() )
                 return retVal;
 
             // remove the items that were activated. there should
             // be only one item left, the root item, afterwards
-            foreach( var idx in _activatedIndices.OrderByDescending(x=>x) )
-            {
-                Available.RemoveAt( idx );
-            }
+            foreach( var idx in _activatedIndices.OrderByDescending( x => x ) ) Available.RemoveAt( idx );
 
             switch( Available.Count )
             {
                 case 0:
-                    Logger?.Error<Type>( "No root {0} defined", typeof(T) );
+                    Logger?.Error( "No root {0} defined", typeof(T) );
                     break;
 
                 case 1:
@@ -80,18 +95,18 @@ namespace J4JSoftware.Utilities
 
                     _items.Add( Available[ 0 ] );
 
-                    if (TopologicalSorter.Sort(_items, out var result))
-                        SortedSequence.AddRange(result!);
+                    if( TopologicalSorter.Sort( _items, out var result ) )
+                        SortedSequence.AddRange( result! );
                     else
-                        Logger?.Error<Type>("Couldn't create execution sequence for {0}", typeof(T));
+                        Logger?.Error( "Couldn't create execution sequence for {0}", typeof(T) );
 
                     break;
 
                 default:
-                    Logger?.Error<Type>( "Multiple root {0} objects defined", typeof(T) );
+                    Logger?.Error( "Multiple root {0} objects defined", typeof(T) );
                     break;
             }
-            
+
             return retVal;
         }
 
@@ -106,7 +121,7 @@ namespace J4JSoftware.Utilities
 
             if( selectedIdx < 0 )
             {
-                Logger?.Error<Type>( "Couldn't find '{nodeType}'", nodeType );
+                Logger?.Error( "Couldn't find '{nodeType}'", nodeType );
                 return false;
             }
 
@@ -114,14 +129,14 @@ namespace J4JSoftware.Utilities
 
             if( predecessor == null )
             {
-                Logger?.Error<Type>( $"Couldn't find '{predecessorType}'", predecessorType );
+                Logger?.Error( $"Couldn't find '{predecessorType}'", predecessorType );
                 return false;
             }
 
             Available[ selectedIdx ].Predecessor = predecessor;
 
             _items.Add( Available[ selectedIdx ] );
-            _activatedIndices.Add(selectedIdx  );
+            _activatedIndices.Add( selectedIdx );
 
             return true;
         }

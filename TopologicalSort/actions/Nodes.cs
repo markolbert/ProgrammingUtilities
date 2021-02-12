@@ -1,4 +1,23 @@
-﻿using System;
+﻿#region license
+
+// Copyright 2021 Mark A. Olbert
+// 
+// This library or program 'TopologicalSort' is free software: you can redistribute it
+// and/or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation, either version 3 of the License,
+// or (at your option) any later version.
+// 
+// This library or program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with
+// this library or program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,8 +27,8 @@ namespace J4JSoftware.Utilities
         where T : class, IEquatable<T>
     {
         private readonly IEqualityComparer<T>? _comparer;
-        private readonly HashSet<Node<T>> _nodes = new HashSet<Node<T>>();
-        private readonly HashSet<NodeDependency<T>> _dependencies = new HashSet<NodeDependency<T>>();
+        private readonly HashSet<NodeDependency<T>> _dependencies = new();
+        private readonly HashSet<Node<T>> _nodes = new();
 
         public Nodes( IEqualityComparer<T>? comparer = null )
         {
@@ -25,17 +44,17 @@ namespace J4JSoftware.Utilities
         public bool ValuesAreEqual( T x, T y )
         {
             if( _comparer == null )
-                return x.Equals(y);
+                return x.Equals( y );
 
             return _comparer.Equals( x, y );
         }
 
-        public bool NodesAreEqual(Node<T> x, Node<T> y)
+        public bool NodesAreEqual( Node<T> x, Node<T> y )
         {
             if( _comparer == null )
                 return x.Value.Equals( y.Value );
 
-            return _comparer.Equals(x.Value, y.Value);
+            return _comparer.Equals( x.Value, y.Value );
         }
 
         public bool DependenciesAreEqual( NodeDependency<T> x, NodeDependency<T> y )
@@ -50,7 +69,7 @@ namespace J4JSoftware.Utilities
 
         public List<Node<T>> GetDependents( Node<T> ancestor )
         {
-            return _dependencies.Where( x => ValuesAreEqual(x.AncestorNode.Value, ancestor.Value) )
+            return _dependencies.Where( x => ValuesAreEqual( x.AncestorNode.Value, ancestor.Value ) )
                 .Select( x => x.DependentNode )
                 .Distinct()
                 .ToList();
@@ -74,13 +93,13 @@ namespace J4JSoftware.Utilities
 
         public Node<T> AddIndependentNode( T value )
         {
-            var retVal = _nodes.FirstOrDefault(n => ValuesAreEqual(n.Value, value));
+            var retVal = _nodes.FirstOrDefault( n => ValuesAreEqual( n.Value, value ) );
 
-            if (retVal != null)
+            if( retVal != null )
                 return retVal;
 
-            retVal = new Node<T>(value, this, _comparer);
-            _nodes.Add(retVal);
+            retVal = new Node<T>( value, this, _comparer );
+            _nodes.Add( retVal );
 
             return retVal;
         }
@@ -111,21 +130,16 @@ namespace J4JSoftware.Utilities
             var edgesToRemove = new List<NodeDependency<T>>();
 
             foreach( var dependency in _dependencies )
-            {
-                if( ValuesAreEqual(dependency.AncestorNode.Value, toRemove) 
-                    || ValuesAreEqual(dependency.DependentNode.Value, toRemove))
+                if( ValuesAreEqual( dependency.AncestorNode.Value, toRemove )
+                    || ValuesAreEqual( dependency.DependentNode.Value, toRemove ) )
                     edgesToRemove.Add( dependency );
-            }
 
-            foreach( var edgeToRemove in edgesToRemove )
-            {
-                _dependencies.Remove( edgeToRemove );
-            }
+            foreach( var edgeToRemove in edgesToRemove ) _dependencies.Remove( edgeToRemove );
 
-            return _nodes.Remove(node);
+            return _nodes.Remove( node );
         }
 
-        public bool Sort(out List<T>? sorted, out List<NodeDependency<T>>? remainingEdges  )
+        public bool Sort( out List<T>? sorted, out List<NodeDependency<T>>? remainingEdges )
         {
             sorted = null;
             remainingEdges = null;
@@ -153,36 +167,34 @@ namespace J4JSoftware.Utilities
                 dependencies.All( e => !NodesAreEqual( e.DependentNode, n ) ) ) );
 
             // while noIncomingEdges is non-empty do
-            while (noIncomingEdges.Any())
+            while( noIncomingEdges.Any() )
             {
                 //  remove a node from noIncomingEdges
                 var nodeToRemove = noIncomingEdges.First();
-                noIncomingEdges.Remove(nodeToRemove);
+                noIncomingEdges.Remove( nodeToRemove );
 
                 // add removed node to return value
                 retVal.Add( nodeToRemove );
 
-                foreach (var edge in dependencies
-                    .Where(e => NodesAreEqual(e.AncestorNode, nodeToRemove) )
-                    .ToList())
+                foreach( var edge in dependencies
+                    .Where( e => NodesAreEqual( e.AncestorNode, nodeToRemove ) )
+                    .ToList() )
                 {
                     var targetNode = edge.DependentNode;
 
                     // remove edge from the graph
-                    dependencies.Remove(edge);
+                    dependencies.Remove( edge );
 
                     // if targetNode has no other incoming edges then
-                    if (dependencies.All(x => !NodesAreEqual(x.DependentNode, targetNode) ))
-                    {
+                    if( dependencies.All( x => !NodesAreEqual( x.DependentNode, targetNode ) ) )
                         // insert targetNode into noIncomingEdges
-                        noIncomingEdges.Add(targetNode);
-                    }
+                        noIncomingEdges.Add( targetNode );
                 }
             }
 
             remainingEdges = dependencies.ToList();
 
-            if ( dependencies.Any() )
+            if( dependencies.Any() )
                 return false;
 
             sorted = retVal.Select( x => x.Value )

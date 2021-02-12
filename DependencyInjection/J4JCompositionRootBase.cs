@@ -1,4 +1,23 @@
-﻿using System;
+﻿#region license
+
+// Copyright 2021 Mark A. Olbert
+// 
+// This library or program 'DependencyInjection' is free software: you can redistribute it
+// and/or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation, either version 3 of the License,
+// or (at your option) any later version.
+// 
+// This library or program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with
+// this library or program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using System;
 using System.IO;
 using System.Text;
 using Autofac;
@@ -19,7 +38,7 @@ namespace J4JSoftware.DependencyInjection
         private IJ4JLoggerConfiguration? _loggerConfig;
 
         protected J4JCompositionRootBase(
-            string publisher, 
+            string publisher,
             string appName,
             string? dataProtectionPurpose = null )
         {
@@ -37,27 +56,34 @@ namespace J4JSoftware.DependencyInjection
 
         // CachedLogger is used to capture log events during the host building process,
         // when the ultimate IJ4JLogger instance is not yet available
-        protected J4JCachedLogger CachedLogger { get; } = new J4JCachedLogger();
+        protected J4JCachedLogger CachedLogger { get; } = new();
 
         public IHost? Host { get; private set; }
         public bool Initialized => Host != null;
         public string ApplicationName { get; }
         public abstract string ApplicationConfigurationFolder { get; }
         public string UserConfigurationFolder { get; }
+        public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
 
         protected void ConfigurationBasedLogging( IChannelConfigProvider provider )
-            => _channelProvider = provider;
+        {
+            _channelProvider = provider;
+        }
 
         protected void StaticConfiguredLogging( IJ4JLoggerConfiguration loggerConfig )
-            => _loggerConfig = loggerConfig;
+        {
+            _loggerConfig = loggerConfig;
+        }
 
-        public IJ4JLogger GetJ4JLogger() => Host?.Services.GetRequiredService<IJ4JLogger>()!;
-        public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
+        public IJ4JLogger GetJ4JLogger()
+        {
+            return Host?.Services.GetRequiredService<IJ4JLogger>()!;
+        }
 
         public void Initialize()
         {
             HostBuilder = new HostBuilder()
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+                .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
 
             InitializeInternal();
 
@@ -75,21 +101,21 @@ namespace J4JSoftware.DependencyInjection
                 throw new NullReferenceException(
                     $"{nameof(Initialize)}() must be called before {nameof(InitializeInternal)}()" );
 
-            HostBuilder.ConfigureAppConfiguration(SetupAppEnvironment);
-            HostBuilder.ConfigureHostConfiguration(SetupConfigurationEnvironment);
-            HostBuilder.ConfigureContainer<ContainerBuilder>(SetupDependencyInjection);
-            HostBuilder.ConfigureServices(SetupServices);
+            HostBuilder.ConfigureAppConfiguration( SetupAppEnvironment );
+            HostBuilder.ConfigureHostConfiguration( SetupConfigurationEnvironment );
+            HostBuilder.ConfigureContainer<ContainerBuilder>( SetupDependencyInjection );
+            HostBuilder.ConfigureServices( SetupServices );
         }
-        
-        protected virtual void SetupAppEnvironment(HostBuilderContext hbc, IConfigurationBuilder builder)
+
+        protected virtual void SetupAppEnvironment( HostBuilderContext hbc, IConfigurationBuilder builder )
         {
         }
 
-        protected virtual void SetupConfigurationEnvironment(IConfigurationBuilder builder)
+        protected virtual void SetupConfigurationEnvironment( IConfigurationBuilder builder )
         {
         }
 
-        protected virtual void SetupDependencyInjection(HostBuilderContext hbc, ContainerBuilder builder)
+        protected virtual void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
         {
             builder.RegisterType<J4JProtection>()
                 .WithParameter( "purpose", _dataProtectionPurpose )
@@ -113,10 +139,13 @@ namespace J4JSoftware.DependencyInjection
                 _channelProvider.Source = hbc.Configuration;
                 builder.RegisterJ4JLogging<J4JLoggerConfiguration>( _channelProvider );
             }
-            else builder.RegisterJ4JLogging( _loggerConfig! );
+            else
+            {
+                builder.RegisterJ4JLogging( _loggerConfig! );
+            }
         }
 
-        protected virtual void SetupServices(HostBuilderContext hbc, IServiceCollection services)
+        protected virtual void SetupServices( HostBuilderContext hbc, IServiceCollection services )
         {
             services.AddDataProtection();
         }
@@ -130,7 +159,7 @@ namespace J4JSoftware.DependencyInjection
                 return false;
 
             var utf8 = new UTF8Encoding();
-            var bytesToEncrypt = utf8.GetBytes(plainText);
+            var bytesToEncrypt = utf8.GetBytes( plainText );
 
             try
             {
@@ -150,7 +179,7 @@ namespace J4JSoftware.DependencyInjection
             decrypted = null;
 
             var dataProtection = Host?.Services.GetService<IDataProtection>();
-            if (dataProtection == null)
+            if( dataProtection == null )
                 return false;
 
             byte[] decryptedBytes;

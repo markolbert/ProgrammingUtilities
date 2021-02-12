@@ -1,4 +1,23 @@
-﻿using System;
+﻿#region license
+
+// Copyright 2021 Mark A. Olbert
+// 
+// This library or program 'ExcelExport' is free software: you can redistribute it
+// and/or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation, either version 3 of the License,
+// or (at your option) any later version.
+// 
+// This library or program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with
+// this library or program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,26 +30,26 @@ namespace J4JSoftware.Excel
 {
     public class ExcelWorkbook : IEnumerable<ExcelSheet>
     {
-        private readonly List<ExcelSheet> _worksheets = new List<ExcelSheet>();
-        private readonly Func<IJ4JLogger>? _loggerFactory;
         private readonly IJ4JLogger? _logger;
+        private readonly Func<IJ4JLogger>? _loggerFactory;
+        private readonly List<ExcelSheet> _worksheets = new();
         private readonly XSSFWorkbook _xssfWorkbook;
+        private int _activeSheetIndex = -1;
+        private FileStream? _excelStream;
 
         private string? _filePath;
-        private FileStream? _excelStream;
-        private int _activeSheetIndex = -1;
 
-        public ExcelWorkbook(  
+        public ExcelWorkbook(
             string? filePath = null,
             Func<IJ4JLogger>? loggerFactory = null
-            )
+        )
         {
             _loggerFactory = loggerFactory;
 
             _xssfWorkbook = new XSSFWorkbook();
 
             _logger = _loggerFactory?.Invoke();
-            _logger?.SetLoggedType( this.GetType() );
+            _logger?.SetLoggedType( GetType() );
 
             FilePath = filePath;
         }
@@ -40,7 +59,6 @@ namespace J4JSoftware.Excel
         )
             : this( null, loggerFactory )
         {
-
         }
 
         public string? FilePath
@@ -52,7 +70,7 @@ namespace J4JSoftware.Excel
                 if( _excelStream != null )
                 {
                     Save();
-                 
+
                     _excelStream.Flush();
                     _excelStream.Close();
 
@@ -88,18 +106,43 @@ namespace J4JSoftware.Excel
             {
                 if( _worksheets.Count == 0 )
                 {
-                    _logger?.Error("No worksheets are defined");
+                    _logger?.Error( "No worksheets are defined" );
                     return null;
                 }
 
-                if( _activeSheetIndex < 0 || _activeSheetIndex >= ( _worksheets.Count - 1 ) )
+                if( _activeSheetIndex < 0 || _activeSheetIndex >= _worksheets.Count - 1 )
                 {
-                    _logger?.Error("No active worksheet defined");
+                    _logger?.Error( "No active worksheet defined" );
                     return null;
                 }
 
                 return _worksheets[ _activeSheetIndex ];
             }
+        }
+
+        public ExcelSheet? this[ string name ]
+        {
+            get
+            {
+                var retVal =
+                    Worksheets.FirstOrDefault( w =>
+                        w.Sheet?.SheetName.Equals( name, StringComparison.OrdinalIgnoreCase ) ?? false );
+
+                if( retVal == null )
+                    _logger?.Error<string>( "Could not find worksheet '{0}'", name );
+
+                return retVal;
+            }
+        }
+
+        public IEnumerator<ExcelSheet> GetEnumerator()
+        {
+            foreach( var sheet in _worksheets ) yield return sheet;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         public bool ActivateWorksheet( string name )
@@ -116,21 +159,6 @@ namespace J4JSoftware.Excel
             _activeSheetIndex = idx;
 
             return true;
-        }
-
-        public ExcelSheet? this[ string name ]
-        {
-            get
-            {
-                var retVal =
-                    Worksheets.FirstOrDefault( w =>
-                        w.Sheet?.SheetName.Equals( name, StringComparison.OrdinalIgnoreCase ) ?? false );
-
-                if( retVal == null )
-                    _logger?.Error<string>("Could not find worksheet '{0}'", name);
-
-                return retVal;
-            }
         }
 
         public bool AddWorksheet( string name, out ExcelSheet? result )
@@ -158,21 +186,8 @@ namespace J4JSoftware.Excel
             }
 
             _xssfWorkbook!.Write( _excelStream );
-                 
+
             return true;
-        }
-
-        public IEnumerator<ExcelSheet> GetEnumerator()
-        {
-            foreach( var sheet in _worksheets )
-            {
-                yield return sheet;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }

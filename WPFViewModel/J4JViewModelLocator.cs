@@ -1,9 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿#region license
+
+// Copyright 2021 Mark A. Olbert
+// 
+// This library or program 'WPFViewModel' is free software: you can redistribute it
+// and/or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation, either version 3 of the License,
+// or (at your option) any later version.
+// 
+// This library or program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with
+// this library or program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using System;
+using System.ComponentModel;
 using System.Windows;
 using Autofac;
 using J4JSoftware.DependencyInjection;
@@ -17,19 +32,20 @@ namespace J4JSoftware.WPFViewModel
     {
         private readonly ViewModelDependencyBuilder _vmDepBuilder;
 
-        protected J4JViewModelLocator( 
-            string publisher, 
-            string appName, 
-            string? dataProtectionPurpose = null ) 
+        protected J4JViewModelLocator(
+            string publisher,
+            string appName,
+            string? dataProtectionPurpose = null )
             : base( publisher, appName, dataProtectionPurpose )
         {
             _vmDepBuilder = new ViewModelDependencyBuilder( CachedLogger );
         }
 
-        public bool InDesignMode => System.ComponentModel.DesignerProperties
+        public bool InDesignMode => DesignerProperties
             .GetIsInDesignMode( new DependencyObject() );
 
-        public override string ApplicationConfigurationFolder => InDesignMode ? AppContext.BaseDirectory : Environment.CurrentDirectory;
+        public override string ApplicationConfigurationFolder =>
+            InDesignMode ? AppContext.BaseDirectory : Environment.CurrentDirectory;
 
         protected virtual void RegisterViewModels( ViewModelDependencyBuilder builder )
         {
@@ -42,7 +58,6 @@ namespace J4JSoftware.WPFViewModel
             RegisterViewModels( _vmDepBuilder );
 
             foreach( var vmd in _vmDepBuilder.ViewModelDependencies )
-            {
                 if( vmd.IsValid )
                 {
                     var regBuilder = builder.RegisterType(
@@ -54,8 +69,10 @@ namespace J4JSoftware.WPFViewModel
                     if( !vmd.MultipleInstances )
                         regBuilder.SingleInstance();
                 }
-                else CachedLogger.Error( "ViewModel registration is invalid for Type '{0}'", vmd.ViewModelInterface );
-            }
+                else
+                {
+                    CachedLogger.Error( "ViewModel registration is invalid for Type '{0}'", vmd.ViewModelInterface );
+                }
         }
     }
 }

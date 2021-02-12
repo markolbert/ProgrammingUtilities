@@ -1,4 +1,23 @@
-﻿using System;
+﻿#region license
+
+// Copyright 2021 Mark A. Olbert
+// 
+// This library or program 'ExcelExport' is free software: you can redistribute it
+// and/or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation, either version 3 of the License,
+// or (at your option) any later version.
+// 
+// This library or program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with
+// this library or program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using J4JSoftware.Logging;
@@ -9,17 +28,17 @@ namespace J4JSoftware.Excel
     {
         private readonly IJ4JLogger? _logger;
 
-        internal ExcelTable( 
-            ExcelSheet sheet, 
-            int upperLeftRow, 
-            int upperLeftColumn, 
+        internal ExcelTable(
+            ExcelSheet sheet,
+            int upperLeftRow,
+            int upperLeftColumn,
             TableOrientation orientation,
             IJ4JLogger? logger = null )
         {
             ExcelSheet = sheet;
 
             _logger = logger ?? throw new NullReferenceException( nameof(logger) );
-            _logger?.SetLoggedType( this.GetType() );
+            _logger?.SetLoggedType( GetType() );
 
             if( upperLeftRow < 0 )
                 throw new ArgumentException( $"Upper left row cannot be < 0 ({upperLeftRow})" );
@@ -36,9 +55,9 @@ namespace J4JSoftware.Excel
 
         public bool IsValid => ExcelSheet != null;
         public ExcelSheet? ExcelSheet { get; }
-        public int UpperLeftRow { get; private set; }
-        public int UpperLeftColumn { get; private set; }
-        public TableOrientation Orientation { get; private set; }
+        public int UpperLeftRow { get; }
+        public int UpperLeftColumn { get; }
+        public TableOrientation Orientation { get; }
 
         public int NumHeaders { get; private set; }
         public int NumEntries { get; private set; }
@@ -50,17 +69,14 @@ namespace J4JSoftware.Excel
 
             var columns = Orientation == TableOrientation.ColumnHeaders ? NumHeaders : NumEntries;
 
-            for( var column = 0; column < columns; column++ )
-            {
-                ExcelSheet!.Sheet!.AutoSizeColumn( column );
-            }
+            for( var column = 0; column < columns; column++ ) ExcelSheet!.Sheet!.AutoSizeColumn( column );
 
             return true;
         }
 
         public bool AddHeader( string header )
         {
-            if (!ValidateTable())
+            if( !ValidateTable() )
                 return false;
 
             ExcelSheet!.MoveTo(
@@ -77,21 +93,19 @@ namespace J4JSoftware.Excel
 
         public bool AddHeaders( params string[] headers )
         {
-            if (!ValidateTable())
+            if( !ValidateTable() )
                 return false;
 
-            foreach ( var header in headers )
-            {
+            foreach( var header in headers )
                 if( !AddHeader( header ) )
                     return false;
-            }
 
             return true;
         }
 
         public bool AddEntry<TEntity>( TEntity entity )
         {
-            if (!ValidateTable())
+            if( !ValidateTable() )
                 return false;
 
             var values = typeof(TEntity).GetProperties()
@@ -109,22 +123,25 @@ namespace J4JSoftware.Excel
             return true;
         }
 
-        public bool AddEntry( params object[] values ) => ValidateTable() && AddEntry( new List<object?>( values ) );
+        public bool AddEntry( params object[] values )
+        {
+            return ValidateTable() && AddEntry( new List<object?>( values ) );
+        }
 
         public bool AddEntry( List<object?> values )
         {
-            if (!ValidateTable())
+            if( !ValidateTable() )
                 return false;
 
             ExcelSheet!.MoveTo(
-                UpperLeftRow + ( Orientation == TableOrientation.RowHeaders ? 0 : NumEntries + 1),
+                UpperLeftRow + ( Orientation == TableOrientation.RowHeaders ? 0 : NumEntries + 1 ),
                 UpperLeftColumn + ( Orientation == TableOrientation.ColumnHeaders ? 0 : NumEntries + 1 )
             );
 
-            for ( var idx = 0; idx < ( values.Count > NumHeaders ? values.Count : NumHeaders ); idx++ )
+            for( var idx = 0; idx < ( values.Count > NumHeaders ? values.Count : NumHeaders ); idx++ )
             {
-                if( idx < values.Count && values[idx] != null )
-                    ExcelSheet.ActiveCell!.SetValue( values[idx]! );
+                if( idx < values.Count && values[ idx ] != null )
+                    ExcelSheet.ActiveCell!.SetValue( values[ idx ]! );
 
                 ExcelSheet.Move(
                     Orientation == TableOrientation.RowHeaders ? 1 : 0,
@@ -144,15 +161,15 @@ namespace J4JSoftware.Excel
 
         private bool ValidateTable()
         {
-            if (!IsValid)
+            if( !IsValid )
             {
-                _logger?.Error("Table is invalid");
+                _logger?.Error( "Table is invalid" );
                 return false;
             }
 
-            if (!ExcelSheet!.IsValid)
+            if( !ExcelSheet!.IsValid )
             {
-                _logger?.Error("ExcelSheet is invalid");
+                _logger?.Error( "ExcelSheet is invalid" );
                 return false;
             }
 

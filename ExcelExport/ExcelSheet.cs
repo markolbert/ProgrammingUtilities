@@ -1,4 +1,23 @@
-﻿using System;
+﻿#region license
+
+// Copyright 2021 Mark A. Olbert
+// 
+// This library or program 'ExcelExport' is free software: you can redistribute it
+// and/or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation, either version 3 of the License,
+// or (at your option) any later version.
+// 
+// This library or program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with
+// this library or program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using J4JSoftware.Logging;
@@ -8,19 +27,19 @@ namespace J4JSoftware.Excel
 {
     public class ExcelSheet
     {
-        private readonly Func<IJ4JLogger>? _loggerFactory;
+        private readonly List<ICell> _cells = new();
         private readonly IJ4JLogger? _logger;
-        private readonly List<IRow> _rows = new List<IRow>();
-        private readonly List<ICell> _cells = new List<ICell>();
+        private readonly Func<IJ4JLogger>? _loggerFactory;
+        private readonly List<IRow> _rows = new();
 
-        internal ExcelSheet( 
+        internal ExcelSheet(
             ISheet xssfSheet,
             Func<IJ4JLogger>? loggerFactory = null )
         {
             _loggerFactory = loggerFactory;
 
             _logger = _loggerFactory?.Invoke();
-            _logger?.SetLoggedType( this.GetType() );
+            _logger?.SetLoggedType( GetType() );
 
             Sheet = xssfSheet;
         }
@@ -36,11 +55,11 @@ namespace J4JSoftware.Excel
             {
                 if( !IsValid )
                 {
-                    _logger?.Error("Worksheet is not initialized");
+                    _logger?.Error( "Worksheet is not initialized" );
                     return null;
                 }
 
-                if ( row < 0 )
+                if( row < 0 )
                 {
                     _logger?.Error( "Invalid row# {0}", row );
                     return null;
@@ -76,15 +95,15 @@ namespace J4JSoftware.Excel
         {
             get
             {
-                if (!IsValid)
+                if( !IsValid )
                 {
-                    _logger?.Error("Worksheet is not initialized");
+                    _logger?.Error( "Worksheet is not initialized" );
                     return null;
                 }
 
                 var retVal = _rows.FirstOrDefault( r => r.RowNum == ActiveRowNumber );
 
-                if( retVal != null ) 
+                if( retVal != null )
                     return retVal;
 
                 retVal = Sheet!.CreateRow( ActiveRowNumber );
@@ -98,9 +117,9 @@ namespace J4JSoftware.Excel
         {
             get
             {
-                if (!IsValid)
+                if( !IsValid )
                 {
-                    _logger?.Error("Worksheet is not initialized");
+                    _logger?.Error( "Worksheet is not initialized" );
                     return null;
                 }
 
@@ -109,9 +128,9 @@ namespace J4JSoftware.Excel
                 var retVal = _cells.FirstOrDefault( c => c.RowIndex == row!.RowNum
                                                          && c.ColumnIndex == ActiveColumnNumber );
 
-                if( retVal != null ) 
+                if( retVal != null )
                     return retVal;
-                
+
                 retVal = row!.CreateCell( ActiveColumnNumber );
                 _cells.Add( retVal );
 
@@ -161,13 +180,13 @@ namespace J4JSoftware.Excel
 
         public ExcelSheet AddNameValueRow( string name, object value )
         {
-            if (!IsValid)
+            if( !IsValid )
             {
-                _logger?.Error("Worksheet is not initialized");
+                _logger?.Error( "Worksheet is not initialized" );
                 return this;
             }
 
-            ActiveCell!.SetCellValue(name);
+            ActiveCell!.SetCellValue( name );
             ActiveColumnNumber++;
 
             ActiveCell.SetValue( value );
