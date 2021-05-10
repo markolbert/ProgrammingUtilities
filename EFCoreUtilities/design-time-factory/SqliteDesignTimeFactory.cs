@@ -17,6 +17,7 @@
 
 #endregion
 
+using System;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,11 @@ namespace J4JSoftware.EFCoreUtilities
     public class SqliteDesignTimeFactory<TDbContext> : DesignTimeFactoryNG<TDbContext>
         where TDbContext : DbContext
     {
+        public SqliteDesignTimeFactory( string? srcCodeFilePath )
+            : base( srcCodeFilePath )
+        {
+        }
+
         protected override IDatabaseConfig GetDatabaseConfig( string dbPath ) =>
             new SqliteConfig()
             {
@@ -40,7 +46,5 @@ namespace J4JSoftware.EFCoreUtilities
 
             return optionsBuilder;
         }
-
-        private string? GetSourceFilePathName( [ CallerFilePath ] string? callerFilePath = null ) => callerFilePath;
     }
 }
