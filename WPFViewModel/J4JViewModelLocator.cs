@@ -25,9 +25,9 @@ using J4JSoftware.DependencyInjection;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Hosting;
 
-namespace J4JSoftware.WPFViewModel
+namespace J4JSoftware.WPFViewModel.Deprecated
 {
-    public class J4JViewModelLocator<TJ4JLogger> : J4JCompositionRootBase<TJ4JLogger>, IJ4JViewModelLocator
+    public class J4JViewModelLocator<TJ4JLogger> : XamlJ4JCompositionRoot<TJ4JLogger>, IJ4JViewModelLocator
         where TJ4JLogger : IJ4JLoggerConfiguration, new()
     {
         private readonly ViewModelDependencyBuilder _vmDepBuilder;
@@ -36,43 +36,47 @@ namespace J4JSoftware.WPFViewModel
             string publisher,
             string appName,
             string? dataProtectionPurpose = null )
-            : base( publisher, appName, dataProtectionPurpose )
+            : base( 
+                publisher, 
+                appName, 
+                () => DesignerProperties.GetIsInDesignMode( new DependencyObject() ),
+                dataProtectionPurpose )
         {
             _vmDepBuilder = new ViewModelDependencyBuilder( CachedLogger );
         }
 
-        public bool InDesignMode => DesignerProperties
-            .GetIsInDesignMode( new DependencyObject() );
+        //public bool InDesignMode => DesignerProperties
+        //    .GetIsInDesignMode(new DependencyObject());
 
-        public override string ApplicationConfigurationFolder =>
-            InDesignMode ? AppContext.BaseDirectory : Environment.CurrentDirectory;
+        //public override string ApplicationConfigurationFolder =>
+        //    InDesignMode ? AppContext.BaseDirectory : Environment.CurrentDirectory;
 
-        protected virtual void RegisterViewModels( ViewModelDependencyBuilder builder )
-        {
-        }
+        //protected virtual void RegisterViewModels( ViewModelDependencyBuilder builder )
+        //{
+        //}
 
-        protected override void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
-        {
-            base.SetupDependencyInjection( hbc, builder );
+        //protected override void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
+        //{
+        //    base.SetupDependencyInjection( hbc, builder );
 
-            RegisterViewModels( _vmDepBuilder );
+        //    RegisterViewModels( _vmDepBuilder );
 
-            foreach( var vmd in _vmDepBuilder.ViewModelDependencies )
-                if( vmd.IsValid )
-                {
-                    var regBuilder = builder.RegisterType(
-                            InDesignMode
-                                ? vmd.DesignTimeType ?? vmd.RunTimeType!
-                                : vmd.RunTimeType! )
-                        .As( vmd.ViewModelInterface! );
+        //    foreach( var vmd in _vmDepBuilder.ViewModelDependencies )
+        //        if( vmd.IsValid )
+        //        {
+        //            var regBuilder = builder.RegisterType(
+        //                    InDesignMode
+        //                        ? vmd.DesignTimeType ?? vmd.RunTimeType!
+        //                        : vmd.RunTimeType! )
+        //                .As( vmd.ViewModelInterface! );
 
-                    if( !vmd.MultipleInstances )
-                        regBuilder.SingleInstance();
-                }
-                else
-                {
-                    CachedLogger.Error( "ViewModel registration is invalid for Type '{0}'", vmd.ViewModelInterface );
-                }
-        }
+        //            if( !vmd.MultipleInstances )
+        //                regBuilder.SingleInstance();
+        //        }
+        //        else
+        //        {
+        //            CachedLogger.Error( "ViewModel registration is invalid for Type '{0}'", vmd.ViewModelInterface );
+        //        }
+        //}
     }
 }
