@@ -31,7 +31,7 @@ namespace J4JSoftware.DependencyInjection
         public bool InDesignMode => _inDesignMode();
 
         public override string ApplicationConfigurationFolder =>
-            InDesignMode ? Environment.CurrentDirectory : AppContext.BaseDirectory;
+            InDesignMode ? AppContext.BaseDirectory : Environment.CurrentDirectory;
 
         protected virtual void RegisterViewModels(ViewModelDependencyBuilder builder)
         {
