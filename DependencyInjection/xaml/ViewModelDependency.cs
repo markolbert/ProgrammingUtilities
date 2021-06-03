@@ -46,7 +46,7 @@ namespace J4JSoftware.DependencyInjection
 
         internal Type? DesignTimeType { get; private set; }
 
-        internal bool MultipleInstances { get; private set; }
+        internal bool MultipleInstances { get; private set; } = true;
 
         public ViewModelDependency RunTime<T>()
         {
@@ -63,6 +63,12 @@ namespace J4JSoftware.DependencyInjection
         public ViewModelDependency WithMultipleInstances()
         {
             MultipleInstances = true;
+            return this;
+        }
+
+        public ViewModelDependency SingleInstance()
+        {
+            MultipleInstances = false;
             return this;
         }
 

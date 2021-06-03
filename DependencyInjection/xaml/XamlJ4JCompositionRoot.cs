@@ -44,6 +44,7 @@ namespace J4JSoftware.DependencyInjection
             RegisterViewModels(_vmDepBuilder);
 
             foreach (var vmd in _vmDepBuilder.ViewModelDependencies)
+            {
                 if (vmd.IsValid)
                 {
                     var regBuilder = builder.RegisterType(
@@ -59,6 +60,7 @@ namespace J4JSoftware.DependencyInjection
                 {
                     CachedLogger.Error("ViewModel registration is invalid for Type '{0}'", vmd.ViewModelInterface);
                 }
+            }
         }
     }
 }
