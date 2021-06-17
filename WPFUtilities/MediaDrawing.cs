@@ -20,7 +20,7 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
-namespace J4JSoftware.WPFViewModel
+namespace J4JSoftware.WPFUtilities
 {
     // thanx to Eric Ouellet for this!
     // https://stackoverflow.com/questions/4662193/how-to-convert-from-system-drawing-color-to-system-windows-media-color/4662224

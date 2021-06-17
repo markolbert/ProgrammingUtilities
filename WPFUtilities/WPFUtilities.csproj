@@ -3,8 +3,8 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
-		<AssemblyName>J4JSoftware.WPFViewModel</AssemblyName>
-		<RootNamespace>J4JSoftware.WPFViewModel</RootNamespace>
+		<AssemblyName>J4JSoftware.WPFUtilities</AssemblyName>
+		<RootNamespace>J4JSoftware.WPFUtilities</RootNamespace>
 		<Nullable>enable</Nullable>
 		<Authors>Mark Olbert</Authors>
 		<Company>Jump for Joy Software</Company>
@@ -30,6 +30,10 @@
 		<Pack>True</Pack>
 		<PackagePath></PackagePath>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>
