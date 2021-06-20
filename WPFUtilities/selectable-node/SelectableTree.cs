@@ -22,72 +22,63 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Windows;
-using System.Windows.Media.TextFormatting;
 using J4JSoftware.Logging;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public abstract class SelectableTree<TKey, TEntity> : ISelectableTree<TKey, TEntity>
+    public abstract class SelectableTree<TKey, TEntity, TContainer> : ISelectableTree<TKey, TEntity>
         where TKey: IComparable<TKey>
+        where TContainer : class
     {
-        public const int DefaultMaxNames = 2;
-
-        private readonly Func<
-            TEntity,
-            ISelectableNode<TKey, TEntity>?,
-            ISelectableTree<TKey, TEntity>,
-            Action<ISelectableNode<TKey, TEntity>, bool>?,
-            ISelectableNode<TKey, TEntity>
-        > _nodeCreator;
-
-        private readonly int _maxNames;
-        private readonly Action<ISelectableNode<TKey, TEntity>, bool>? _selectionChangedHandler;
+        private readonly ISelectableNodeFactory<TKey, TEntity> _nodeFactory;
+        private readonly ObservableCollection<ISelectableNode<TKey, TEntity>> _nodeCollection;
 
         protected SelectableTree(
-            Func<
-                TEntity,
-                ISelectableNode<TKey, TEntity>?,
-                ISelectableTree<TKey, TEntity>,
-                Action<ISelectableNode<TKey, TEntity>, bool>?,
-                ISelectableNode<TKey, TEntity>
-            > nodeCreator,
-            Action<
-                ISelectableNode<TKey, TEntity>, 
-                bool
-            >? selectionChangedHandler,
-            int maxNames,
+            ISelectableNodeFactory<TKey, TEntity> nodeFactory,
+            TContainer nodeCollectionSource,
+            Expression<Func<TContainer, ObservableCollection<ISelectableNode<TKey, TEntity>>>> nodeCollection,
             IJ4JLogger? logger
         )
         {
-            _nodeCreator = nodeCreator;
-            _selectionChangedHandler = selectionChangedHandler;
-
-            _maxNames = maxNames > 0 ? maxNames : DefaultMaxNames;
+            _nodeFactory = nodeFactory;
 
             Logger = logger;
-            Logger?.SetLoggedType( GetType() );
+            Logger?.SetLoggedType(GetType());
+
+            var memExpr = (MemberExpression) nodeCollection.Body;
+            var nodeCollInfo = (PropertyInfo) memExpr.Member;
+
+            if(nodeCollInfo.GetValue(nodeCollectionSource) is not ObservableCollection<ISelectableNode<TKey, TEntity>> castColl )
+            {
+                Logger?.Fatal( "Node collection could not be found or is not an '{0}'",
+                    typeof(ObservableCollection<ISelectableNode<TKey, TEntity>>) );;
+
+                throw new ArgumentException(
+                    $"Node collection could not be found or is not an '{typeof(ObservableCollection<ISelectableNode<TKey, TEntity>>)}'" );
+            }
+
+            _nodeCollection = castColl;
         }
 
         protected IJ4JLogger? Logger { get; }
 
         public void Clear()
         {
-            RootNodes.Clear();
-            AllNodes.Clear();
+            _nodeCollection.Clear();
+            Nodes.Clear();
         }
 
-        public List<ISelectableNode<TKey, TEntity>> RootNodes { get; } = new();
-        public Dictionary<TKey, ISelectableNode<TKey, TEntity>> AllNodes { get; } = new();
+        public Dictionary<TKey, ISelectableNode<TKey, TEntity>> Nodes { get; } = new();
 
         public ISelectableNode<TKey, TEntity> AddOrGetNode( TEntity entity )
         {
             var curKey = GetKey( entity );
 
-            if( AllNodes.ContainsKey( curKey ) )
-                return AllNodes[ curKey ];
+            if( Nodes.ContainsKey( curKey ) )
+                return Nodes[ curKey ];
 
             TEntity? curEntity = entity;
             ISelectableNode<TKey, TEntity>? retVal = null;
@@ -95,21 +86,20 @@ namespace J4JSoftware.WPFUtilities
             do
             {
                 var parentEntity = GetParentEntity( curEntity );
+                var parentNode = parentEntity == null ? null : AddOrGetNode( parentEntity );
 
-                retVal = _nodeCreator(
-                    curEntity,
-                    parentEntity == null ? null : AddOrGetNode( parentEntity ),
-                    this,
-                    _selectionChangedHandler );
+                retVal = _nodeFactory.Create( curEntity, parentNode );
 
-                AllNodes.Add( retVal.Key, retVal );
+                Nodes.Add( retVal.Key, retVal );
+
+                parentNode?.ChildNodes.Add( retVal );
 
                 if( parentEntity == null )
-                    RootNodes.Add( retVal );
+                    _nodeCollection.Add( retVal );
 
                 curEntity = parentEntity;
 
-            } while( curEntity != null );
+            } while( curEntity != null && !Nodes.ContainsKey( GetKey( curEntity ) ) );
 
             return retVal;
         }
@@ -122,12 +112,30 @@ namespace J4JSoftware.WPFUtilities
             }
         }
 
+        public void SortNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null )
+        {
+            sortComparer ??= new DefaultSelectableNodeComparer<TKey, TEntity>();
+
+            var tempRoot = _nodeCollection
+                .OrderBy( x => x, sortComparer )
+                .ToList();
+
+            _nodeCollection.Clear();
+
+            foreach( var node in tempRoot )
+            {
+                _nodeCollection.Add( node );
+
+                node.SortChildNodes( sortComparer );
+            }
+        }
+
         protected abstract TEntity? GetParentEntity( TEntity entity );
         protected abstract TKey GetKey( TEntity entity );
 
         public virtual void UpdateDisplayNames( bool inclInvisible = true, bool inclUnselected = true )
         {
-            foreach( var node in AllNodes
+            foreach( var node in Nodes
                 .Where( x => ( x.Value.Visibility == Visibility.Visible || inclInvisible )
                              && ( x.Value.IsSelected || inclUnselected ) ) )
             {
@@ -163,25 +171,9 @@ namespace J4JSoftware.WPFUtilities
 
         public IEnumerator<ISelectableNode<TKey, TEntity>> GetEnumerator()
         {
-            foreach( var node in RootNodes )
+            foreach( var kvp in Nodes )
             {
-                foreach( var temp in EnumerateNodes( node ) )
-                {
-                    yield return temp;
-                }
-            }
-        }
-
-        private IEnumerable<ISelectableNode<TKey, TEntity>> EnumerateNodes(ISelectableNode<TKey, TEntity> node )
-        {
-            yield return node;
-
-            foreach( var childNode in node.ChildNodes )
-            {
-                foreach( var temp in EnumerateNodes( childNode ) )
-                {
-                    yield return temp;
-                }
+                yield return kvp.Value;
             }
         }
 

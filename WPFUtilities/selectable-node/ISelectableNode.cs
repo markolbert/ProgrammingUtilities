@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Windows;
 
 namespace J4JSoftware.WPFUtilities
@@ -20,9 +19,9 @@ namespace J4JSoftware.WPFUtilities
         TEntity Entity { get; }
         TKey Key { get; }
 
-        ISelectableTree<TKey, TEntity> Tree { get; }
-
         ISelectableNode<TKey, TEntity>? ParentNode { get; }
         List<ISelectableNode<TKey, TEntity>> ChildNodes { get; }
+
+        void SortChildNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null );
     }
 }

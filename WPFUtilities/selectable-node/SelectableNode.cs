@@ -19,12 +19,36 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace J4JSoftware.WPFUtilities
 {
+    public abstract class SelectableNodeFactory<TKey, TEntity> : ISelectableNodeFactory<TKey, TEntity>
+        where TKey : IComparable<TKey>
+    {
+        public abstract SelectableNode<TKey, TEntity> Create(TEntity entity, ISelectableNode<TKey, TEntity>? parentNode);
+    }
+
+    public class DefaultSelectableNodeComparer<TKey, TEntity> : IComparer<ISelectableNode<TKey, TEntity>>
+        where TKey : IComparable<TKey>
+    {
+        public int Compare( ISelectableNode<TKey, TEntity>? x, ISelectableNode<TKey, TEntity>? y )
+        {
+            if( x == null && y == null )
+                return 0;
+
+            if( x == null )
+                return 1;
+
+            if( y == null )
+                return -1;
+
+            return string.Compare( x.DisplayName, y.DisplayName, StringComparison.Ordinal );
+        }
+    }
+
     public abstract class SelectableNode<TKey, TEntity> : ObservableRecipient, ISelectableNode<TKey, TEntity>
         where TKey : IComparable<TKey>
     {
@@ -34,16 +58,14 @@ namespace J4JSoftware.WPFUtilities
         private bool _isSelected;
         private Visibility _visibility = Visibility.Hidden;
 
-        protected SelectableNode( 
+        protected SelectableNode(
             TEntity entity,
             ISelectableNode<TKey, TEntity>? parentNode,
-            ISelectableTree<TKey, TEntity> tree,
             Action<ISelectableNode<TKey, TEntity>, bool>? selectionChangedHandler
         )
         {
             Entity = entity;
             ParentNode = parentNode;
-            Tree = tree;
             _selectionChangedHandler = selectionChangedHandler;
         }
 
@@ -54,15 +76,27 @@ namespace J4JSoftware.WPFUtilities
 
         public TEntity Entity { get; }
         public abstract TKey Key { get; }
-        public ISelectableTree<TKey, TEntity> Tree { get; }
         public ISelectableNode<TKey, TEntity>? ParentNode { get; }
-        public List<ISelectableNode<TKey, TEntity>> ChildNodes { get; } = new();
+        public List<ISelectableNode<TKey, TEntity>> ChildNodes { get; private set; } = new();
+
+        public void SortChildNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null )
+        {
+            sortComparer ??= new DefaultSelectableNodeComparer<TKey, TEntity>();
+
+            ChildNodes = ChildNodes.OrderBy( x => x, sortComparer )
+                .ToList();
+
+            foreach( var childNode in ChildNodes )
+            {
+                childNode.SortChildNodes( sortComparer );
+            }
+        }
 
 
         public string DisplayName
         {
             get => _displayName;
-            set => SetProperty(ref _displayName, value);
+            set => SetProperty( ref _displayName, value );
         }
 
         public bool IsSelected
@@ -71,9 +105,9 @@ namespace J4JSoftware.WPFUtilities
 
             set
             {
-                SetProperty(ref _isSelected, value);
+                SetProperty( ref _isSelected, value );
 
-                OnSelectionChanged(value);
+                OnSelectionChanged( value );
             }
         }
 
@@ -83,7 +117,7 @@ namespace J4JSoftware.WPFUtilities
 
             set
             {
-                SetProperty(ref _visibility, value);
+                SetProperty( ref _visibility, value );
 
                 OnVisibilityChanged();
             }

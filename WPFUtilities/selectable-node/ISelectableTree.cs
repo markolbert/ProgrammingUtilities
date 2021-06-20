@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace J4JSoftware.WPFUtilities
 {
@@ -18,10 +17,11 @@ namespace J4JSoftware.WPFUtilities
         IEnumerable<ISelectableNode<TKey, TEntity>>
         where TKey : IComparable<TKey>
     {
-        List<ISelectableNode<TKey, TEntity>> RootNodes { get; }
-        Dictionary<TKey, ISelectableNode<TKey, TEntity>> AllNodes { get; }
+        Dictionary<TKey, ISelectableNode<TKey, TEntity>> Nodes { get; }
 
         ISelectableNode<TKey, TEntity> AddOrGetNode( TEntity entity );
         void AddOrGetNodes( IEnumerable<TEntity> entities );
+
+        void SortNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null );
     }
 }
