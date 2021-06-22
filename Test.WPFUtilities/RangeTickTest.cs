@@ -10,12 +10,54 @@ namespace Test.WPFUtilities
         [Theory]
         [InlineData(-76, 1307, 2)]
         [InlineData(-0.5, 5, 2)]
-        public void TickTest( double minValue, double maxValue, int minPowerOfTen )
+        public void TestDecimal( decimal minValue, decimal maxValue, int minPowerOfTen )
         {
-            var mgr = new RangeTickManager( minPowerOfTen );
+            var calculators = CompositionRoot.Default.RangeCalculators;
 
-            var alternates = mgr.Calculate( minValue, maxValue );
-            alternates.Should().NotBeEmpty();
+            calculators.Calculate( minValue, maxValue, out var alternates, minPowerOfTen )
+                .Should()
+                .BeTrue();
+        }
+
+        [Theory]
+        [InlineData(-76, 1307, 2)]
+        [InlineData(-1, 5, 2)]
+        public void TestInt(int minValue, int maxValue, int minPowerOfTen)
+        {
+            var calculators = CompositionRoot.Default.RangeCalculators;
+
+            calculators.Calculate( minValue, maxValue, out var alternates, minPowerOfTen )
+                .Should()
+                .BeTrue();
+        }
+
+        [Theory]
+        [InlineData(-76, 1307, 2)]
+        [InlineData(-0.5, 5, 2)]
+        public void TestDouble(double minValue, double maxValue, int minPowerOfTen)
+        {
+            var calculators = CompositionRoot.Default.RangeCalculators;
+
+            calculators.Calculate( minValue, maxValue, out var alternates, minPowerOfTen )
+                .Should()
+                .BeTrue();
+        }
+
+        [Theory]
+        [InlineData("2/15/2020", "8/17/2021", 2)]
+        [InlineData("6/26/2001", "12/31/2021", 2)]
+        [InlineData("6/26/2001", "11/30/2021", 2)]
+        public void TestMonth(string minValue, string maxValue, int minPowerOfTen)
+        {
+            var calculators = CompositionRoot.Default.RangeCalculators;
+
+            calculators.Calculate(
+                    DateTime.Parse( minValue ),
+                    DateTime.Parse( maxValue ),
+                    out var alternates,
+                    minPowerOfTen )
+                .Should()
+                .BeTrue();
         }
     }
 }

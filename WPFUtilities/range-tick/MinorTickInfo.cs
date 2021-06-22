@@ -18,18 +18,56 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace J4JSoftware.WPFUtilities
 {
     public class MinorTickInfo
     {
-        public static MinorTickInfo[] Default = new[]
+        private static readonly Dictionary<TickStyle, MinorTickInfo[]> _tickSets = new();
+
+        static MinorTickInfo()
         {
-            new MinorTickInfo( 1, 10 ),
-            new MinorTickInfo( 2, 5 ),
-            new MinorTickInfo( 5, 2 ),
-            new MinorTickInfo( 25, 4 )
-        };
+            _tickSets.Add( TickStyle.Date, new[]
+            {
+                new MinorTickInfo( 1, 12 ),
+                new MinorTickInfo( 3, 4 ),
+                new MinorTickInfo( 6, 2 ),
+                new MinorTickInfo( 12, 5 )
+            } );
+
+            _tickSets.Add(TickStyle.Numeric, new[]
+            {
+                new MinorTickInfo( 1, 10 ),
+                new MinorTickInfo( 2, 5 ),
+                new MinorTickInfo( 5, 2 ),
+                new MinorTickInfo( 25, 4 )
+            });
+        }
+
+        public static MinorTickInfo[]? GetDefault( TickStyle style )
+        {
+            if( _tickSets.ContainsKey( style ) )
+                return _tickSets[ style ];
+
+            return null;
+        }
+
+        //public static readonly MinorTickInfo[] Default = new[]
+        //{
+        //    new MinorTickInfo( 1, 10 ),
+        //    new MinorTickInfo( 2, 5 ),
+        //    new MinorTickInfo( 5, 2 ),
+        //    new MinorTickInfo( 25, 4 )
+        //};
+
+        //public static readonly MinorTickInfo[] DefaultDateTime = new[]
+        //{
+        //    new MinorTickInfo( 1, 12 ),
+        //    new MinorTickInfo( 3, 4 ),
+        //    new MinorTickInfo( 6, 2 ),
+        //    new MinorTickInfo( 12, 5 )
+        //};
 
         public MinorTickInfo( int normalizedWidth, int minorPerMajor )
         {

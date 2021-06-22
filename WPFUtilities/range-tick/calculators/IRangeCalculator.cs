@@ -17,13 +17,29 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+
 namespace J4JSoftware.WPFUtilities
 {
-    public record RangeTickParameters( 
-        int MajorTicks, 
-        double MajorTickWidth,
-        int MinorTicksPerMajorTick, 
-        double MinorTickWidth,
-        double RangeStart, 
-        double RangeEnd );
+    public interface IRangeCalculator
+    {
+        TickStyle Style { get; }
+
+        bool Calculate( object minValue, 
+            object maxValue, 
+            int minTickPowerOfTen, 
+            MinorTickInfo[] tickChoices,
+            out List<object>? result );
+    }
+
+    public interface IRangeCalculator<TValue> : IRangeCalculator
+        where TValue : IComparable<TValue>
+    {
+        bool Calculate( TValue minValue, 
+            TValue maxValue, 
+            int minTickPowerOfTen, 
+            MinorTickInfo[] tickChoices,
+            out List<RangeParametersNG<TValue>>? result );
+    }
 }
