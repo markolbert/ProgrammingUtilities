@@ -86,7 +86,7 @@ namespace J4JSoftware.WPFUtilities
 
             ranker ??= ( major, minor ) => Math.Abs( 10 - major ) * Math.Abs( 10 - minor );
 
-            result = alternatives!.OrderByDescending( x => ranker( x.MajorTicks, x.MinorTicksPerMajorTick ) )
+            result = alternatives!.OrderBy( x => ranker( x.MajorTicks, x.MinorTicksPerMajorTick ) )
                 .FirstOrDefault();
 
             return result != null;
