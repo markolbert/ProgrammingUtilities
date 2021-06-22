@@ -21,26 +21,10 @@ using System;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public record RangeParameters<TValue>( 
-        int MajorTicks, 
-        TValue MajorTickWidth,
-        int MinorTicksPerMajorTick, 
-        TValue MinorTickWidth,
-        TValue RangeStart, 
-        TValue RangeEnd );
-
-    public record RangeParametersNG<TValue>(
+    public record RangeParameters<TValue>(
         int MajorTicks,
         int MinorTicksPerMajorTick,
         decimal MinorTickWidth,
         TValue RangeStart,
         TValue RangeEnd);
-
-    public record RangeParametersDateTime(
-        int MajorTicks,
-        int MajorTickWidth,
-        int MinorTicksPerMajorTick,
-        int MinorTickWidth,
-        DateTime RangeStart,
-        DateTime RangeEnd);
 }

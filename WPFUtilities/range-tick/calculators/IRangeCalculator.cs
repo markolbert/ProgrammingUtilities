@@ -40,6 +40,6 @@ namespace J4JSoftware.WPFUtilities
             TValue maxValue, 
             int minTickPowerOfTen, 
             MinorTickInfo[] tickChoices,
-            out List<RangeParametersNG<TValue>>? result );
+            out List<RangeParameters<TValue>>? result );
     }
 }

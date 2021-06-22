@@ -17,6 +17,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Windows.Xps.Serialization;
 
@@ -24,11 +25,19 @@ namespace J4JSoftware.WPFUtilities
 {
     public interface IRangeCalculators
     {
-        bool Calculate<TValue>( 
-            TValue minValue, 
+        bool CalculateAlternatives<TValue>(
+            TValue minValue,
             TValue maxValue,
-            out List<RangeParametersNG<TValue>>? result,
-            int minTickPowerOfTen = 2, 
+            out List<RangeParameters<TValue>>? result,
+            int minTickPowerOfTen = 2,
+            MinorTickInfo[]? tickChoices = null );
+
+        bool GetBestFit<TValue>(
+            TValue minValue,
+            TValue maxValue,
+            out RangeParameters<TValue>? result,
+            Func<int, int, int>? ranker = null,
+            int minTickPowerOfTen = 2,
             MinorTickInfo[]? tickChoices = null );
     }
 }

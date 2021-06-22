@@ -55,7 +55,7 @@ namespace J4JSoftware.WPFUtilities
             TValue maxValue, 
             int minTickPowerOfTen, 
             MinorTickInfo[] tickChoices,
-            out List<RangeParametersNG<TValue>>? result )
+            out List<RangeParameters<TValue>>? result )
         {
             result = null;
 
@@ -72,7 +72,7 @@ namespace J4JSoftware.WPFUtilities
 
             var powerOfTen = GetPowerOfTen( minValue, maxValue, minTickPowerOfTen );
 
-            var retVal = new List<RangeParametersNG<TValue>>();
+            var retVal = new List<RangeParameters<TValue>>();
 
             foreach (var mtChoice in tickChoices)
             {
@@ -95,7 +95,7 @@ namespace J4JSoftware.WPFUtilities
                 var modulo = totalMinorTicks % mtChoice.MinorTicksPerMajorTick;
                 if (modulo != 0) majorTicks++;
 
-                retVal.Add( new RangeParametersNG<TValue>(
+                retVal.Add( new RangeParameters<TValue>(
                     majorTicks,
                     mtChoice.MinorTicksPerMajorTick,
                     mtChoice.NormalizedTickWidth * powerOfTen,

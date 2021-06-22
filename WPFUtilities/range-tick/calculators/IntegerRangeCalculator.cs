@@ -42,6 +42,9 @@ namespace J4JSoftware.WPFUtilities
         {
             var range = maxValue - minValue;
 
+            if (range == 0)
+                return 1;
+
             var scalingExponent = (int)(Math.Log10((double)range) - minTickPowerOfTen);
             scalingExponent = scalingExponent < 0 ? 0 : scalingExponent;
 

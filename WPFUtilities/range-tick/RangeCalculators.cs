@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Automation;
 using System.Windows.Markup;
 using Accessibility;
 using J4JSoftware.Logging;
@@ -26,9 +27,9 @@ namespace J4JSoftware.WPFUtilities
             _calculators = calculators.ToList();
         }
 
-        public bool Calculate<TValue>( TValue minValue, 
+        public bool CalculateAlternatives<TValue>( TValue minValue, 
             TValue maxValue, 
-            out List<RangeParametersNG<TValue>>? result,
+            out List<RangeParameters<TValue>>? result,
             int minTickPowerOfTen = 2, 
             MinorTickInfo[]? tickChoices = null )
         {
@@ -65,9 +66,30 @@ namespace J4JSoftware.WPFUtilities
             if( !calculator.Calculate( minValue, maxValue, minTickPowerOfTen, tickChoices, out var innerResult ) )
                 return false;
 
-            result = innerResult!.Cast<RangeParametersNG<TValue>>().ToList();
+            result = innerResult!.Cast<RangeParameters<TValue>>().ToList();
 
             return true;
+        }
+
+        public bool GetBestFit<TValue>(
+            TValue minValue,
+            TValue maxValue,
+            out RangeParameters<TValue>? result,
+            Func<int, int, int>? ranker = null,
+            int minTickPowerOfTen = 2,
+            MinorTickInfo[]? tickChoices = null )
+        {
+            result = null;
+
+            if( !CalculateAlternatives( minValue, maxValue, out var alternatives, minTickPowerOfTen, tickChoices ) )
+                return false;
+
+            ranker ??= ( major, minor ) => Math.Abs( 10 - major ) * Math.Abs( 10 - minor );
+
+            result = alternatives!.OrderByDescending( x => ranker( x.MajorTicks, x.MinorTicksPerMajorTick ) )
+                .FirstOrDefault();
+
+            return result != null;
         }
     }
 }

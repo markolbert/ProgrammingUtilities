@@ -36,14 +36,19 @@ namespace J4JSoftware.WPFUtilities
         {
             var adjRange = maxValue - minValue;
 
-            return adjRange / minorTickWidth;
+            return adjRange == 0 ? 1 : adjRange / minorTickWidth;
         }
 
         protected override decimal GetPowerOfTen( decimal minValue, decimal maxValue, int minTickPowerOfTen )
         {
             var range = maxValue - minValue;
 
+            if( range == 0 )
+                return 1;
+
             var scalingExponent = (int) ( Math.Log10( (double) range ) - minTickPowerOfTen );
+            scalingExponent = scalingExponent < 0 ? 0 : scalingExponent;
+
             return (decimal) Math.Pow( 10, scalingExponent );
         }
 

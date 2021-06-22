@@ -38,6 +38,9 @@ namespace J4JSoftware.WPFUtilities
 
             var range = lastMonth - firstMonth;
 
+            if( range == 0 )
+                return 1;
+
             return range / minorTickWidth;
         }
 
@@ -48,7 +51,12 @@ namespace J4JSoftware.WPFUtilities
 
             var range = lastMonth - firstMonth;
 
+            if( range == 0 )
+                return 1;
+
             var scalingExponent = (int) ( Math.Log10( range ) - minTickPowerOfTen );
+            scalingExponent = scalingExponent < 0 ? 0 : scalingExponent;
+
             return (decimal) Math.Pow( 10, scalingExponent );
         }
 
