@@ -1,6 +1,7 @@
 using System;
 using FluentAssertions;
 using J4JSoftware.WPFUtilities;
+using J4JSoftware.WPFUtilities.rangetick;
 using Xunit;
 
 namespace Test.WPFUtilities
@@ -19,6 +20,15 @@ namespace Test.WPFUtilities
             calculators.CalculateAlternatives( minValue, maxValue, out var alternates, minPowerOfTen )
                 .Should()
                 .BeTrue();
+
+            calculators.GetBestFit( minValue, maxValue, out var bestFit )
+                .Should()
+                .BeTrue();
+
+            var rounder = new DecimalRangeRounder( bestFit! );
+
+            var roundedUp = rounder.RoundUp( maxValue );
+            var roundedDown = rounder.RoundDown( minValue );
         }
 
         [Theory]
@@ -33,6 +43,15 @@ namespace Test.WPFUtilities
             calculators.CalculateAlternatives( minValue, maxValue, out var alternates, minPowerOfTen )
                 .Should()
                 .BeTrue();
+
+            calculators.GetBestFit(minValue, maxValue, out var bestFit)
+                .Should()
+                .BeTrue();
+
+            var rounder = new IntegerRangeRounder(bestFit!);
+
+            var roundedUp = rounder.RoundUp(maxValue);
+            var roundedDown = rounder.RoundDown(minValue);
         }
 
         [Theory]
@@ -47,6 +66,15 @@ namespace Test.WPFUtilities
             calculators.CalculateAlternatives( minValue, maxValue, out var alternates, minPowerOfTen )
                 .Should()
                 .BeTrue();
+
+            calculators.GetBestFit(minValue, maxValue, out var bestFit)
+                .Should()
+                .BeTrue();
+
+            var rounder = new DoubleRangeRounder(bestFit!);
+
+            var roundedUp = rounder.RoundUp(maxValue);
+            var roundedDown = rounder.RoundDown(minValue);
         }
 
         [Theory]
@@ -58,13 +86,21 @@ namespace Test.WPFUtilities
         {
             var calculators = CompositionRoot.Default.RangeCalculators;
 
-            calculators.CalculateAlternatives(
-                    DateTime.Parse( minValue ),
-                    DateTime.Parse( maxValue ),
-                    out var alternates,
-                    minPowerOfTen )
+            var minDT = DateTime.Parse( minValue );
+            var maxDT = DateTime.Parse( maxValue );
+
+            calculators.CalculateAlternatives( minDT, maxDT, out var alternates, minPowerOfTen )
                 .Should()
                 .BeTrue();
+
+            calculators.GetBestFit( minDT, maxDT, out var bestFit)
+                .Should()
+                .BeTrue();
+
+            var rounder = new MonthRangeRounder(bestFit!);
+
+            var roundedUp = rounder.RoundUp(maxDT);
+            var roundedDown = rounder.RoundDown(minDT);
         }
     }
 }

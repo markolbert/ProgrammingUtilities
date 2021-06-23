@@ -96,9 +96,9 @@ namespace J4JSoftware.WPFUtilities
             }
         }
 
-        private int GetMonthNumber( DateTime dt ) => dt.Year * 12 + dt.Month;
+        public static int GetMonthNumber( DateTime dt ) => dt.Year * 12 + dt.Month;
 
-        private DateTime GetFirstDay( DateTime dt, decimal delta )
+        public static DateTime GetFirstDay( DateTime dt, decimal delta )
         {
             var deltaYears = (int) delta / 12;
             var deltaMonths = (int) ( delta - 12 * deltaYears );

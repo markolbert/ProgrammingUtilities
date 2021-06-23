@@ -47,7 +47,6 @@ namespace J4JSoftware.WPFUtilities
                 return 1;
 
             var scalingExponent = (int) ( Math.Log10( (double) range ) - minTickPowerOfTen );
-            scalingExponent = scalingExponent < 0 ? 0 : scalingExponent;
 
             return (decimal) Math.Pow( 10, scalingExponent );
         }
