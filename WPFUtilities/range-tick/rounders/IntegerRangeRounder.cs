@@ -19,7 +19,7 @@
 
 using System;
 
-namespace J4JSoftware.WPFUtilities.rangetick
+namespace J4JSoftware.WPFUtilities
 {
     public class IntegerRangeRounder : IRangeRounder<int>
     {

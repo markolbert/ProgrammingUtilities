@@ -17,7 +17,7 @@
 
 #endregion
 
-namespace J4JSoftware.WPFUtilities.rangetick
+namespace J4JSoftware.WPFUtilities
 {
     public class DecimalRangeRounder : IRangeRounder<decimal>
     {

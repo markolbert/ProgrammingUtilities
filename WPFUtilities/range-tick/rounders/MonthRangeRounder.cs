@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace J4JSoftware.WPFUtilities.rangetick
+namespace J4JSoftware.WPFUtilities
 {
     public class MonthRangeRounder : IRangeRounder<DateTime>
     {

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Autofac;
 using J4JSoftware.DependencyInjection;
 using J4JSoftware.Logging;
 using J4JSoftware.WPFUtilities;
-using J4JSoftware.WPFUtilities.rangetick;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog.Events;

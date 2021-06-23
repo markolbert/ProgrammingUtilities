@@ -1,7 +1,6 @@
 using System;
 using FluentAssertions;
 using J4JSoftware.WPFUtilities;
-using J4JSoftware.WPFUtilities.rangetick;
 using Xunit;
 
 namespace Test.WPFUtilities
