@@ -9,12 +9,12 @@ namespace Test.WPFUtilities
     {
         [ Theory ]
         [ InlineData( -76, 1307, -80, 1310 ) ]
-        [ InlineData( -0.5, 5, -0.5, 5 ) ]
-        [ InlineData( 0, 0, 0, 0 ) ]
-        [ InlineData( 5, 5, 5, 5 ) ]
-        [ InlineData( 5.5, 5.5, 5, 6 ) ]
-        [ InlineData( -5.5, -5.5, -6, -5 ) ]
-        [ InlineData( -965, -7, -970, 0 ) ]
+        [ InlineData( -0.5, 5, -0.5, 5) ]
+        [ InlineData( 0, 0, 0, 0) ]
+        [ InlineData( 5, 5, 5, 5) ]
+        [ InlineData( 5.5, 5.5, 5, 6) ]
+        [ InlineData( -5.5, -5.5, -6, -5) ]
+        [ InlineData( -965, -7, -970, 0) ]
         public void TestDecimal( decimal minValue, decimal maxValue, decimal rangeStart, decimal rangeEnd )
         {
             var calculator = CompositionRoot.Default.GetRangeCalculator<decimal>();
@@ -24,7 +24,7 @@ namespace Test.WPFUtilities
             calculator.Alternatives.Should().NotBeEmpty();
             calculator.BestFit.Should().NotBeNull();
             calculator.BestFit!.RangeStart.Should().Be( rangeStart );
-            calculator.BestFit!.RangeEnd.Should().Be(rangeEnd);
+            calculator.BestFit!.RangeEnd.Should().Be( rangeEnd );
         }
 
         [ Theory ]

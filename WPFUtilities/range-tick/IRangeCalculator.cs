@@ -25,6 +25,10 @@ namespace J4JSoftware.WPFUtilities
     public interface IRangeCalculator<TValue>
         where TValue : notnull, IComparable<TValue>
     {
+        EndPointNature StartingPointNature { get; set; }
+        EndPointNature EndingPointNature { get; set; }
+        Func<RangeParameters<TValue>, double> RankingFunction { get; set; }
+
         bool IsValid { get; }
         List<RangeParameters<TValue>> Alternatives { get; }
         RangeParameters<TValue>? BestFit { get; }

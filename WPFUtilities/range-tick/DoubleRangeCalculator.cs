@@ -26,7 +26,7 @@ namespace J4JSoftware.WPFUtilities
     public class DoubleRangeCalculator : RangeCalculator<double>
     {
         public DoubleRangeCalculator(
-            IJ4JLogger? logger
+            IJ4JLogger? logger = null
         )
             : base(logger)
         {

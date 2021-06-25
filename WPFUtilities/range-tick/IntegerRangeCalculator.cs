@@ -26,9 +26,9 @@ namespace J4JSoftware.WPFUtilities
     public class IntegerRangeCalculator : RangeCalculator<int>
     {
         public IntegerRangeCalculator(
-            IJ4JLogger? logger
+            IJ4JLogger? logger = null
         )
-            : base( logger )
+            : base(logger)
         {
         }
 

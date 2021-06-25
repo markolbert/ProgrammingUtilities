@@ -27,9 +27,9 @@ namespace J4JSoftware.WPFUtilities
     public class MonthRangeCalculator : RangeCalculator<DateTime>, IDateRangeCalculator
     {
         public MonthRangeCalculator(
-            IJ4JLogger? logger
+            IJ4JLogger? logger = null
         )
-            : base(logger)
+            : base( logger )
         {
         }
 

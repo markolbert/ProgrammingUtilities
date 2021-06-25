@@ -24,23 +24,29 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
 {
+    public enum EndPointNature
+    {
+        Inclusive,
+        Exclusive
+    }
+
     public abstract partial class RangeCalculator<TValue> : IRangeCalculator<TValue> 
         where TValue : notnull, IComparable<TValue>
     {
         protected RangeCalculator(
-            IJ4JLogger? logger,
-            Func<RangeParameters<TValue>, double>? rankingFunction = null
+            IJ4JLogger? logger = null
         )
         {
-            RankingFunction = rankingFunction ?? DefaultRankingFunction;
-
             Logger = logger;
             Logger?.SetLoggedType( GetType() );
         }
 
         protected IJ4JLogger? Logger { get; }
 
-        public Func<RangeParameters<TValue>, double> RankingFunction { get; }
+        public Func<RangeParameters<TValue>, double> RankingFunction { get; set; } = DefaultRankingFunction;
+        public EndPointNature StartingPointNature { get; set; } = EndPointNature.Inclusive;
+        public EndPointNature EndingPointNature { get; set; } = EndPointNature.Inclusive;
+
         public bool IsValid => Alternatives.Any() && BestFit != null;
         public List<RangeParameters<TValue>> Alternatives { get; } = new();
         public RangeParameters<TValue>? BestFit { get; private set; }
@@ -148,17 +154,27 @@ namespace J4JSoftware.WPFUtilities
 
         protected TValue GetAdjustedEndPoint( TValue toAdjust, decimal minorTickWidth, EndPoint endPoint )
         {
-            switch (endPoint)
+            return endPoint switch
             {
-                case EndPoint.StartOfRange:
-                    return RoundDown(toAdjust, minorTickWidth);
+                EndPoint.StartOfRange => StartingPointNature switch
+                {
+                    EndPointNature.Inclusive => RoundDown( toAdjust, minorTickWidth ),
+                    EndPointNature.Exclusive => RoundUp( toAdjust, minorTickWidth ),
+                    _ => log_error()
+                },
+                EndPoint.EndOfRange => EndingPointNature switch
+                {
+                    EndPointNature.Inclusive => RoundUp( toAdjust, minorTickWidth ),
+                    EndPointNature.Exclusive => RoundDown( toAdjust, minorTickWidth ),
+                    _ => log_error()
+                },
+                _ => log_error()
+            };
 
-                case EndPoint.EndOfRange:
-                    return RoundUp(toAdjust, minorTickWidth);
-
-                default:
-                    Logger?.Error("Unsupported EndPoint value {0}", endPoint);
-                    return toAdjust;
+            TValue log_error()
+            {
+                Logger?.Error("Unsupported EndPoint value or EndPointNature");
+                return toAdjust;
             }
         }
 
