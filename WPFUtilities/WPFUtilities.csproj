@@ -24,15 +24,6 @@
 	<ItemGroup>
 	  <Compile Remove="range-tick\rounders\**" />
 	  <EmbeddedResource Remove="range-tick\rounders\**" />
-	  <None Remove="range-tick\rounders\**" />
-	  <Page Remove="range-tick\rounders\**" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Remove="range-tick\IRangeCalculators.cs" />
-	  <Compile Remove="range-tick\MinorTickInfo.cs" />
-	  <Compile Remove="range-tick\RangeCalculators.cs" />
-	  <Compile Remove="range-tick\TickStyle.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
