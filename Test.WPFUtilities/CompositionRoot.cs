@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Autofac;
 using J4JSoftware.DependencyInjection;
 using J4JSoftware.Logging;
@@ -38,20 +39,15 @@ namespace Test.WPFUtilities
             StaticConfiguredLogging( logConfig );
         }
 
-        public IRangeCalculators RangeCalculators => Host!.Services.GetRequiredService<IRangeCalculators>();
+        public IRangeCalculator<TValue> GetRangeCalculator<TValue>() 
+            where TValue : notnull, IComparable<TValue> =>
+            Host!.Services.GetRequiredService<IRangeCalculator<TValue>>();
 
         protected override void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
         {
             base.SetupDependencyInjection( hbc, builder );
 
-            builder.RegisterType<RangeCalculators>()
-                .As<IRangeCalculators>();
-
-            builder.RegisterAssemblyTypes( typeof(RangeCalculator<>).Assembly )
-                .Where( t => !t.IsAbstract
-                             && typeof(IRangeCalculator).IsAssignableFrom( t )
-                             && t.GetConstructors().Any() )
-                .AsImplementedInterfaces();
+            builder.RegisterModule<AutoFacWPFUtilities>();
         }
     }
 }

@@ -28,7 +28,7 @@ namespace J4JSoftware.WPFUtilities
         public DecimalRangeCalculator(
             IJ4JLogger? logger
         )
-            : base( TickStyle.Numeric, logger )
+            : base( logger )
         {
         }
 
@@ -69,29 +69,22 @@ namespace J4JSoftware.WPFUtilities
             return TickStatus.Normal;
         }
 
-        protected override bool GetAdjustedEndPoint( decimal toAdjust, decimal minorTickWidth, EndPoint endPoint, out decimal result )
+        public override decimal RoundUp(decimal toRound, decimal root )
         {
-            result = toAdjust;
+            var modulo = toRound % root;
+            if (modulo == 0)
+                return toRound;
 
-            var modulo = toAdjust % minorTickWidth;
+            return toRound < 0 ? toRound - modulo : toRound + root - modulo;
+        }
 
-            if( modulo == 0 ) 
-                return true;
+        public override decimal RoundDown(decimal toRound, decimal root)
+        {
+            var modulo = toRound % root;
+            if (modulo == 0)
+                return toRound;
 
-            switch( endPoint )
-            {
-                case EndPoint.StartOfRange:
-                    result = toAdjust - modulo;
-                    return true;
-
-                case EndPoint.EndOfRange:
-                    result = toAdjust + modulo;
-                    return true;
-
-                default:
-                    Logger?.Error("Unsupported EndPoint value {0}", endPoint);
-                    return false;
-            }
+            return toRound < 0 ? toRound - root - modulo : toRound - modulo;
         }
     }
 }

@@ -7,102 +7,107 @@ namespace Test.WPFUtilities
 {
     public class RangeTickTest
     {
-        [Theory]
-        [InlineData(-76, 1307)]
-        [InlineData(-0.5, 5)]
-        [InlineData(0, 0)]
-        [InlineData(5, 5)]
-        [InlineData(5.5, 5.5)]
-        [InlineData(-5.5, -5.5)]
-        public void TestDecimal( decimal minValue, decimal maxValue )
+        [ Theory ]
+        [ InlineData( -76, 1307, -80, 1310 ) ]
+        [ InlineData( -0.5, 5, -0.5, 5 ) ]
+        [ InlineData( 0, 0, 0, 0 ) ]
+        [ InlineData( 5, 5, 5, 5 ) ]
+        [ InlineData( 5.5, 5.5, 5, 6 ) ]
+        [ InlineData( -5.5, -5.5, -6, -5 ) ]
+        [ InlineData( -965, -7, -970, 0 ) ]
+        public void TestDecimal( decimal minValue, decimal maxValue, decimal rangeStart, decimal rangeEnd )
         {
-            var calculators = CompositionRoot.Default.RangeCalculators;
+            var calculator = CompositionRoot.Default.GetRangeCalculator<decimal>();
 
-            calculators.CalculateAlternatives( minValue, maxValue, out var alternates )
+            calculator.GetAlternatives( minValue, maxValue, out var alternates )
                 .Should()
                 .BeTrue();
 
-            calculators.GetBestFit( minValue, maxValue, out var bestFit )
+            calculator.GetBestFit( minValue, maxValue, out var bestFit )
                 .Should()
                 .BeTrue();
 
-            var rounder = new DecimalRangeRounder( bestFit! );
+            bestFit!.RangeStart.Should().Be( rangeStart );
+            bestFit.RangeEnd.Should().Be( rangeEnd );
 
-            var roundedUp = rounder.RoundUp( maxValue );
-            var roundedDown = rounder.RoundDown( minValue );
+            var roundedUp = calculator.RoundUp( maxValue, bestFit!.MinorTickWidth );
+            var roundedDown = calculator.RoundDown( minValue, bestFit.MinorTickWidth );
         }
 
-        [Theory]
-        [InlineData(-76, 1307)]
-        [InlineData(-1, 5)]
-        [InlineData(0, 0)]
-        [InlineData(5, 5)]
-        public void TestInt(int minValue, int maxValue)
+        [ Theory ]
+        [ InlineData( -76, 1307,-80, 1310 ) ]
+        [ InlineData( -1, 5, -1, 5 ) ]
+        [ InlineData( 0, 0, 0, 0 ) ]
+        [ InlineData( 5, 5, 5, 5 ) ]
+        public void TestInt( int minValue, int maxValue, int rangeStart, int rangeEnd )
         {
-            var calculators = CompositionRoot.Default.RangeCalculators;
+            var calculator = CompositionRoot.Default.GetRangeCalculator<int>();
 
-            calculators.CalculateAlternatives( minValue, maxValue, out var alternates )
+            calculator.GetAlternatives( minValue, maxValue, out var alternates )
                 .Should()
                 .BeTrue();
 
-            calculators.GetBestFit(minValue, maxValue, out var bestFit)
+            calculator.GetBestFit( minValue, maxValue, out var bestFit )
                 .Should()
                 .BeTrue();
 
-            var rounder = new IntegerRangeRounder(bestFit!);
+            bestFit!.RangeStart.Should().Be(rangeStart);
+            bestFit.RangeEnd.Should().Be(rangeEnd);
 
-            var roundedUp = rounder.RoundUp(maxValue);
-            var roundedDown = rounder.RoundDown(minValue);
+            var roundedUp = calculator.RoundUp( maxValue, bestFit!.MinorTickWidth );
+            var roundedDown = calculator.RoundDown( minValue, bestFit.MinorTickWidth );
         }
 
-        [Theory]
-        [InlineData(-76, 1307)]
-        [InlineData(-0.5, 5)]
-        [InlineData(0, 0)]
-        [InlineData(5.5, 5.5)]
-        [InlineData(-5.5, -5.5)]
-        public void TestDouble(double minValue, double maxValue)
+        [ Theory ]
+        [ InlineData( -76, 1307, -80, 1310 ) ]
+        [ InlineData( -0.5, 5, -0.5, 5 ) ]
+        [ InlineData( 0, 0, 0, 0 ) ]
+        [ InlineData( 5.5, 5.5, 5, 6 ) ]
+        [ InlineData( -5.5, -5.5, -6, -5 ) ]
+        public void TestDouble( double minValue, double maxValue, double rangeStart, double rangeEnd )
         {
-            var calculators = CompositionRoot.Default.RangeCalculators;
+            var calculator = CompositionRoot.Default.GetRangeCalculator<double>();
 
-            calculators.CalculateAlternatives( minValue, maxValue, out var alternates )
+            calculator.GetAlternatives( minValue, maxValue, out var alternates )
                 .Should()
                 .BeTrue();
 
-            calculators.GetBestFit(minValue, maxValue, out var bestFit)
+            calculator.GetBestFit( minValue, maxValue, out var bestFit )
                 .Should()
                 .BeTrue();
 
-            var rounder = new DoubleRangeRounder(bestFit!);
+            bestFit!.RangeStart.Should().Be(rangeStart);
+            bestFit.RangeEnd.Should().Be(rangeEnd);
 
-            var roundedUp = rounder.RoundUp(maxValue);
-            var roundedDown = rounder.RoundDown(minValue);
+            var roundedUp = calculator.RoundUp( maxValue, bestFit!.MinorTickWidth );
+            var roundedDown = calculator.RoundDown( minValue, bestFit.MinorTickWidth );
         }
 
-        [Theory]
-        [InlineData("2/15/2020", "8/17/2021")]
-        [InlineData("6/26/2001", "12/31/2021")]
-        [InlineData("6/26/2001", "11/30/2021")]
-        [InlineData("6/26/2001", "6/26/2001")]
-        public void TestMonth(string minValue, string maxValue)
+        [ Theory ]
+        [ InlineData( "2/15/2020", "8/17/2021", "12/1/2019", "10/1/2021" ) ]
+        [ InlineData( "6/26/2001", "12/31/2021", "12/1/2000", "1/1/2022" ) ]
+        [ InlineData( "6/26/2001", "11/30/2021", "12/1/2000", "1/1/2022" ) ]
+        [ InlineData( "6/26/2001", "6/26/2001", "6/1/2001", "7/1/2001" ) ]
+        public void TestMonth( string minValue, string maxValue, string rangeStart, string rangeEnd )
         {
-            var calculators = CompositionRoot.Default.RangeCalculators;
-
             var minDT = DateTime.Parse( minValue );
             var maxDT = DateTime.Parse( maxValue );
 
-            calculators.CalculateAlternatives( minDT, maxDT, out var alternates )
+            var calculator = CompositionRoot.Default.GetRangeCalculator<DateTime>();
+
+            calculator.GetAlternatives( minDT, maxDT, out var alternates )
                 .Should()
                 .BeTrue();
 
-            calculators.GetBestFit( minDT, maxDT, out var bestFit)
+            calculator.GetBestFit( minDT, maxDT, out var bestFit )
                 .Should()
                 .BeTrue();
 
-            var rounder = new MonthRangeRounder(bestFit!);
+            bestFit!.RangeStart.Should().Be( DateTime.Parse( rangeStart ) );
+            bestFit.RangeEnd.Should().Be( DateTime.Parse( rangeEnd ) );
 
-            var roundedUp = rounder.RoundUp(maxDT);
-            var roundedDown = rounder.RoundDown(minDT);
+            var roundedUp = calculator.RoundUp( maxDT, bestFit!.MinorTickWidth );
+            var roundedDown = calculator.RoundDown( maxDT, bestFit.MinorTickWidth );
         }
     }
 }

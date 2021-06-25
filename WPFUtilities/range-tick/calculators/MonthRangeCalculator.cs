@@ -28,7 +28,7 @@ namespace J4JSoftware.WPFUtilities
         public MonthRangeCalculator(
             IJ4JLogger? logger
         )
-            : base(TickStyle.Date, logger)
+            : base(logger)
         {
         }
 
@@ -83,40 +83,26 @@ namespace J4JSoftware.WPFUtilities
             return TickStatus.Normal;
         }
 
-        protected override bool GetAdjustedEndPoint( DateTime toAdjust, decimal minorTickWidth, EndPoint endPoint, out DateTime result )
+        public override DateTime RoundUp(DateTime toRound, decimal root )
         {
-            result = toAdjust;
+            var monthNum = GetMonthNumber(toRound);
 
-            var monthNum = GetMonthNumber( toAdjust );
+            var modulo = monthNum % root;
+            if (modulo == 0)
+                return GetFirstDay(toRound, 1);
 
-            switch (endPoint)
-            {
-                case EndPoint.StartOfRange:
-                    var startModulo = ( monthNum - 1 ) % minorTickWidth;
+            return GetFirstDay(toRound, root - modulo + 1);
+        }
 
-                    result = startModulo switch
-                    {
-                        0 => new DateTime( toAdjust.Year, toAdjust.Month, 1 ),
-                        _ => GetFirstDay( toAdjust, -startModulo )
-                    };
+        public override DateTime RoundDown(DateTime toRound, decimal root )
+        {
+            var monthNum = GetMonthNumber(toRound);
 
-                    return true;
+            var modulo = monthNum % root;
+            if (modulo == 0)
+                return GetFirstDay(toRound, 0);
 
-                case EndPoint.EndOfRange:
-                    var endModulo = monthNum % minorTickWidth;
-
-                    result = endModulo switch
-                    {
-                        0 => GetFirstDay( toAdjust, endModulo + 1 ),
-                        _ => GetFirstDay( toAdjust, minorTickWidth - endModulo + 1 )
-                    };
-
-                    return true;
-
-                default:
-                    Logger?.Error("Unsupported EndPoint value {0}", endPoint);
-                    return false;
-            }
+            return GetFirstDay(toRound, -modulo);
         }
 
         public static int GetMonthNumber( DateTime dt ) => dt.Year * 12 + dt.Month;

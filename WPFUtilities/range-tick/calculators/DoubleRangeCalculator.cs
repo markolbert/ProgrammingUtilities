@@ -28,7 +28,7 @@ namespace J4JSoftware.WPFUtilities
         public DoubleRangeCalculator(
             IJ4JLogger? logger
         )
-            : base(TickStyle.Numeric, logger)
+            : base(logger)
         {
         }
 
@@ -83,41 +83,22 @@ namespace J4JSoftware.WPFUtilities
             return TickStatus.Normal;
         }
 
-        protected override bool GetAdjustedEndPoint(double toAdjust, decimal minorTickWidth, EndPoint endPoint, out double result )
+        public override double RoundUp( double toRound, decimal root )
         {
-            result = toAdjust;
+            var modulo = toRound % (double) root;
+            if( modulo == 0 )
+                return toRound;
 
-            decimal decToAdjust = 0;
+            return toRound < 0 ? toRound - modulo : toRound + (double) root - modulo;
+        }
 
-            try
-            {
-                decToAdjust = Convert.ToDecimal( Math.Abs( toAdjust ) );
-            }
-            catch
-            {
-                Logger?.Error("Value ({0}) too large to convert to decimal", toAdjust);
-                return false;
-            }
+        public override double RoundDown( double toRound, decimal root )
+        {
+            var modulo = toRound % (double) root;
+            if( modulo == 0 )
+                return toRound;
 
-            var modulo = decToAdjust % minorTickWidth;
-
-            if (modulo == 0)
-                return true;
-
-            switch (endPoint)
-            {
-                case EndPoint.StartOfRange:
-                    result = toAdjust - (double) modulo;
-                    return true;
-
-                case EndPoint.EndOfRange:
-                    result = toAdjust + (double) modulo;
-                    return true;
-
-                default:
-                    Logger?.Error("Unsupported EndPoint value {0}", endPoint);
-                    return false;
-            }
+            return toRound < 0 ? toRound - (double) root - modulo : toRound - modulo;
         }
     }
 }

@@ -22,20 +22,20 @@ using System.Collections.Generic;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public interface IRangeCalculator
-    {
-        TickStyle Style { get; }
-
-        bool Calculate( object minValue, 
-            object maxValue, 
-            out List<object> result );
-    }
-
-    public interface IRangeCalculator<TValue> : IRangeCalculator
+    public interface IRangeCalculator<TValue>
         where TValue : notnull, IComparable<TValue>
     {
-        bool Calculate( TValue minValue, 
-            TValue maxValue, 
+        bool GetAlternatives( TValue minValue,
+            TValue maxValue,
             out List<RangeParameters<TValue>> result );
+
+        bool GetBestFit(
+            TValue minValue,
+            TValue maxValue,
+            out RangeParameters<TValue>? result,
+            Func<RangeParameters<TValue>, double>? rankingFunction = null );
+
+        TValue RoundUp( TValue toRound, decimal root );
+        TValue RoundDown( TValue toRound, decimal root );
     }
 }

@@ -28,11 +28,11 @@ namespace J4JSoftware.WPFUtilities
         public IntegerRangeCalculator(
             IJ4JLogger? logger
         )
-            : base(TickStyle.Numeric, logger)
+            : base( logger )
         {
         }
 
-        protected override decimal GetMinorTicksInRange(int minValue, int maxValue, decimal minorTickWidth)
+        protected override decimal GetMinorTicksInRange( int minValue, int maxValue, decimal minorTickWidth )
         {
             var adjRange = maxValue - minValue;
 
@@ -68,29 +68,48 @@ namespace J4JSoftware.WPFUtilities
             return TickStatus.Normal;
         }
 
-        protected override bool GetAdjustedEndPoint(int toAdjust, decimal minorTickWidth, EndPoint endPoint, out int result )
+        public override int RoundUp( int toRound, decimal root )
         {
-            result = toAdjust;
-
-            var modulo = toAdjust % minorTickWidth;
-
+            var modulo = toRound % root;
             if( modulo == 0 )
-                return true;
+                return toRound;
 
-            switch (endPoint)
+            var intModulo = 0;
+            var intMinor = 0;
+
+            try
             {
-                case EndPoint.StartOfRange:
-                    result = toAdjust - (int) modulo;
-                    return true;
-
-                case EndPoint.EndOfRange:
-                    result = toAdjust + (int)modulo;
-                    return true;
-
-                default:
-                    Logger?.Error("Unsupported EndPoint value {0}", endPoint);
-                    return false;
+                intModulo = Convert.ToInt32( modulo );
+                intMinor = Convert.ToInt32( root );
             }
+            catch
+            {
+                return toRound;
+            }
+
+            return toRound < 0 ? toRound - intModulo : toRound + intMinor - intModulo;
+        }
+
+        public override int RoundDown( int toRound, decimal root )
+        {
+            var modulo = toRound % root;
+            if( modulo == 0 )
+                return toRound;
+
+            var intModulo = 0;
+            var intMinor = 0;
+
+            try
+            {
+                intModulo = Convert.ToInt32( modulo );
+                intMinor = Convert.ToInt32( root );
+            }
+            catch
+            {
+                return toRound;
+            }
+
+            return toRound < 0 ? toRound - intMinor - intModulo : toRound - intModulo;
         }
     }
 }

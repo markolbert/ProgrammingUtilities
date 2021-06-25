@@ -43,21 +43,16 @@ namespace J4JSoftware.WPFUtilities
         }
 
         protected RangeCalculator(
-            TickStyle style,
             IJ4JLogger? logger
         )
         {
-            Style = style;
-
             Logger = logger;
             Logger?.SetLoggedType( GetType() );
         }
 
         protected IJ4JLogger? Logger { get; }
 
-        public TickStyle Style { get; }
-
-        public bool Calculate(
+        public bool GetAlternatives(
             TValue minValue,
             TValue maxValue,
             out List<RangeParameters<TValue>> result )
@@ -83,17 +78,8 @@ namespace J4JSoftware.WPFUtilities
             {
                 foreach( var tickInfo in ticks! )
                 {
-                    if( !GetAdjustedEndPoint( minValue,
-                        tickInfo.ScalingFactor,
-                        EndPoint.StartOfRange,
-                        out var adjMinValue ) )
-                        return false;
-
-                    if( !GetAdjustedEndPoint( maxValue,
-                        tickInfo.ScalingFactor,
-                        EndPoint.EndOfRange,
-                        out var adjMaxValue ) )
-                        return false;
+                    var adjMinValue = GetAdjustedEndPoint( minValue, tickInfo.ScalingFactor, EndPoint.StartOfRange );
+                    var adjMaxValue = GetAdjustedEndPoint( maxValue, tickInfo.ScalingFactor, EndPoint.EndOfRange );
 
                     var totalMinorTicks = GetMinorTicksInRange( adjMinValue!,
                         adjMaxValue!,
@@ -125,6 +111,38 @@ namespace J4JSoftware.WPFUtilities
             return true;
         }
 
+        public bool GetBestFit(
+            TValue minValue,
+            TValue maxValue,
+            out RangeParameters<TValue>? result,
+            Func<RangeParameters<TValue>, double>? rankingFunction = null)
+        {
+            result = null;
+
+            if (!GetAlternatives(minValue, maxValue, out var alternatives))
+                return false;
+
+            rankingFunction ??= DefaultRankingFunction;
+
+            result = alternatives!.OrderBy(x => rankingFunction(x))
+                .FirstOrDefault();
+
+            return result != null;
+        }
+
+        public static double DefaultRankingFunction(RangeParameters<TValue> rangeParameters)
+        {
+            var majors = Math.Pow(2, Math.Abs(rangeParameters.MajorTicks - 10));
+
+            var fiveMinors = majors * Math.Pow(2, Math.Abs(rangeParameters.MinorTicksPerMajorTick - 5));
+            var tenMinors = majors * Math.Pow(2, Math.Abs(rangeParameters.MinorTicksPerMajorTick - 10));
+
+            return fiveMinors < tenMinors ? fiveMinors : tenMinors;
+        }
+
+        public abstract TValue RoundUp( TValue toRound, decimal root );
+        public abstract TValue RoundDown( TValue toRound, decimal root );
+        
         protected abstract TickStatus GetScalingFactors( 
             int generation, 
             TValue minValue, 
@@ -165,37 +183,52 @@ namespace J4JSoftware.WPFUtilities
         }
 
         protected abstract decimal GetMinorTicksInRange( TValue minValue, TValue maxValue, decimal minorTickWidth );
-        protected abstract bool GetAdjustedEndPoint( TValue toAdjust, decimal minorTickWidth, EndPoint endPoint, out TValue? result );
 
-        bool IRangeCalculator.Calculate( object minValue, 
-            object maxValue, 
-            out List<object> result )
+        protected TValue GetAdjustedEndPoint( TValue toAdjust, decimal minorTickWidth, EndPoint endPoint )
         {
-            result = new List<object>();
-
-            var minType = minValue.GetType();
-
-            if( minType != typeof(TValue) )
+            switch (endPoint)
             {
-                Logger?.Error( "Expected a '{0}' but got a '{1}'", typeof(TValue), minType );
-                return false;
+                case EndPoint.StartOfRange:
+                    return RoundDown(toAdjust, minorTickWidth);
+
+                case EndPoint.EndOfRange:
+                    return RoundUp(toAdjust, minorTickWidth);
+
+                default:
+                    Logger?.Error("Unsupported EndPoint value {0}", endPoint);
+                    return toAdjust;
             }
-
-            if( minType == maxValue.GetType() )
-            {
-                if( !Calculate( (TValue) minValue,
-                    (TValue) maxValue,
-                    out var innerResult ) ) 
-                    return false;
-
-                result = innerResult!.Cast<object>().ToList();
-                
-                return true;
-            }
-
-            Logger?.Error( "Minimum ({0}) and maximum ({1}) values are not the same type", minValue, maxValue );
-
-            return false;
         }
+
+        //bool IRangeCalculator.Calculate( object minValue, 
+        //    object maxValue, 
+        //    out List<object> result )
+        //{
+        //    result = new List<object>();
+
+        //    var minType = minValue.GetType();
+
+        //    if( minType != typeof(TValue) )
+        //    {
+        //        Logger?.Error( "Expected a '{0}' but got a '{1}'", typeof(TValue), minType );
+        //        return false;
+        //    }
+
+        //    if( minType == maxValue.GetType() )
+        //    {
+        //        if( !Calculate( (TValue) minValue,
+        //            (TValue) maxValue,
+        //            out var innerResult ) ) 
+        //            return false;
+
+        //        result = innerResult!.Cast<object>().ToList();
+                
+        //        return true;
+        //    }
+
+        //    Logger?.Error( "Minimum ({0}) and maximum ({1}) values are not the same type", minValue, maxValue );
+
+        //    return false;
+        //}
     }
 }
