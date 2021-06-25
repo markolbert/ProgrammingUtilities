@@ -17,21 +17,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-
 namespace J4JSoftware.WPFUtilities
 {
-    public interface IRangeCalculator<TValue>
-        where TValue : notnull, IComparable<TValue>
+    public enum DateRangeFocus
     {
-        bool IsValid { get; }
-        List<RangeParameters<TValue>> Alternatives { get; }
-        RangeParameters<TValue>? BestFit { get; }
-
-        void Evaluate( TValue minValue, TValue maxValue );
-
-        TValue RoundUp( TValue toRound, decimal root );
-        TValue RoundDown( TValue toRound, decimal root );
+        Month
     }
 }

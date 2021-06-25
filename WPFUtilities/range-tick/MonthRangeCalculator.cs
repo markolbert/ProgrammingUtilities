@@ -19,11 +19,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Windows.Navigation;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public class MonthRangeCalculator : RangeCalculator<DateTime>
+    public class MonthRangeCalculator : RangeCalculator<DateTime>, IDateRangeCalculator
     {
         public MonthRangeCalculator(
             IJ4JLogger? logger
@@ -31,6 +32,8 @@ namespace J4JSoftware.WPFUtilities
             : base(logger)
         {
         }
+
+        public DateRangeFocus Focus => DateRangeFocus.Month;
 
         protected override decimal GetMinorTicksInRange(DateTime minValue, DateTime maxValue, decimal minorTickWidth)
         {
@@ -43,6 +46,38 @@ namespace J4JSoftware.WPFUtilities
                 return 1;
 
             return range / minorTickWidth;
+        }
+
+        protected override RangeParameters<DateTime> GetDefaultRange( DateTime minValue, DateTime maxValue )
+        {
+            var numMonths = GetMonthNumber( maxValue ) - GetMonthNumber( minValue );
+
+            var years = numMonths / 12;
+
+            if( numMonths % 12 != 0 )
+                years++;
+
+            var decades = years / 10;
+            if( years % 10 != 0 )
+                decades++;
+
+            var daysInLastMonth = DateTime.DaysInMonth( maxValue.Year, maxValue.Month );
+
+            return numMonths switch
+            {
+                <= 60 => new RangeParameters<DateTime>(
+                    years,
+                    12,
+                    1,
+                    minValue.AddDays( 1 - minValue.Day ),
+                    maxValue.AddDays( daysInLastMonth - maxValue.Day ) ),
+                _ => new RangeParameters<DateTime>(
+                    decades,
+                    10,
+                    12,
+                    minValue.AddDays( 1 - minValue.Day ),
+                    maxValue.AddDays( daysInLastMonth - maxValue.Day ) ),
+            };
         }
 
         protected override int StartingExponent( int rawExponent ) => rawExponent > 2 ? rawExponent - 2 : 0;

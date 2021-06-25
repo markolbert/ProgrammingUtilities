@@ -24,40 +24,30 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public abstract class RangeCalculator<TValue> : IRangeCalculator<TValue> 
+    public abstract partial class RangeCalculator<TValue> : IRangeCalculator<TValue> 
         where TValue : notnull, IComparable<TValue>
     {
-        protected record TickInfo( decimal ScalingFactor, int MinorTicksPerMajorTick );
-
-        protected enum TickStatus
-        {
-            Normal,
-            ZeroRange,
-            RangeExceeded
-        }
-
-        protected enum EndPoint
-        {
-            StartOfRange,
-            EndOfRange
-        }
-
         protected RangeCalculator(
-            IJ4JLogger? logger
+            IJ4JLogger? logger,
+            Func<RangeParameters<TValue>, double>? rankingFunction = null
         )
         {
+            RankingFunction = rankingFunction ?? DefaultRankingFunction;
+
             Logger = logger;
             Logger?.SetLoggedType( GetType() );
         }
 
         protected IJ4JLogger? Logger { get; }
 
-        public bool GetAlternatives(
-            TValue minValue,
-            TValue maxValue,
-            out List<RangeParameters<TValue>> result )
+        public Func<RangeParameters<TValue>, double> RankingFunction { get; }
+        public bool IsValid => Alternatives.Any() && BestFit != null;
+        public List<RangeParameters<TValue>> Alternatives { get; } = new();
+        public RangeParameters<TValue>? BestFit { get; private set; }
+
+        public void Evaluate( TValue minValue, TValue maxValue )
         {
-            result = new List<RangeParameters<TValue>>();
+            Alternatives.Clear();
 
             if( minValue.CompareTo( maxValue ) > 0 )
             {
@@ -73,7 +63,7 @@ namespace J4JSoftware.WPFUtilities
             var generation = 0;
             var tickStatus = TickStatus.Normal;
 
-            while( ( tickStatus = GetScalingFactors( generation, minValue, maxValue, out var ticks ) ) 
+            while( ( tickStatus = GetScalingFactors( generation, minValue, maxValue, out var ticks ) )
                    != TickStatus.RangeExceeded )
             {
                 foreach( var tickInfo in ticks! )
@@ -90,7 +80,7 @@ namespace J4JSoftware.WPFUtilities
                     var modulo = totalMinorTicks % tickInfo.MinorTicksPerMajorTick;
                     if( modulo != 0 ) majorTicks++;
 
-                    result.Add( new RangeParameters<TValue>(
+                    Alternatives.Add( new RangeParameters<TValue>(
                         majorTicks,
                         tickInfo.MinorTicksPerMajorTick,
                         tickInfo.ScalingFactor,
@@ -105,39 +95,11 @@ namespace J4JSoftware.WPFUtilities
                 generation++;
             }
 
-            if( !result.Any() )
-                result.Add( new RangeParameters<TValue>( 1, 1, 1, minValue, maxValue ) );
+            if( !Alternatives.Any() )
+                Alternatives.Add( GetDefaultRange( minValue, maxValue ) );
 
-            return true;
-        }
-
-        public bool GetBestFit(
-            TValue minValue,
-            TValue maxValue,
-            out RangeParameters<TValue>? result,
-            Func<RangeParameters<TValue>, double>? rankingFunction = null)
-        {
-            result = null;
-
-            if (!GetAlternatives(minValue, maxValue, out var alternatives))
-                return false;
-
-            rankingFunction ??= DefaultRankingFunction;
-
-            result = alternatives!.OrderBy(x => rankingFunction(x))
-                .FirstOrDefault();
-
-            return result != null;
-        }
-
-        public static double DefaultRankingFunction(RangeParameters<TValue> rangeParameters)
-        {
-            var majors = Math.Pow(2, Math.Abs(rangeParameters.MajorTicks - 10));
-
-            var fiveMinors = majors * Math.Pow(2, Math.Abs(rangeParameters.MinorTicksPerMajorTick - 5));
-            var tenMinors = majors * Math.Pow(2, Math.Abs(rangeParameters.MinorTicksPerMajorTick - 10));
-
-            return fiveMinors < tenMinors ? fiveMinors : tenMinors;
+            BestFit = Alternatives!.OrderBy(x => RankingFunction(x))
+                .First();
         }
 
         public abstract TValue RoundUp( TValue toRound, decimal root );
@@ -200,35 +162,6 @@ namespace J4JSoftware.WPFUtilities
             }
         }
 
-        //bool IRangeCalculator.Calculate( object minValue, 
-        //    object maxValue, 
-        //    out List<object> result )
-        //{
-        //    result = new List<object>();
-
-        //    var minType = minValue.GetType();
-
-        //    if( minType != typeof(TValue) )
-        //    {
-        //        Logger?.Error( "Expected a '{0}' but got a '{1}'", typeof(TValue), minType );
-        //        return false;
-        //    }
-
-        //    if( minType == maxValue.GetType() )
-        //    {
-        //        if( !Calculate( (TValue) minValue,
-        //            (TValue) maxValue,
-        //            out var innerResult ) ) 
-        //            return false;
-
-        //        result = innerResult!.Cast<object>().ToList();
-                
-        //        return true;
-        //    }
-
-        //    Logger?.Error( "Minimum ({0}) and maximum ({1}) values are not the same type", minValue, maxValue );
-
-        //    return false;
-        //}
+        protected abstract RangeParameters<TValue> GetDefaultRange( TValue minValue, TValue maxValue );
     }
 }

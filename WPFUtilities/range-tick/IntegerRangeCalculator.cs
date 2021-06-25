@@ -39,6 +39,36 @@ namespace J4JSoftware.WPFUtilities
             return adjRange / minorTickWidth;
         }
 
+        protected override RangeParameters<int> GetDefaultRange(int minValue, int maxValue)
+        {
+            var range = Math.Abs(maxValue - minValue);
+            var exponent = Math.Log10(range);
+
+            var majorSize = Math.Pow(10, (int)exponent - 1);
+
+            decimal decMajorSize = 100;
+
+            try
+            {
+                decMajorSize = Convert.ToDecimal(majorSize);
+            }
+            catch
+            {
+            }
+
+            var numMajor = Convert.ToInt32((decimal)range / decMajorSize);
+            if (range % majorSize != 0)
+                numMajor++;
+
+            return new RangeParameters<int>(
+                numMajor,
+                10,
+                decMajorSize / 10,
+                minValue,
+                maxValue
+            );
+        }
+
         protected override TickStatus GetScalingFactors(
             int generation,
             int minValue,
