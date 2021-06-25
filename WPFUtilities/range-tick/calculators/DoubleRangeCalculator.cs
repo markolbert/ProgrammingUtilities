@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
@@ -53,28 +54,33 @@ namespace J4JSoftware.WPFUtilities
             return range / minorTickWidth;
         }
 
-        protected override decimal GetPowerOfTen(double minValue, double maxValue, int minTickPowerOfTen)
+        protected override TickStatus GetScalingFactors(
+            int generation,
+            double minValue,
+            double maxValue,
+            out List<TickInfo> result)
         {
-            var range = maxValue - minValue;
+            generation = generation < 0 ? 0 : generation;
+            result = new List<TickInfo> { new TickInfo( 1, 1 ) };
+
+            var range = Math.Abs(maxValue - minValue);
 
             if (range == 0)
-                return 1;
+                return TickStatus.ZeroRange;
 
-            var scalingExponent = (int)(Math.Log10((double)range) - minTickPowerOfTen);
+            var exponent = (int)Math.Log10((double)range);
 
-            decimal retVal = 0;
+            if (Math.Pow(10, (exponent + generation)) >= range)
+                return TickStatus.RangeExceeded;
 
-            try
+            result = (exponent + generation) switch
             {
-                retVal = Convert.ToDecimal( Math.Pow( 10, scalingExponent ) );
-            }
-            catch
-            {
-                Logger?.Fatal("Scaling exponent ({0}) too large to convert to decimal power of ten", scalingExponent);
-                throw new OverflowException($"Scaling exponent ({scalingExponent}) too large to convert to decimal power of ten");
-            }
+                < 0 => CreateTicks(exponent, generation, (1, 10), ((decimal)2.5, 4), (5, 2)),
+                0 => CreateTicks(exponent, generation, (1, 10), (2, 5), (5, 2)),
+                _ => CreateTicks(exponent, generation, (1, 10), ((decimal)2.5, 4), (5, 2))
+            };
 
-            return retVal;
+            return TickStatus.Normal;
         }
 
         protected override bool GetAdjustedEndPoint(double toAdjust, decimal minorTickWidth, EndPoint endPoint, out double result )
@@ -98,16 +104,14 @@ namespace J4JSoftware.WPFUtilities
             if (modulo == 0)
                 return true;
 
-            var rounding = (double) ( minorTickWidth - Math.Abs( modulo ) );
-
             switch (endPoint)
             {
                 case EndPoint.StartOfRange:
-                    result = toAdjust < 0 ? toAdjust - rounding : toAdjust + rounding;
+                    result = toAdjust - (double) modulo;
                     return true;
 
                 case EndPoint.EndOfRange:
-                    result = toAdjust + rounding;
+                    result = toAdjust + (double) modulo;
                     return true;
 
                 default:

@@ -28,18 +28,14 @@ namespace J4JSoftware.WPFUtilities
 
         bool Calculate( object minValue, 
             object maxValue, 
-            int minTickPowerOfTen, 
-            MinorTickInfo[] tickChoices,
-            out List<object>? result );
+            out List<object> result );
     }
 
     public interface IRangeCalculator<TValue> : IRangeCalculator
-        where TValue : IComparable<TValue>
+        where TValue : notnull, IComparable<TValue>
     {
         bool Calculate( TValue minValue, 
             TValue maxValue, 
-            int minTickPowerOfTen, 
-            MinorTickInfo[] tickChoices,
-            out List<RangeParameters<TValue>>? result );
+            out List<RangeParameters<TValue>> result );
     }
 }

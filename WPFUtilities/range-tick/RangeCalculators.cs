@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Automation;
-using System.Windows.Markup;
-using Accessibility;
 using J4JSoftware.Logging;
-using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.WPFUtilities
 {
@@ -27,21 +21,13 @@ namespace J4JSoftware.WPFUtilities
             _calculators = calculators.ToList();
         }
 
-        public bool CalculateAlternatives<TValue>( TValue minValue, 
+        public bool CalculateAlternatives<TValue>( 
+            TValue minValue, 
             TValue maxValue, 
-            out List<RangeParameters<TValue>>? result,
-            int minTickPowerOfTen = 2, 
-            MinorTickInfo[]? tickChoices = null )
+            out List<RangeParameters<TValue>>? result )
+            where TValue : notnull
         {
             result = null;
-
-            minTickPowerOfTen = minTickPowerOfTen < 0 ? 2 : minTickPowerOfTen;
-
-            if( minValue == null || maxValue == null )
-            {
-                _logger?.Error("The minimum or maximum values, or both, are null"  );
-                return false;
-            }
 
             var calculatorType = typeof(RangeCalculator<>).MakeGenericType( typeof(TValue) );
 
@@ -53,17 +39,7 @@ namespace J4JSoftware.WPFUtilities
                 return false;
             }
 
-            tickChoices ??= MinorTickInfo.GetDefault( calculator.Style );
-
-            if( tickChoices == null )
-            {
-                _logger?.Error( "Tick choices not supplied and no default defined for tick style '{0}'",
-                    calculator.Style );
-
-                return false;
-            }
-
-            if( !calculator.Calculate( minValue, maxValue, minTickPowerOfTen, tickChoices, out var innerResult ) )
+            if( !calculator.Calculate( minValue, maxValue, out var innerResult ) )
                 return false;
 
             result = innerResult!.Cast<RangeParameters<TValue>>().ToList();
@@ -75,21 +51,30 @@ namespace J4JSoftware.WPFUtilities
             TValue minValue,
             TValue maxValue,
             out RangeParameters<TValue>? result,
-            Func<int, int, int>? ranker = null,
-            int minTickPowerOfTen = 2,
-            MinorTickInfo[]? tickChoices = null )
+            Func<RangeParameters<TValue>, double>? rankingFunction = null )
+            where TValue : notnull
         {
             result = null;
 
-            if( !CalculateAlternatives( minValue, maxValue, out var alternatives, minTickPowerOfTen, tickChoices ) )
+            if( !CalculateAlternatives( minValue, maxValue, out var alternatives ) )
                 return false;
 
-            ranker ??= ( major, minor ) => Math.Abs( 10 - major ) * Math.Abs( 10 - minor );
+            rankingFunction ??= DefaultRankingFunction;
 
-            result = alternatives!.OrderBy( x => ranker( x.MajorTicks, x.MinorTicksPerMajorTick ) )
+            result = alternatives!.OrderBy( x => rankingFunction( x ) )
                 .FirstOrDefault();
 
             return result != null;
+        }
+
+        public static double DefaultRankingFunction<TValue>( RangeParameters<TValue> rangeParameters )
+        {
+            var majors = Math.Pow( 2, Math.Abs( rangeParameters.MajorTicks - 10 ) );
+
+            var fiveMinors = majors * Math.Pow(2, Math.Abs(rangeParameters.MinorTicksPerMajorTick - 5));
+            var tenMinors = majors * Math.Pow(2, Math.Abs(rangeParameters.MinorTicksPerMajorTick - 10));
+
+            return fiveMinors < tenMinors ? fiveMinors : tenMinors;
         }
     }
 }

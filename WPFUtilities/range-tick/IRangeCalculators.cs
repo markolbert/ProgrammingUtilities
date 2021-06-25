@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows.Xps.Serialization;
 
 namespace J4JSoftware.WPFUtilities
 {
@@ -28,16 +27,14 @@ namespace J4JSoftware.WPFUtilities
         bool CalculateAlternatives<TValue>(
             TValue minValue,
             TValue maxValue,
-            out List<RangeParameters<TValue>>? result,
-            int minTickPowerOfTen = 2,
-            MinorTickInfo[]? tickChoices = null );
+            out List<RangeParameters<TValue>>? result )
+            where TValue : notnull;
 
         bool GetBestFit<TValue>(
             TValue minValue,
             TValue maxValue,
             out RangeParameters<TValue>? result,
-            Func<int, int, int>? ranker = null,
-            int minTickPowerOfTen = 2,
-            MinorTickInfo[]? tickChoices = null );
+            Func<RangeParameters<TValue>, double>? rankingFunction = null )
+            where TValue : notnull;
     }
 }

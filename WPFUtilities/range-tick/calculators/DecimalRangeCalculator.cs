@@ -18,7 +18,7 @@
 #endregion
 
 using System;
-using System.Runtime.Versioning;
+using System.Collections.Generic;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
@@ -39,16 +39,34 @@ namespace J4JSoftware.WPFUtilities
             return adjRange == 0 ? 1 : adjRange / minorTickWidth;
         }
 
-        protected override decimal GetPowerOfTen( decimal minValue, decimal maxValue, int minTickPowerOfTen )
+        protected override TickStatus GetScalingFactors(
+            int generation,
+            decimal minValue,
+            decimal maxValue,
+            out List<TickInfo> result )
         {
-            var range = maxValue - minValue;
+            result = new List<TickInfo> { new TickInfo( 1, 1 ) };
+
+            generation = generation < 0 ? 0 : generation;
+
+            var range = Math.Abs( maxValue - minValue );
 
             if( range == 0 )
-                return 1;
+                return TickStatus.ZeroRange;
 
-            var scalingExponent = (int) ( Math.Log10( (double) range ) - minTickPowerOfTen );
+            var exponent = (int) Math.Log10( (double) range );
 
-            return (decimal) Math.Pow( 10, scalingExponent );
+            if( (decimal) Math.Pow( 10, ( exponent + generation ) ) >= range )
+                return TickStatus.RangeExceeded;
+
+            result = ( exponent + generation ) switch
+            {
+                < 0 => CreateTicks( exponent, generation, ( 1, 10 ), ( (decimal) 2.5, 4 ), ( 5, 2 ) ),
+                0 => CreateTicks( exponent, generation, ( 1, 10 ), ( 2, 5 ), ( 5, 2 ) ),
+                _ => CreateTicks( exponent, generation, ( 1, 10 ), ( (decimal) 2.5, 4 ), ( 5, 2 ) )
+            };
+
+            return TickStatus.Normal;
         }
 
         protected override bool GetAdjustedEndPoint( decimal toAdjust, decimal minorTickWidth, EndPoint endPoint, out decimal result )
@@ -60,16 +78,14 @@ namespace J4JSoftware.WPFUtilities
             if( modulo == 0 ) 
                 return true;
 
-            var rounding = minorTickWidth - Math.Abs( modulo );
-
             switch( endPoint )
             {
                 case EndPoint.StartOfRange:
-                    result = toAdjust < 0 ? toAdjust - rounding : toAdjust + rounding;
+                    result = toAdjust - modulo;
                     return true;
 
                 case EndPoint.EndOfRange:
-                    result = toAdjust + rounding;
+                    result = toAdjust + modulo;
                     return true;
 
                 default:

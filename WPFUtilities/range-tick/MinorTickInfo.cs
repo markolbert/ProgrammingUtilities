@@ -45,29 +45,8 @@ namespace J4JSoftware.WPFUtilities
             });
         }
 
-        public static MinorTickInfo[]? GetDefault( TickStyle style )
-        {
-            if( _tickSets.ContainsKey( style ) )
-                return _tickSets[ style ];
-
-            return null;
-        }
-
-        //public static readonly MinorTickInfo[] Default = new[]
-        //{
-        //    new MinorTickInfo( 1, 10 ),
-        //    new MinorTickInfo( 2, 5 ),
-        //    new MinorTickInfo( 5, 2 ),
-        //    new MinorTickInfo( 25, 4 )
-        //};
-
-        //public static readonly MinorTickInfo[] DefaultDateTime = new[]
-        //{
-        //    new MinorTickInfo( 1, 12 ),
-        //    new MinorTickInfo( 3, 4 ),
-        //    new MinorTickInfo( 6, 2 ),
-        //    new MinorTickInfo( 12, 5 )
-        //};
+        public static MinorTickInfo[]? GetDefault( TickStyle style ) =>
+            _tickSets.ContainsKey( style ) ? _tickSets[ style ] : null;
 
         public MinorTickInfo( int normalizedWidth, int minorPerMajor )
         {

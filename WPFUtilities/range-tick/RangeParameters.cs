@@ -17,8 +17,6 @@
 
 #endregion
 
-using System;
-
 namespace J4JSoftware.WPFUtilities
 {
     public record RangeParameters<TValue>(

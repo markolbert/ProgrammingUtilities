@@ -22,6 +22,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="range-tick\MinorTickInfo.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Page Remove="CustomComboBox.xaml" />
 	</ItemGroup>
 

@@ -20,15 +20,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Windows.Xps.Serialization;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
 {
     public abstract class RangeCalculator<TValue> : IRangeCalculator<TValue> 
-        where TValue : IComparable<TValue>
+        where TValue : notnull, IComparable<TValue>
     {
+        protected record TickInfo( decimal ScalingFactor, int MinorTicksPerMajorTick );
+
+        protected enum TickStatus
+        {
+            Normal,
+            ZeroRange,
+            RangeExceeded
+        }
+
         protected enum EndPoint
         {
             StartOfRange,
@@ -51,18 +58,16 @@ namespace J4JSoftware.WPFUtilities
         public TickStyle Style { get; }
 
         public bool Calculate(
-            TValue minValue, 
-            TValue maxValue, 
-            int minTickPowerOfTen, 
-            MinorTickInfo[] tickChoices,
-            out List<RangeParameters<TValue>>? result )
+            TValue minValue,
+            TValue maxValue,
+            out List<RangeParameters<TValue>> result )
         {
-            result = null;
+            result = new List<RangeParameters<TValue>>();
 
-            if( minValue.CompareTo(maxValue) > 0  )
+            if( minValue.CompareTo( maxValue ) > 0 )
             {
                 Logger?.Warning<TValue, TValue>( "Minimum ({0}) and maximum ({1}) values were reversed, correcting",
-                    minValue, 
+                    minValue,
                     maxValue );
 
                 var temp = minValue;
@@ -70,56 +75,103 @@ namespace J4JSoftware.WPFUtilities
                 maxValue = temp;
             }
 
-            var powerOfTen = GetPowerOfTen( minValue, maxValue, minTickPowerOfTen );
+            var generation = 0;
+            var tickStatus = TickStatus.Normal;
 
-            var retVal = new List<RangeParameters<TValue>>();
-
-            foreach (var mtChoice in tickChoices)
+            while( ( tickStatus = GetScalingFactors( generation, minValue, maxValue, out var ticks ) ) 
+                   != TickStatus.RangeExceeded )
             {
-                if( !GetAdjustedEndPoint( minValue, 
-                    mtChoice.NormalizedTickWidth * powerOfTen, 
-                    EndPoint.StartOfRange,
-                    out var adjMinValue ) )
-                    return false;
+                foreach( var tickInfo in ticks! )
+                {
+                    if( !GetAdjustedEndPoint( minValue,
+                        tickInfo.ScalingFactor,
+                        EndPoint.StartOfRange,
+                        out var adjMinValue ) )
+                        return false;
 
-                if( !GetAdjustedEndPoint( maxValue, 
-                    mtChoice.NormalizedTickWidth * powerOfTen, 
-                    EndPoint.EndOfRange,
-                    out var adjMaxValue ) )
-                    return false;
+                    if( !GetAdjustedEndPoint( maxValue,
+                        tickInfo.ScalingFactor,
+                        EndPoint.EndOfRange,
+                        out var adjMaxValue ) )
+                        return false;
 
-                var totalMinorTicks = GetMinorTicksInRange( adjMinValue!, adjMaxValue!, mtChoice.NormalizedTickWidth * powerOfTen );
+                    var totalMinorTicks = GetMinorTicksInRange( adjMinValue!,
+                        adjMaxValue!,
+                        tickInfo.ScalingFactor );
 
-                var majorTicks = (int)totalMinorTicks / mtChoice.MinorTicksPerMajorTick;
+                    var majorTicks = (int) totalMinorTicks / tickInfo.MinorTicksPerMajorTick;
 
-                var modulo = totalMinorTicks % mtChoice.MinorTicksPerMajorTick;
-                if (modulo != 0) majorTicks++;
+                    var modulo = totalMinorTicks % tickInfo.MinorTicksPerMajorTick;
+                    if( modulo != 0 ) majorTicks++;
 
-                retVal.Add( new RangeParameters<TValue>(
-                    majorTicks,
-                    mtChoice.MinorTicksPerMajorTick,
-                    mtChoice.NormalizedTickWidth * powerOfTen,
-                    adjMinValue!,
-                    adjMaxValue! )
-                );
+                    result.Add( new RangeParameters<TValue>(
+                        majorTicks,
+                        tickInfo.MinorTicksPerMajorTick,
+                        tickInfo.ScalingFactor,
+                        adjMinValue!,
+                        adjMaxValue! )
+                    );
+                }
+
+                if( tickStatus == TickStatus.ZeroRange )
+                    break;
+
+                generation++;
             }
 
-            result = retVal;
+            if( !result.Any() )
+                result.Add( new RangeParameters<TValue>( 1, 1, 1, minValue, maxValue ) );
 
             return true;
         }
 
+        protected abstract TickStatus GetScalingFactors( 
+            int generation, 
+            TValue minValue, 
+            TValue maxValue,
+            out List<TickInfo> result );
+
+        // must return a value <= rawExponent
+        protected virtual int StartingExponent( int rawExponent ) => rawExponent - 2;
+
+        protected List<TickInfo> CreateTicks( 
+            int exponent,
+            int generation,
+            params (decimal unitFactor, int minorPerMajor)[] ticks )
+        {
+            var retVal = new List<TickInfo>();
+
+            for( var curExp = StartingExponent(exponent + generation); curExp <= exponent; curExp++ )
+            {
+                foreach( var tick in ticks )
+                {
+                    var curScale = (double) tick.unitFactor * Math.Pow( 10, ( generation + curExp ) );
+
+                    try
+                    {
+                        var decScale = Convert.ToDecimal( curScale );
+                        retVal.Add( new TickInfo( decScale, tick.minorPerMajor ) );
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            if( !retVal.Any())
+                retVal = new List<TickInfo> { new TickInfo(1, 1) };
+
+            return retVal;
+        }
+
         protected abstract decimal GetMinorTicksInRange( TValue minValue, TValue maxValue, decimal minorTickWidth );
-        protected abstract decimal GetPowerOfTen( TValue minValue, TValue maxValue, int minTickPowerOfTen );
         protected abstract bool GetAdjustedEndPoint( TValue toAdjust, decimal minorTickWidth, EndPoint endPoint, out TValue? result );
 
         bool IRangeCalculator.Calculate( object minValue, 
             object maxValue, 
-            int minTickPowerOfTen,
-            MinorTickInfo[] tickChoices,
-            out List<object>? result )
+            out List<object> result )
         {
-            result = null;
+            result = new List<object>();
 
             var minType = minValue.GetType();
 
@@ -133,8 +185,6 @@ namespace J4JSoftware.WPFUtilities
             {
                 if( !Calculate( (TValue) minValue,
                     (TValue) maxValue,
-                    minTickPowerOfTen,
-                    tickChoices,
                     out var innerResult ) ) 
                     return false;
 
