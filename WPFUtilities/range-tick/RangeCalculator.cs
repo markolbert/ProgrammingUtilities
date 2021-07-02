@@ -24,12 +24,6 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public enum EndPointNature
-    {
-        Inclusive,
-        Exclusive
-    }
-
     public abstract partial class RangeCalculator<TValue> : IRangeCalculator<TValue> 
         where TValue : notnull, IComparable<TValue>
     {
