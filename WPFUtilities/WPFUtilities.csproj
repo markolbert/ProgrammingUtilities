@@ -27,6 +27,23 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="AutoFacWPFUtilities.cs" />
+	  <Compile Remove="range-tick\DateRangeFocus.cs" />
+	  <Compile Remove="range-tick\DecimalRangeCalculator.cs" />
+	  <Compile Remove="range-tick\DoubleRangeCalculator.cs" />
+	  <Compile Remove="range-tick\EndPointNature.cs" />
+	  <Compile Remove="range-tick\IDateRangeCalculator.cs" />
+	  <Compile Remove="range-tick\IntegerRangeCalculator.cs" />
+	  <Compile Remove="range-tick\IRangeCalculator.cs" />
+	  <Compile Remove="range-tick\MonthNumberRangeCalculator.cs" />
+	  <Compile Remove="range-tick\MonthRangeCalculator.cs" />
+	  <Compile Remove="range-tick\RangeCalculator-deprecated.cs" />
+	  <Compile Remove="range-tick\RangeCalculator-deprecated.static-protected.cs" />
+	  <Compile Remove="range-tick\RangeCalculator.static-protected.cs" />
+	  <Compile Remove="range-tick\RangeParameters.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Page Remove="CustomComboBox.xaml" />
 	</ItemGroup>
 

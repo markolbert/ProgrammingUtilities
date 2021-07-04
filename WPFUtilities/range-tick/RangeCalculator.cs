@@ -1,177 +1,177 @@
-﻿#region license
-
-// Copyright 2021 Mark A. Olbert
-// 
-// This library or program 'WPFUtilities' is free software: you can redistribute it
-// and/or modify it under the terms of the GNU General Public License as
-// published by the Free Software Foundation, either version 3 of the License,
-// or (at your option) any later version.
-// 
-// This library or program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-// General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License along with
-// this library or program.  If not, see <https://www.gnu.org/licenses/>.
-
-#endregion
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public abstract partial class RangeCalculator<TValue> : IRangeCalculator<TValue> 
-        where TValue : notnull, IComparable<TValue>
+    public class RangeCalculator
     {
-        protected RangeCalculator(
-            IJ4JLogger? logger = null
-        )
+        public static double DefaultRankingFunction(RangeParametersNG rangeParameters)
         {
-            Logger = logger;
-            Logger?.SetLoggedType( GetType() );
+            var majors = Math.Abs( rangeParameters.MajorTicks - 10 );
+
+            var fiveMinors = Math.Abs(rangeParameters.MinorTicksPerMajorTick - 5);
+            var tenMinors = Math.Abs(rangeParameters.MinorTicksPerMajorTick - 10);
+
+            return ( fiveMinors < tenMinors ? fiveMinors : tenMinors ) 
+                   + majors
+                   + rangeParameters.LowerInactiveRegion 
+                   + rangeParameters.UpperInactiveRegion;
         }
 
-        protected IJ4JLogger? Logger { get; }
+        private readonly IMinorTickEnumerator _minorTickEnumerator;
+        private readonly IJ4JLogger? _logger;
 
-        public Func<RangeParameters<TValue>, double> RankingFunction { get; set; } = DefaultRankingFunction;
-        public EndPointNature StartingPointNature { get; set; } = EndPointNature.Inclusive;
-        public EndPointNature EndingPointNature { get; set; } = EndPointNature.Inclusive;
+        public RangeCalculator(
+            IMinorTickEnumerator minorTickEnumerator,
+            IJ4JLogger? logger,
+            RoundTo lowerBoundRounding = RoundTo.MinorTick,
+            RoundTo upperBoundRounding = RoundTo.MinorTick
+        )
+        {
+            _minorTickEnumerator = minorTickEnumerator;
+            LowerBoundRounding = lowerBoundRounding;
+            UpperBoundRounding = upperBoundRounding;
+
+            _logger = logger;
+            _logger?.SetLoggedType( GetType() );
+        }
+
+        public RoundTo LowerBoundRounding { get; }
+        public RoundTo UpperBoundRounding { get; }
+        public Func<RangeParametersNG, double> RankingFunction { get; set; } = DefaultRankingFunction;
 
         public bool IsValid => Alternatives.Any() && BestFit != null;
-        public List<RangeParameters<TValue>> Alternatives { get; } = new();
-        public RangeParameters<TValue>? BestFit { get; private set; }
+        public List<RangeParametersNG> Alternatives { get; } = new();
+        public RangeParametersNG? BestFit { get; private set; }
 
-        public void Evaluate( TValue minValue, TValue maxValue )
+        public RangeParametersNG Evaluate( double minValue, double maxValue )
         {
             Alternatives.Clear();
 
-            if( minValue.CompareTo( maxValue ) > 0 )
+            if (minValue.CompareTo(maxValue) > 0)
             {
-                Logger?.Warning<TValue, TValue>( "Minimum ({0}) and maximum ({1}) values were reversed, correcting",
+                _logger?.Warning("Minimum ({0}) and maximum ({1}) values were reversed, correcting",
                     minValue,
-                    maxValue );
+                    maxValue);
 
                 var temp = minValue;
                 minValue = maxValue;
                 maxValue = temp;
             }
 
-            var generation = 0;
-            var tickStatus = TickStatus.Normal;
-
-            while( ( tickStatus = GetScalingFactors( generation, minValue, maxValue, out var ticks ) )
-                   != TickStatus.RangeExceeded )
+            foreach( var minorTick in _minorTickEnumerator.GetEnumerator( minValue, maxValue ) )
             {
-                foreach( var tickInfo in ticks! )
+                var roundedMin = LowerBoundRounding switch
                 {
-                    var adjMinValue = GetAdjustedEndPoint( minValue, tickInfo.ScalingFactor, EndPoint.StartOfRange );
-                    var adjMaxValue = GetAdjustedEndPoint( maxValue, tickInfo.ScalingFactor, EndPoint.EndOfRange );
+                    RoundTo.MinorTick => RoundDown( minValue, minorTick.Size ),
+                    RoundTo.MajorTick => RoundDown( minValue, minorTick.Size * minorTick.NumberPerMajor ),
+                    _ => round_error( minValue, LowerBoundRounding )
+                };
 
-                    var totalMinorTicks = GetMinorTicksInRange( adjMinValue!,
-                        adjMaxValue!,
-                        tickInfo.ScalingFactor );
+                var roundedMax = UpperBoundRounding switch
+                {
+                    RoundTo.MinorTick => RoundUp( maxValue, minorTick.Size ),
+                    RoundTo.MajorTick => RoundUp( maxValue, minorTick.Size * minorTick.NumberPerMajor ),
+                    _ => round_error( minValue, UpperBoundRounding )
+                };
 
-                    var majorTicks = (int) totalMinorTicks / tickInfo.MinorTicksPerMajorTick;
+                var totalMinorTicks = GetMinorTicksInRange( roundedMin, roundedMax, minorTick.Size );
 
-                    var modulo = totalMinorTicks % tickInfo.MinorTicksPerMajorTick;
-                    if( modulo != 0 ) majorTicks++;
+                var majorTicks = (int) totalMinorTicks / minorTick.NumberPerMajor;
 
-                    Alternatives.Add( new RangeParameters<TValue>(
-                        majorTicks,
-                        tickInfo.MinorTicksPerMajorTick,
-                        tickInfo.ScalingFactor,
-                        adjMinValue!,
-                        adjMaxValue! )
-                    );
-                }
+                var modulo = totalMinorTicks % minorTick.NumberPerMajor;
+                if( modulo != 0 ) majorTicks++;
 
-                if( tickStatus == TickStatus.ZeroRange )
-                    break;
-
-                generation++;
+                Alternatives.Add( new RangeParametersNG(
+                    majorTicks,
+                    minorTick.NumberPerMajor,
+                    minorTick.Size,
+                    roundedMin,
+                    roundedMax,
+                    Math.Abs(roundedMin - minValue),
+                    Math.Abs(roundedMax - maxValue) )
+                );
             }
 
             if( !Alternatives.Any() )
-                Alternatives.Add( GetDefaultRange( minValue, maxValue ) );
+                Alternatives.Add(GetDefaultRange(minValue, maxValue));
+
+            //var junk = Alternatives.OrderBy(x => RankingFunction(x))
+            //    .Select(x => new
+            //    {
+            //        Parameters = x,
+            //        FigureOfMerit = RankingFunction(x)
+            //    })
+            //    .ToList();
 
             BestFit = Alternatives!.OrderBy(x => RankingFunction(x))
                 .First();
-        }
 
-        public abstract TValue RoundUp( TValue toRound, decimal root );
-        public abstract TValue RoundDown( TValue toRound, decimal root );
-        
-        protected abstract TickStatus GetScalingFactors( 
-            int generation, 
-            TValue minValue, 
-            TValue maxValue,
-            out List<TickInfo> result );
+            return BestFit;
 
-        // must return a value <= rawExponent
-        protected virtual int StartingExponent( int rawExponent ) => rawExponent - 2;
-
-        protected List<TickInfo> CreateTicks( 
-            int exponent,
-            int generation,
-            params (decimal unitFactor, int minorPerMajor)[] ticks )
-        {
-            var retVal = new List<TickInfo>();
-
-            for( var curExp = StartingExponent(exponent + generation); curExp <= exponent; curExp++ )
+            double round_error( double toRound, RoundTo round )
             {
-                foreach( var tick in ticks )
-                {
-                    var curScale = (double) tick.unitFactor * Math.Pow( 10, ( generation + curExp ) );
+                _logger?.Error("Unsupported RoundTo value '{0}'", round);
 
-                    try
-                    {
-                        var decScale = Convert.ToDecimal( curScale );
-                        retVal.Add( new TickInfo( decScale, tick.minorPerMajor ) );
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-
-            if( !retVal.Any())
-                retVal = new List<TickInfo> { new TickInfo(1, 1) };
-
-            return retVal;
-        }
-
-        protected abstract decimal GetMinorTicksInRange( TValue minValue, TValue maxValue, decimal minorTickWidth );
-
-        protected TValue GetAdjustedEndPoint( TValue toAdjust, decimal minorTickWidth, EndPoint endPoint )
-        {
-            return endPoint switch
-            {
-                EndPoint.StartOfRange => StartingPointNature switch
-                {
-                    EndPointNature.Inclusive => RoundDown( toAdjust, minorTickWidth ),
-                    EndPointNature.Exclusive => RoundUp( toAdjust, minorTickWidth ),
-                    _ => log_error()
-                },
-                EndPoint.EndOfRange => EndingPointNature switch
-                {
-                    EndPointNature.Inclusive => RoundUp( toAdjust, minorTickWidth ),
-                    EndPointNature.Exclusive => RoundDown( toAdjust, minorTickWidth ),
-                    _ => log_error()
-                },
-                _ => log_error()
-            };
-
-            TValue log_error()
-            {
-                Logger?.Error("Unsupported EndPoint value or EndPointNature");
-                return toAdjust;
+                return toRound;
             }
         }
 
-        protected abstract RangeParameters<TValue> GetDefaultRange( TValue minValue, TValue maxValue );
+        private double RoundUp(double toRound, double minorTickSize)
+        {
+            var modulo = toRound % minorTickSize;
+            if (modulo == 0)
+                return toRound;
+
+            return toRound < 0 ? toRound - modulo : toRound + minorTickSize - modulo;
+        }
+
+        private double RoundDown(double toRound, double root)
+        {
+            var modulo = toRound % root;
+            if (modulo == 0)
+                return toRound;
+
+            return toRound < 0 ? toRound - root - modulo : toRound - modulo;
+        }
+
+        private int GetMinorTicksInRange(double minValue, double maxValue, double minorTickWidth)
+        {
+            var range = maxValue - minValue;
+
+            if (range == 0)
+                return 1;
+
+            return (int) Math.Round( range / minorTickWidth );
+        }
+
+        private RangeParametersNG GetDefaultRange(double minValue, double maxValue)
+        {
+            var range = Math.Abs(maxValue - minValue);
+            var exponent = Math.Log10(range);
+            var minorTickSize = new ScaledMinorTick(1, (int)exponent - 1, 10);
+
+            var majorSize = Math.Pow(10, (int)exponent - 1);
+
+            var numMajor = Convert.ToInt32(range / majorSize);
+            if (range % majorSize != 0)
+                numMajor++;
+
+            var rangeStart = RoundDown( minValue, minorTickSize.Size );
+            var rangeEnd = RoundUp( maxValue, minorTickSize.Size );
+
+            return new RangeParametersNG(
+                numMajor,
+                10,
+                minorTickSize.Size,
+                rangeStart,
+                rangeEnd,
+                Math.Abs( rangeStart - minValue ),
+                Math.Abs( rangeEnd - maxValue ) );
+        }
     }
 }
