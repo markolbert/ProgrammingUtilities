@@ -19,10 +19,11 @@ namespace J4JSoftware.WPFUtilities
         {
             var majors = Math.Abs( rangeParameters.MajorTicks - 10 );
 
-            var fiveMinors = majors * Math.Abs(rangeParameters.MinorTicksPerMajorTick - 5);
-            var tenMinors = majors * Math.Abs(rangeParameters.MinorTicksPerMajorTick - 10);
+            var fiveMinors = Math.Abs(rangeParameters.MinorTicksPerMajorTick - 5);
+            var tenMinors = Math.Abs(rangeParameters.MinorTicksPerMajorTick - 10);
 
             return ( fiveMinors < tenMinors ? fiveMinors : tenMinors ) 
+                   + majors
                    + rangeParameters.LowerInactiveRegion 
                    + rangeParameters.UpperInactiveRegion;
         }
@@ -66,10 +67,10 @@ namespace J4JSoftware.WPFUtilities
 
             foreach( var minorTick in _minorTickEnumerator.GetEnumerator( minValue, maxValue ) )
             {
-                var adjMinValue = GetAdjustedEndPoint( minValue, minorTick.Size, EndPoint.StartOfRange );
-                var adjMaxValue = GetAdjustedEndPoint( maxValue, minorTick.Size, EndPoint.EndOfRange );
+                var roundedMin = RoundToNearestMinorTick( minValue, minorTick, EndPoint.StartOfRange );
+                var roundedMax = RoundToNearestMinorTick( maxValue, minorTick, EndPoint.EndOfRange );
 
-                var totalMinorTicks = GetMinorTicksInRange( adjMinValue, adjMaxValue, minorTick.Size );
+                var totalMinorTicks = GetMinorTicksInRange( roundedMin, roundedMax, minorTick.Size );
 
                 var majorTicks = (int) totalMinorTicks / minorTick.NumberPerMajor;
 
@@ -80,15 +81,23 @@ namespace J4JSoftware.WPFUtilities
                     majorTicks,
                     minorTick.NumberPerMajor,
                     minorTick.Size,
-                    adjMinValue,
-                    adjMaxValue,
-                    Math.Abs(adjMinValue - minValue),
-                    Math.Abs(adjMaxValue - maxValue) )
+                    roundedMin,
+                    roundedMax,
+                    Math.Abs(roundedMin - minValue),
+                    Math.Abs(roundedMax - maxValue) )
                 );
             }
 
             if( !Alternatives.Any() )
                 Alternatives.Add(GetDefaultRange(minValue, maxValue));
+
+            //var junk = Alternatives.OrderBy( x => RankingFunction( x ) )
+            //    .Select( x => new
+            //    {
+            //        Parameters = x,
+            //        FigureOfMerit = RankingFunction( x )
+            //    } )
+            //    .ToList();
 
             BestFit = Alternatives!.OrderBy(x => RankingFunction(x))
                 .First();
@@ -96,20 +105,20 @@ namespace J4JSoftware.WPFUtilities
             return BestFit;
         }
 
-        private double GetAdjustedEndPoint(double toAdjust, double minorTickSize, EndPoint endPoint)
+        private double RoundToNearestMinorTick(double toAdjust, ScaledMinorTick scaledTick, EndPoint endPoint)
         {
             return endPoint switch
             {
                 EndPoint.StartOfRange => StartingPointNature switch
                 {
-                    EndPointNature.Inclusive => RoundDown(toAdjust, minorTickSize),
-                    EndPointNature.Exclusive => RoundUp(toAdjust, minorTickSize),
+                    EndPointNature.Inclusive => RoundDown(toAdjust, scaledTick.Size),
+                    EndPointNature.Exclusive => RoundUp(toAdjust, scaledTick.Size),
                     _ => log_error()
                 },
                 EndPoint.EndOfRange => EndingPointNature switch
                 {
-                    EndPointNature.Inclusive => RoundUp(toAdjust, minorTickSize),
-                    EndPointNature.Exclusive => RoundDown(toAdjust, minorTickSize),
+                    EndPointNature.Inclusive => RoundUp(toAdjust, scaledTick.Size),
+                    EndPointNature.Exclusive => RoundDown(toAdjust, scaledTick.Size),
                     _ => log_error()
                 },
                 _ => log_error()
@@ -154,21 +163,21 @@ namespace J4JSoftware.WPFUtilities
         {
             var range = Math.Abs(maxValue - minValue);
             var exponent = Math.Log10(range);
+            var minorTickSize = new ScaledMinorTick(1, (int)exponent - 1, 10);
 
             var majorSize = Math.Pow(10, (int)exponent - 1);
-            var minorTickSize = majorSize / 10;
 
             var numMajor = Convert.ToInt32(range / majorSize);
             if (range % majorSize != 0)
                 numMajor++;
 
-            var rangeStart = GetAdjustedEndPoint( minValue, minorTickSize, EndPoint.StartOfRange );
-            var rangeEnd = GetAdjustedEndPoint( maxValue, minorTickSize, EndPoint.EndOfRange );
+            var rangeStart = RoundToNearestMinorTick( minValue, minorTickSize, EndPoint.StartOfRange );
+            var rangeEnd = RoundToNearestMinorTick( maxValue, minorTickSize, EndPoint.EndOfRange );
 
             return new RangeParametersNG(
                 numMajor,
                 10,
-                minorTickSize,
+                minorTickSize.Size,
                 rangeStart,
                 rangeEnd,
                 Math.Abs( rangeStart - minValue ),

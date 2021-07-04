@@ -11,8 +11,8 @@ namespace Test.WPFUtilities
         [ InlineData( -76, 1307, -80, 1310 ) ]
         [ InlineData( -0.5, 5, -0.5, 5 ) ]
         [ InlineData( 0, 0, 0, 0 ) ]
-        [ InlineData( 5.5, 5.5, 5, 6 ) ]
-        [ InlineData( -5.5, -5.5, -6, -5 ) ]
+        [ InlineData( 5.5, 5.5, 5.4, 5.5 ) ]
+        [ InlineData( -5.5, -5.5, -5.5, -5.4 ) ]
         public void TestDouble( double minValue, double maxValue, double rangeStart, double rangeEnd )
         {
             var calculator = new RangeCalculatorNG( new DecimalMinorTickEnumerator(), null );

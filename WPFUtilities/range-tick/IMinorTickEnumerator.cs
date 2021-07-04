@@ -23,7 +23,7 @@ namespace J4JSoftware.WPFUtilities
 {
     public interface IMinorTickEnumerator
     {
-        MinorTickInfo Default { get; }
-        IEnumerable<MinorTickInfo> GetEnumerator( double minValue, double maxValue );
+        MinorTick Default { get; }
+        IEnumerable<ScaledMinorTick> GetEnumerator( double minValue, double maxValue );
     }
 }

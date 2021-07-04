@@ -25,39 +25,40 @@ namespace J4JSoftware.WPFUtilities
 {
     public class MonthNumberMinorTickEnumerator : IMinorTickEnumerator
     {
-        private readonly List<MinorTickInfo> _smallMinorTicks = new List<MinorTickInfo>
+        private readonly List<MinorTick> _smallMinorTicks = new List<MinorTick>
         {
-            new MinorTickInfo(1,12),
-            new MinorTickInfo(3,4),
-            new MinorTickInfo(6,2),
-            new MinorTickInfo(12,1),
+            new MinorTick(1,12),
+            new MinorTick(3,4),
+            new MinorTick(6,2),
+            new MinorTick(12,1),
         };
 
-        private readonly List<MinorTickInfo> _largeMinorTicks;
+        private readonly List<MinorTick> _largeMinorTicks;
 
         public MonthNumberMinorTickEnumerator(
-            IEnumerable<MinorTickInfo>? largeMultiples = null
+            IEnumerable<MinorTick>? largeMultiples = null
         )
         {
-            _largeMinorTicks = largeMultiples?.ToList() ?? new List<MinorTickInfo>
+            _largeMinorTicks = largeMultiples?.ToList() ?? new List<MinorTick>
             {
-                new MinorTickInfo(12, 10),
-                new MinorTickInfo(24, 5),
-                new MinorTickInfo(60, 2)
+                new MinorTick(12, 10),
+                new MinorTick(24, 5),
+                new MinorTick(60, 2)
             };
 
             Default = _largeMinorTicks[ 0 ];
         }
 
-        public MinorTickInfo Default { get; }
+        public MinorTick Default { get; }
 
-        public IEnumerable<MinorTickInfo> GetEnumerator( double minValue, double maxValue)
+        public IEnumerable<ScaledMinorTick> GetEnumerator( double minValue, double maxValue)
         {
             maxValue = maxValue <= 12 ? 12 : maxValue;
             minValue = minValue <= 12 ? 12 : minValue;
 
             var years = (int) Math.Ceiling( (maxValue - minValue) / 12 );
             var maxExponent = (int) Math.Ceiling( Math.Log10( years ) );
+            var multiplier = 1;
 
             for (var exponent = 0; exponent <= maxExponent; exponent++)
             {
@@ -66,28 +67,31 @@ namespace J4JSoftware.WPFUtilities
                     case 0:
                         foreach( var baseMultiple in _smallMinorTicks )
                         {
-                            yield return baseMultiple;
+                            yield return new ScaledMinorTick( baseMultiple.NormalizedSize, 
+                                0,
+                                baseMultiple.NumberPerMajor );
                         }
 
                         break;
 
                     default:
-                        var powerOfTen = Math.Pow( 10, exponent - 1 );
-
                         foreach( var largeMultiple in _largeMinorTicks )
                         {
-                            var curValue = new MinorTickInfo( 
-                                largeMultiple.Size * powerOfTen,
+                            var curValue = new ScaledMinorTick( 
+                                largeMultiple.NormalizedSize,
+                                exponent,
                                 largeMultiple.NumberPerMajor );
 
                             yield return curValue;
 
-                            if( curValue.Size > years * 12 )
+                            if( curValue.NormalizedSize * multiplier > years * 12 )
                                 yield break;
                         }
 
                         break;
                 }
+
+                multiplier *= 10;
             }
         }
     }
