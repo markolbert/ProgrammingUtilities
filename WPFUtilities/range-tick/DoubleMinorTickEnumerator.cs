@@ -20,10 +20,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+#pragma warning disable 8618
 
 namespace J4JSoftware.WPFUtilities
 {
-    public class DecimalMinorTickEnumerator : IMinorTickEnumerator
+    public class DoubleMinorTickEnumerator : IMinorTickEnumerator
     {
         private class ExponentRange
         {
@@ -41,32 +42,39 @@ namespace J4JSoftware.WPFUtilities
 
             public ExponentRange(double minValue, double maxValue)
             {
-                var minExp = minValue == 0 ? 0 : (int)Math.Floor(Math.Log10(Math.Abs(minValue)));
-                var maxExp = maxValue == 0 ? 0 : (int)Math.Floor(Math.Log10(Math.Abs(maxValue)));
+                if( minValue > maxValue )
+                {
+                    var temp = maxValue;
+                    maxValue = minValue;
+                    minValue = temp;
+                }
 
-                if (minExp > maxExp)
-                {
-                    MinimumExponent = maxExp;
-                    MaximumExponent = minExp;
-                }
-                else
-                {
-                    MinimumExponent = minExp;
-                    MaximumExponent = maxExp;
-                }
+                var range = maxValue - minValue;
+
+                var minExp = minValue == 0 ? 0 : (int)Math.Floor(Math.Log10(Math.Abs(minValue)));
+                var rangeExp = range == 0 ? 0 : (int) Math.Floor( Math.Log10( Math.Abs( range ) ) );
+
+                if( rangeExp < minExp )
+                    minExp = rangeExp;
+
+                if( minExp == rangeExp )
+                    minExp--;
+
+                MinimumExponent = minExp;
+                MaximumExponent = rangeExp;
             }
 
             public int MinimumExponent { get; }
             public int MaximumExponent { get; }
         }
 
-        private readonly List<MinorTick> _minorTicks;
+        protected List<MinorTick> MinorTicks { get; init; }
 
-        public DecimalMinorTickEnumerator(
+        public DoubleMinorTickEnumerator(
             IEnumerable<MinorTick>? baseMultiples = null
         )
         {
-            _minorTicks = baseMultiples?.ToList() ?? new List<MinorTick>
+            MinorTicks = baseMultiples?.ToList() ?? new List<MinorTick>
             {
                 new MinorTick(1,10),
                 new MinorTick(2,5),
@@ -74,20 +82,24 @@ namespace J4JSoftware.WPFUtilities
                 new MinorTick(25,4),
             };
 
-            Default = _minorTicks[ 0 ];
+            Default = MinorTicks[ 0 ];
         }
 
-        public MinorTick Default { get; }
+        protected DoubleMinorTickEnumerator()
+        {
+        }
 
-        public IEnumerable<ScaledMinorTick> GetEnumerator( double minValue, double maxValue )
+        public MinorTick Default { get; init; }
+
+        public virtual IEnumerable<ScaledMinorTick> GetEnumerator( double minValue, double maxValue )
         {
             var expRange = new ExponentRange( minValue, maxValue );
 
             maxValue = Math.Abs( minValue > maxValue ? minValue : maxValue );
             
-            for( var exponent = expRange.MinimumExponent - 1; exponent < expRange.MaximumExponent; exponent++ )
+            for( var exponent = expRange.MinimumExponent; exponent <= expRange.MaximumExponent; exponent++ )
             {
-                foreach( var minorTick in _minorTicks )
+                foreach( var minorTick in MinorTicks )
                 {
                     var minorTickSize = exponent < 0
                         ? minorTick.NormalizedSize / (double) ExponentRange.GetNormalizedValue( exponent )

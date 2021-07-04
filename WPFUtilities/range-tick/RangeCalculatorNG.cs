@@ -9,12 +9,6 @@ namespace J4JSoftware.WPFUtilities
 {
     public class RangeCalculatorNG
     {
-        private enum EndPoint
-        {
-            StartOfRange,
-            EndOfRange
-        }
-
         public static double DefaultRankingFunction(RangeParametersNG rangeParameters)
         {
             var majors = Math.Abs( rangeParameters.MajorTicks - 10 );
@@ -33,18 +27,22 @@ namespace J4JSoftware.WPFUtilities
 
         public RangeCalculatorNG(
             IMinorTickEnumerator minorTickEnumerator,
-            IJ4JLogger? logger
+            IJ4JLogger? logger,
+            RoundTo lowerBoundRounding = RoundTo.MinorTick,
+            RoundTo upperBoundRounding = RoundTo.MinorTick
         )
         {
             _minorTickEnumerator = minorTickEnumerator;
+            LowerBoundRounding = lowerBoundRounding;
+            UpperBoundRounding = upperBoundRounding;
 
             _logger = logger;
             _logger?.SetLoggedType( GetType() );
         }
 
+        public RoundTo LowerBoundRounding { get; }
+        public RoundTo UpperBoundRounding { get; }
         public Func<RangeParametersNG, double> RankingFunction { get; set; } = DefaultRankingFunction;
-        public EndPointNature StartingPointNature { get; set; } = EndPointNature.Inclusive;
-        public EndPointNature EndingPointNature { get; set; } = EndPointNature.Inclusive;
 
         public bool IsValid => Alternatives.Any() && BestFit != null;
         public List<RangeParametersNG> Alternatives { get; } = new();
@@ -67,8 +65,19 @@ namespace J4JSoftware.WPFUtilities
 
             foreach( var minorTick in _minorTickEnumerator.GetEnumerator( minValue, maxValue ) )
             {
-                var roundedMin = RoundToNearestMinorTick( minValue, minorTick, EndPoint.StartOfRange );
-                var roundedMax = RoundToNearestMinorTick( maxValue, minorTick, EndPoint.EndOfRange );
+                var roundedMin = LowerBoundRounding switch
+                {
+                    RoundTo.MinorTick => RoundDown( minValue, minorTick.Size ),
+                    RoundTo.MajorTick => RoundDown( minValue, minorTick.Size * minorTick.NumberPerMajor ),
+                    _ => round_error( minValue, LowerBoundRounding )
+                };
+
+                var roundedMax = UpperBoundRounding switch
+                {
+                    RoundTo.MinorTick => RoundUp( maxValue, minorTick.Size ),
+                    RoundTo.MajorTick => RoundUp( maxValue, minorTick.Size * minorTick.NumberPerMajor ),
+                    _ => round_error( minValue, UpperBoundRounding )
+                };
 
                 var totalMinorTicks = GetMinorTicksInRange( roundedMin, roundedMax, minorTick.Size );
 
@@ -91,43 +100,24 @@ namespace J4JSoftware.WPFUtilities
             if( !Alternatives.Any() )
                 Alternatives.Add(GetDefaultRange(minValue, maxValue));
 
-            //var junk = Alternatives.OrderBy( x => RankingFunction( x ) )
-            //    .Select( x => new
+            //var junk = Alternatives.OrderBy(x => RankingFunction(x))
+            //    .Select(x => new
             //    {
             //        Parameters = x,
-            //        FigureOfMerit = RankingFunction( x )
-            //    } )
+            //        FigureOfMerit = RankingFunction(x)
+            //    })
             //    .ToList();
 
             BestFit = Alternatives!.OrderBy(x => RankingFunction(x))
                 .First();
 
             return BestFit;
-        }
 
-        private double RoundToNearestMinorTick(double toAdjust, ScaledMinorTick scaledTick, EndPoint endPoint)
-        {
-            return endPoint switch
+            double round_error( double toRound, RoundTo round )
             {
-                EndPoint.StartOfRange => StartingPointNature switch
-                {
-                    EndPointNature.Inclusive => RoundDown(toAdjust, scaledTick.Size),
-                    EndPointNature.Exclusive => RoundUp(toAdjust, scaledTick.Size),
-                    _ => log_error()
-                },
-                EndPoint.EndOfRange => EndingPointNature switch
-                {
-                    EndPointNature.Inclusive => RoundUp(toAdjust, scaledTick.Size),
-                    EndPointNature.Exclusive => RoundDown(toAdjust, scaledTick.Size),
-                    _ => log_error()
-                },
-                _ => log_error()
-            };
+                _logger?.Error("Unsupported RoundTo value '{0}'", round);
 
-            double log_error()
-            {
-                _logger?.Error("Unsupported EndPoint value or EndPointNature");
-                return toAdjust;
+                return toRound;
             }
         }
 
@@ -171,8 +161,8 @@ namespace J4JSoftware.WPFUtilities
             if (range % majorSize != 0)
                 numMajor++;
 
-            var rangeStart = RoundToNearestMinorTick( minValue, minorTickSize, EndPoint.StartOfRange );
-            var rangeEnd = RoundToNearestMinorTick( maxValue, minorTickSize, EndPoint.EndOfRange );
+            var rangeStart = RoundDown( minValue, minorTickSize.Size );
+            var rangeEnd = RoundUp( maxValue, minorTickSize.Size );
 
             return new RangeParametersNG(
                 numMajor,

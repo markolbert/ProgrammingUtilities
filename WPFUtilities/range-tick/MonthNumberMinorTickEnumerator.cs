@@ -23,75 +23,62 @@ using System.Linq;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public class MonthNumberMinorTickEnumerator : IMinorTickEnumerator
+    public class MonthNumberMinorTickEnumerator : DoubleMinorTickEnumerator
     {
-        private readonly List<MinorTick> _smallMinorTicks = new List<MinorTick>
+        private readonly List<MinorTick> _monthlyTicks = new List<MinorTick>
         {
-            new MinorTick(1,12),
-            new MinorTick(3,4),
-            new MinorTick(6,2),
-            new MinorTick(12,1),
+            new MinorTick( 1, 12 ),
+            new MinorTick( 3, 4 ),
+            new MinorTick( 6, 2 ),
+            new MinorTick( 12, 1 ),
         };
 
-        private readonly List<MinorTick> _largeMinorTicks;
-
         public MonthNumberMinorTickEnumerator(
-            IEnumerable<MinorTick>? largeMultiples = null
+            int maxMonthlyYears = 10,
+            IEnumerable<MinorTick>? yearTicks = null
         )
         {
-            _largeMinorTicks = largeMultiples?.ToList() ?? new List<MinorTick>
+            MaxMonthlyYears = maxMonthlyYears <= 0 ? 10 : maxMonthlyYears;
+
+            MinorTicks = yearTicks?.ToList() ?? new List<MinorTick>
             {
-                new MinorTick(12, 10),
-                new MinorTick(24, 5),
-                new MinorTick(60, 2)
+                new MinorTick( 1, 10 ),
+                new MinorTick( 2, 5 ),
+                new MinorTick( 5, 2 ),
+                new MinorTick( 25, 4 ),
             };
 
-            Default = _largeMinorTicks[ 0 ];
+            Default = MinorTicks[ 0 ];
         }
 
-        public MinorTick Default { get; }
+        public int MaxMonthlyYears { get; }
 
-        public IEnumerable<ScaledMinorTick> GetEnumerator( double minValue, double maxValue)
+        public override IEnumerable<ScaledMinorTick> GetEnumerator( double minValue, double maxValue )
         {
+            // for up to MaxMonthlyYears years of months we only work with the month tick sizes
             maxValue = maxValue <= 12 ? 12 : maxValue;
             minValue = minValue <= 12 ? 12 : minValue;
 
-            var years = (int) Math.Ceiling( (maxValue - minValue) / 12 );
-            var maxExponent = (int) Math.Ceiling( Math.Log10( years ) );
-            var multiplier = 1;
+            var years = (int) Math.Ceiling( ( maxValue - minValue ) / 12 );
 
-            for (var exponent = 0; exponent <= maxExponent; exponent++)
+            if( years <= MaxMonthlyYears )
             {
-                switch( exponent )
+                foreach( var monthlyTick in _monthlyTicks )
                 {
-                    case 0:
-                        foreach( var baseMultiple in _smallMinorTicks )
-                        {
-                            yield return new ScaledMinorTick( baseMultiple.NormalizedSize, 
-                                0,
-                                baseMultiple.NumberPerMajor );
-                        }
-
-                        break;
-
-                    default:
-                        foreach( var largeMultiple in _largeMinorTicks )
-                        {
-                            var curValue = new ScaledMinorTick( 
-                                largeMultiple.NormalizedSize,
-                                exponent,
-                                largeMultiple.NumberPerMajor );
-
-                            yield return curValue;
-
-                            if( curValue.NormalizedSize * multiplier > years * 12 )
-                                yield break;
-                        }
-
-                        break;
+                    yield return new ScaledMinorTick( monthlyTick.NormalizedSize,
+                        0,
+                        monthlyTick.NumberPerMajor );
                 }
-
-                multiplier *= 10;
+            }
+            else
+            {
+                foreach( var baseMT in base.GetEnumerator( minValue / 12, maxValue / 12 )
+                    .Where( x => x.PowerOfTen >= 0 ) )
+                {
+                    yield return new ScaledMinorTick( baseMT.NormalizedSize * 12,
+                        baseMT.PowerOfTen,
+                        baseMT.NumberPerMajor );
+                }
             }
         }
     }

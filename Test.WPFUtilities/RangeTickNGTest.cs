@@ -15,7 +15,7 @@ namespace Test.WPFUtilities
         [ InlineData( -5.5, -5.5, -5.5, -5.4 ) ]
         public void TestDouble( double minValue, double maxValue, double rangeStart, double rangeEnd )
         {
-            var calculator = new RangeCalculatorNG( new DecimalMinorTickEnumerator(), null );
+            var calculator = new RangeCalculatorNG( new DoubleMinorTickEnumerator(), null );
 
             calculator.Evaluate(minValue, maxValue);
 
@@ -25,21 +25,21 @@ namespace Test.WPFUtilities
             calculator.BestFit!.RangeEnd.Should().Be(rangeEnd);
         }
 
-        //[ Theory ]
-        //[ InlineData( "2/15/2020", "8/17/2021", "12/1/2019", "10/1/2021" ) ]
-        //[ InlineData( "6/26/2001", "12/31/2021", "12/1/2000", "1/1/2022" ) ]
-        //[ InlineData( "6/26/2001", "11/30/2021", "12/1/2000", "1/1/2022" ) ]
-        //[ InlineData( "6/26/2001", "6/26/2001", "6/1/2001", "7/1/2001" ) ]
-        //public void TestMonth( string minValue, string maxValue, string rangeStart, string rangeEnd )
-        //{
-        //    var calculator = CompositionRoot.Default.GetRangeCalculator<DateTime>();
+        [Theory]
+        [InlineData("2/15/2020", "8/17/2021", "2/1/2020", "8/1/2021")]
+        [InlineData("6/26/2001", "12/31/2021", "1/1/2001", "1/1/2022")]
+        [InlineData("6/26/2001", "11/30/2021", "1/1/2001", "1/1/2022")]
+        [InlineData("6/26/2001", "6/26/2001", "6/1/2001", "6/1/2001")]
+        public void TestMonth(string minValue, string maxValue, string rangeStart, string rangeEnd)
+        {
+            var calculator = new RangeCalculatorNG( new MonthNumberMinorTickEnumerator(), null );
 
-        //    calculator.Evaluate(DateTime.Parse(minValue), DateTime.Parse(maxValue));
+            calculator.Evaluate( MonthNumber.GetMonthNumber( minValue ), MonthNumber.GetMonthNumber( maxValue ) );
 
-        //    calculator.Alternatives.Should().NotBeEmpty();
-        //    calculator.BestFit.Should().NotBeNull();
-        //    calculator.BestFit!.RangeStart.Should().Be( DateTime.Parse( rangeStart ) );
-        //    calculator.BestFit!.RangeEnd.Should().Be( DateTime.Parse( rangeEnd ) );
-        //}
+            calculator.Alternatives.Should().NotBeEmpty();
+            calculator.BestFit.Should().NotBeNull();
+            calculator.BestFit!.RangeStart.Should().Be( MonthNumber.GetMonthNumber( rangeStart ) );
+            calculator.BestFit!.RangeEnd.Should().Be( MonthNumber.GetMonthNumber( rangeEnd ) );
+        }
     }
 }
