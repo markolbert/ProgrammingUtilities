@@ -19,10 +19,13 @@
 
 namespace J4JSoftware.WPFUtilities
 {
-    public record RangeParameters<TValue>(
+    public record RangeParameters(
         int MajorTicks,
         int MinorTicksPerMajorTick,
-        decimal MinorTickWidth,
-        TValue RangeStart,
-        TValue RangeEnd);
+        double MinorTickSize,
+        double RangeStart,
+        double RangeEnd,
+        double LowerInactiveRegion,
+        double UpperInactiveRegion
+    );
 }

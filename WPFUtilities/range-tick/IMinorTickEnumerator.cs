@@ -24,6 +24,7 @@ namespace J4JSoftware.WPFUtilities
     public interface IMinorTickEnumerator
     {
         MinorTick Default { get; }
+        bool UpperLimitIsInclusive { get; }
         IEnumerable<ScaledMinorTick> GetEnumerator( double minValue, double maxValue );
     }
 }

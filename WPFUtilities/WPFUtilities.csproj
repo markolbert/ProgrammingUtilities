@@ -40,7 +40,7 @@
 	  <Compile Remove="range-tick\RangeCalculator-deprecated.cs" />
 	  <Compile Remove="range-tick\RangeCalculator-deprecated.static-protected.cs" />
 	  <Compile Remove="range-tick\RangeCalculator.static-protected.cs" />
-	  <Compile Remove="range-tick\RangeParameters.cs" />
+	  <Compile Remove="range-tick\RangeParameters-deprecated.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

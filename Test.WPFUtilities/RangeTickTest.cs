@@ -27,8 +27,8 @@ namespace Test.WPFUtilities
 
         [Theory]
         [InlineData("2/15/2020", "8/17/2021", "2/1/2020", "8/1/2021")]
-        [InlineData("6/26/2001", "12/31/2021", "1/1/2001", "1/1/2022")]
-        [InlineData("6/26/2001", "11/30/2021", "1/1/2001", "1/1/2022")]
+        [InlineData("6/26/2001", "12/31/2021", "1/1/2001", "12/1/2021")]
+        [InlineData("6/26/2001", "11/30/2021", "1/1/2001", "12/1/2021")]
         [InlineData("6/26/2001", "6/26/2001", "6/1/2001", "6/1/2001")]
         public void TestMonth(string minValue, string maxValue, string rangeStart, string rangeEnd)
         {

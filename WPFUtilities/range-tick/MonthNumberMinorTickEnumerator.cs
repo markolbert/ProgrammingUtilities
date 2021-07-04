@@ -52,6 +52,7 @@ namespace J4JSoftware.WPFUtilities
         }
 
         public int MaxMonthlyYears { get; }
+        public override bool UpperLimitIsInclusive => true;
 
         public override IEnumerable<ScaledMinorTick> GetEnumerator( double minValue, double maxValue )
         {

@@ -9,7 +9,7 @@ namespace J4JSoftware.WPFUtilities
 {
     public class RangeCalculator
     {
-        public static double DefaultRankingFunction(RangeParametersNG rangeParameters)
+        public static double DefaultRankingFunction(RangeParameters rangeParameters)
         {
             var majors = Math.Abs( rangeParameters.MajorTicks - 10 );
 
@@ -27,28 +27,22 @@ namespace J4JSoftware.WPFUtilities
 
         public RangeCalculator(
             IMinorTickEnumerator minorTickEnumerator,
-            IJ4JLogger? logger,
-            RoundTo lowerBoundRounding = RoundTo.MinorTick,
-            RoundTo upperBoundRounding = RoundTo.MinorTick
+            IJ4JLogger? logger
         )
         {
             _minorTickEnumerator = minorTickEnumerator;
-            LowerBoundRounding = lowerBoundRounding;
-            UpperBoundRounding = upperBoundRounding;
 
             _logger = logger;
             _logger?.SetLoggedType( GetType() );
         }
 
-        public RoundTo LowerBoundRounding { get; }
-        public RoundTo UpperBoundRounding { get; }
-        public Func<RangeParametersNG, double> RankingFunction { get; set; } = DefaultRankingFunction;
+        public Func<RangeParameters, double> RankingFunction { get; set; } = DefaultRankingFunction;
 
         public bool IsValid => Alternatives.Any() && BestFit != null;
-        public List<RangeParametersNG> Alternatives { get; } = new();
-        public RangeParametersNG? BestFit { get; private set; }
+        public List<RangeParameters> Alternatives { get; } = new();
+        public RangeParameters? BestFit { get; private set; }
 
-        public RangeParametersNG Evaluate( double minValue, double maxValue )
+        public RangeParameters Evaluate( double minValue, double maxValue )
         {
             Alternatives.Clear();
 
@@ -65,19 +59,8 @@ namespace J4JSoftware.WPFUtilities
 
             foreach( var minorTick in _minorTickEnumerator.GetEnumerator( minValue, maxValue ) )
             {
-                var roundedMin = LowerBoundRounding switch
-                {
-                    RoundTo.MinorTick => RoundDown( minValue, minorTick.Size ),
-                    RoundTo.MajorTick => RoundDown( minValue, minorTick.Size * minorTick.NumberPerMajor ),
-                    _ => round_error( minValue, LowerBoundRounding )
-                };
-
-                var roundedMax = UpperBoundRounding switch
-                {
-                    RoundTo.MinorTick => RoundUp( maxValue, minorTick.Size ),
-                    RoundTo.MajorTick => RoundUp( maxValue, minorTick.Size * minorTick.NumberPerMajor ),
-                    _ => round_error( minValue, UpperBoundRounding )
-                };
+                var roundedMin = RoundDown( minValue, minorTick.Size );
+                var roundedMax = RoundUp( maxValue, minorTick.Size );
 
                 var totalMinorTicks = GetMinorTicksInRange( roundedMin, roundedMax, minorTick.Size );
 
@@ -86,7 +69,7 @@ namespace J4JSoftware.WPFUtilities
                 var modulo = totalMinorTicks % minorTick.NumberPerMajor;
                 if( modulo != 0 ) majorTicks++;
 
-                Alternatives.Add( new RangeParametersNG(
+                Alternatives.Add( new RangeParameters(
                     majorTicks,
                     minorTick.NumberPerMajor,
                     minorTick.Size,
@@ -112,13 +95,6 @@ namespace J4JSoftware.WPFUtilities
                 .First();
 
             return BestFit;
-
-            double round_error( double toRound, RoundTo round )
-            {
-                _logger?.Error("Unsupported RoundTo value '{0}'", round);
-
-                return toRound;
-            }
         }
 
         private double RoundUp(double toRound, double minorTickSize)
@@ -127,7 +103,9 @@ namespace J4JSoftware.WPFUtilities
             if (modulo == 0)
                 return toRound;
 
-            return toRound < 0 ? toRound - modulo : toRound + minorTickSize - modulo;
+            var upperOffset = _minorTickEnumerator.UpperLimitIsInclusive ? 1 : 0;
+
+            return toRound < 0 ? toRound - modulo : toRound + minorTickSize - modulo - upperOffset;
         }
 
         private double RoundDown(double toRound, double root)
@@ -149,7 +127,7 @@ namespace J4JSoftware.WPFUtilities
             return (int) Math.Round( range / minorTickWidth );
         }
 
-        private RangeParametersNG GetDefaultRange(double minValue, double maxValue)
+        private RangeParameters GetDefaultRange(double minValue, double maxValue)
         {
             var range = Math.Abs(maxValue - minValue);
             var exponent = Math.Log10(range);
@@ -164,7 +142,7 @@ namespace J4JSoftware.WPFUtilities
             var rangeStart = RoundDown( minValue, minorTickSize.Size );
             var rangeEnd = RoundUp( maxValue, minorTickSize.Size );
 
-            return new RangeParametersNG(
+            return new RangeParameters(
                 numMajor,
                 10,
                 minorTickSize.Size,

@@ -68,8 +68,6 @@ namespace J4JSoftware.WPFUtilities
             public int MaximumExponent { get; }
         }
 
-        protected List<MinorTick> MinorTicks { get; init; }
-
         public DoubleMinorTickEnumerator(
             IEnumerable<MinorTick>? baseMultiples = null
         )
@@ -89,6 +87,9 @@ namespace J4JSoftware.WPFUtilities
         {
         }
 
+        protected List<MinorTick> MinorTicks { get; init; }
+
+        public virtual bool UpperLimitIsInclusive => false;
         public MinorTick Default { get; init; }
 
         public virtual IEnumerable<ScaledMinorTick> GetEnumerator( double minValue, double maxValue )
