@@ -41,6 +41,7 @@
 	  <Compile Remove="range-tick\RangeCalculator-deprecated.static-protected.cs" />
 	  <Compile Remove="range-tick\RangeCalculator.static-protected.cs" />
 	  <Compile Remove="range-tick\RangeParameters-deprecated.cs" />
+	  <Compile Remove="range-tick\RoundTo.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

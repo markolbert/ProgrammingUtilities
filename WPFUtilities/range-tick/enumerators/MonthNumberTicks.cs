@@ -23,7 +23,7 @@ using System.Linq;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public class MonthNumberTicks : TicksBase<MonthNumberTick>
+    public class MonthNumberTicks : RangeTicks<MonthNumberTick>
     {
         private readonly List<Tick> _monthlyTicks = new List<Tick>
         {

@@ -47,7 +47,7 @@ namespace J4JSoftware.WPFUtilities
             return (uint) Math.Round( range / Size );
         }
 
-        private int GetNormalizingFactor( params double[] values )
+        protected int GetNormalizingFactor( params double[] values )
         {
             var minExponent = values.Min( x => x == 0
                 ? 0

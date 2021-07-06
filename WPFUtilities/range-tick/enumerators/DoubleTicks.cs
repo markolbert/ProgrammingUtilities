@@ -24,7 +24,7 @@ using System.Linq;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public class DoubleTicks : TicksBase<DoubleTick>
+    public class DoubleTicks : RangeTicks<DoubleTick>
     {
         public DoubleTicks(
             IEnumerable<Tick>? baseMultiples = null

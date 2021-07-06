@@ -24,10 +24,10 @@ using System.Linq;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public abstract class TicksBase<T> : IRangeTicks<T>
+    public abstract class RangeTicks<T> : IRangeTicks<T>
         where T : ScaledTick, new()
     {
-        protected TicksBase()
+        protected RangeTicks()
         {
         }
 
