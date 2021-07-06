@@ -7,30 +7,24 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public class RangeCalculator
+    public class RangeCalculator<T>
+        where T : ScaledTick, new()
     {
-        public static double DefaultRankingFunction(RangeParameters rangeParameters)
-        {
-            var majors = Math.Abs( rangeParameters.MajorTicks - 10 );
+        public static double DefaultRankingFunction( RangeParameters rangeParameters ) =>
+            Math.Abs( 10 - (int) rangeParameters.MajorTicks )
+            + Math.Abs( 10 - (int) rangeParameters.MinorTicksPerMajorTick )
+            + Math.Abs( rangeParameters.LowerInactiveRegion )
+            + Math.Abs( rangeParameters.UpperInactiveRegion );
 
-            var fiveMinors = Math.Abs(rangeParameters.MinorTicksPerMajorTick - 5);
-            var tenMinors = Math.Abs(rangeParameters.MinorTicksPerMajorTick - 10);
-
-            return ( fiveMinors < tenMinors ? fiveMinors : tenMinors ) 
-                   + majors
-                   + rangeParameters.LowerInactiveRegion 
-                   + rangeParameters.UpperInactiveRegion;
-        }
-
-        private readonly IMinorTickEnumerator _minorTickEnumerator;
+        private readonly IRangeTicks<T> _ticks;
         private readonly IJ4JLogger? _logger;
 
         public RangeCalculator(
-            IMinorTickEnumerator minorTickEnumerator,
+            IRangeTicks<T> ticks,
             IJ4JLogger? logger
         )
         {
-            _minorTickEnumerator = minorTickEnumerator;
+            _ticks = ticks;
 
             _logger = logger;
             _logger?.SetLoggedType( GetType() );
@@ -57,14 +51,14 @@ namespace J4JSoftware.WPFUtilities
                 maxValue = temp;
             }
 
-            foreach( var minorTick in _minorTickEnumerator.GetEnumerator( minValue, maxValue ) )
+            foreach( var minorTick in _ticks.GetEnumerator( minValue, maxValue ) )
             {
-                var roundedMin = RoundDown( minValue, minorTick.Size );
-                var roundedMax = RoundUp( maxValue, minorTick.Size );
+                var roundedMin = minorTick.RoundDown( minValue );
+                var roundedMax = minorTick.RoundUp( maxValue );
 
-                var totalMinorTicks = GetMinorTicksInRange( roundedMin, roundedMax, minorTick.Size );
+                var totalMinorTicks = minorTick.GetMinorTicksInRange( roundedMin, roundedMax );
 
-                var majorTicks = (int) totalMinorTicks / minorTick.NumberPerMajor;
+                var majorTicks = totalMinorTicks / minorTick.NumberPerMajor;
 
                 var modulo = totalMinorTicks % minorTick.NumberPerMajor;
                 if( modulo != 0 ) majorTicks++;
@@ -81,75 +75,20 @@ namespace J4JSoftware.WPFUtilities
             }
 
             if( !Alternatives.Any() )
-                Alternatives.Add(GetDefaultRange(minValue, maxValue));
+                Alternatives.Add(_ticks.GetDefaultRange(minValue, maxValue));
 
-            //var junk = Alternatives.OrderBy(x => RankingFunction(x))
-            //    .Select(x => new
-            //    {
-            //        Parameters = x,
-            //        FigureOfMerit = RankingFunction(x)
-            //    })
-            //    .ToList();
+            var junk = Alternatives.OrderBy(x => RankingFunction(x))
+                .Select(x => new
+                {
+                    Parameters = x,
+                    FigureOfMerit = RankingFunction(x)
+                })
+                .ToList();
 
             BestFit = Alternatives!.OrderBy(x => RankingFunction(x))
                 .First();
 
             return BestFit;
-        }
-
-        private double RoundUp(double toRound, double minorTickSize)
-        {
-            var modulo = toRound % minorTickSize;
-            if (modulo == 0)
-                return toRound;
-
-            var upperOffset = _minorTickEnumerator.UpperLimitIsInclusive ? 1 : 0;
-
-            return toRound < 0 ? toRound - modulo : toRound + minorTickSize - modulo - upperOffset;
-        }
-
-        private double RoundDown(double toRound, double root)
-        {
-            var modulo = toRound % root;
-            if (modulo == 0)
-                return toRound;
-
-            return toRound < 0 ? toRound - root - modulo : toRound - modulo;
-        }
-
-        private int GetMinorTicksInRange(double minValue, double maxValue, double minorTickWidth)
-        {
-            var range = maxValue - minValue;
-
-            if (range == 0)
-                return 1;
-
-            return (int) Math.Round( range / minorTickWidth );
-        }
-
-        private RangeParameters GetDefaultRange(double minValue, double maxValue)
-        {
-            var range = Math.Abs(maxValue - minValue);
-            var exponent = Math.Log10(range);
-            var minorTickSize = new ScaledMinorTick(1, (int)exponent - 1, 10);
-
-            var majorSize = Math.Pow(10, (int)exponent - 1);
-
-            var numMajor = Convert.ToInt32(range / majorSize);
-            if (range % majorSize != 0)
-                numMajor++;
-
-            var rangeStart = RoundDown( minValue, minorTickSize.Size );
-            var rangeEnd = RoundUp( maxValue, minorTickSize.Size );
-
-            return new RangeParameters(
-                numMajor,
-                10,
-                minorTickSize.Size,
-                rangeStart,
-                rangeEnd,
-                Math.Abs( rangeStart - minValue ),
-                Math.Abs( rangeEnd - maxValue ) );
         }
     }
 }

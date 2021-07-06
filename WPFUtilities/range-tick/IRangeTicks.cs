@@ -21,10 +21,12 @@ using System.Collections.Generic;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public interface IMinorTickEnumerator
+    public interface IRangeTicks<out T>
+        where T : Tick
     {
-        MinorTick Default { get; }
-        bool UpperLimitIsInclusive { get; }
-        IEnumerable<ScaledMinorTick> GetEnumerator( double minValue, double maxValue );
+        Tick Default { get; }
+
+        IEnumerable<T> GetEnumerator( double minValue, double maxValue );
+        RangeParameters GetDefaultRange( double minValue, double maxValue );
     }
 }

@@ -20,8 +20,8 @@
 namespace J4JSoftware.WPFUtilities
 {
     public record RangeParameters(
-        int MajorTicks,
-        int MinorTicksPerMajorTick,
+        uint MajorTicks,
+        uint MinorTicksPerMajorTick,
         double MinorTickSize,
         double RangeStart,
         double RangeEnd,
