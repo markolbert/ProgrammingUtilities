@@ -62,6 +62,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
 		<ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
+		<ProjectReference Include="..\Test.MiscellaneousUtilities\Test.MiscellaneousUtilities.csproj" />
 	</ItemGroup>
 
 </Project>

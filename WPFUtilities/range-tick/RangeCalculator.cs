@@ -10,9 +10,9 @@ namespace J4JSoftware.WPFUtilities
     public class RangeCalculator<T>
         where T : ScaledTick, new()
     {
-        public static double DefaultRankingFunction( RangeParameters rangeParameters ) =>
+        public static double DefaultRankingFunction( RangeParameters<T> rangeParameters ) =>
             Math.Abs( 10 - (int) rangeParameters.MajorTicks )
-            + Math.Abs( 10 - (int) rangeParameters.MinorTicksPerMajorTick )
+            + Math.Abs( 10 - (int) rangeParameters.TickInfo.NumberPerMajor )
             + Math.Abs( rangeParameters.LowerInactiveRegion )
             + Math.Abs( rangeParameters.UpperInactiveRegion );
 
@@ -30,13 +30,13 @@ namespace J4JSoftware.WPFUtilities
             _logger?.SetLoggedType( GetType() );
         }
 
-        public Func<RangeParameters, double> RankingFunction { get; set; } = DefaultRankingFunction;
+        public Func<RangeParameters<T>, double> RankingFunction { get; set; } = DefaultRankingFunction;
 
         public bool IsValid => Alternatives.Any() && BestFit != null;
-        public List<RangeParameters> Alternatives { get; } = new();
-        public RangeParameters? BestFit { get; private set; }
+        public List<RangeParameters<T>> Alternatives { get; } = new();
+        public RangeParameters<T>? BestFit { get; private set; }
 
-        public RangeParameters Evaluate( double minValue, double maxValue )
+        public RangeParameters<T> Evaluate( double minValue, double maxValue )
         {
             Alternatives.Clear();
 
@@ -63,10 +63,9 @@ namespace J4JSoftware.WPFUtilities
                 var modulo = totalMinorTicks % minorTick.NumberPerMajor;
                 if( modulo != 0 ) majorTicks++;
 
-                Alternatives.Add( new RangeParameters(
+                Alternatives.Add( new RangeParameters<T>(
                     majorTicks,
-                    minorTick.NumberPerMajor,
-                    minorTick.Size,
+                    minorTick,
                     roundedMin,
                     roundedMax,
                     Math.Abs(roundedMin - minValue),

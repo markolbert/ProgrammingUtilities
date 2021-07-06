@@ -21,12 +21,12 @@ using System.Collections.Generic;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public interface IRangeTicks<out T>
-        where T : Tick
+    public interface IRangeTicks<T>
+        where T : ScaledTick, new()
     {
         Tick Default { get; }
 
         IEnumerable<T> GetEnumerator( double minValue, double maxValue );
-        RangeParameters GetDefaultRange( double minValue, double maxValue );
+        RangeParameters<T> GetDefaultRange( double minValue, double maxValue );
     }
 }

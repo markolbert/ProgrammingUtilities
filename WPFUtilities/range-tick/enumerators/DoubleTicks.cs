@@ -41,7 +41,7 @@ namespace J4JSoftware.WPFUtilities
             Default = NormalizedRangeTicks[ 0 ];
         }
 
-        public override RangeParameters GetDefaultRange( double minValue, double maxValue )
+        public override RangeParameters<DoubleTick> GetDefaultRange( double minValue, double maxValue )
         {
             var range = Math.Abs(maxValue - minValue);
             var exponent = Math.Log10(range);
@@ -61,10 +61,9 @@ namespace J4JSoftware.WPFUtilities
             var rangeStart = minorTick.RoundDown(minValue);
             var rangeEnd = minorTick.RoundUp(maxValue);
 
-            return new RangeParameters(
+            return new RangeParameters<DoubleTick>(
                 numMajor,
-                10,
-                minorTick.Size,
+                minorTick,
                 rangeStart,
                 rangeEnd,
                 Math.Abs(rangeStart - minValue),

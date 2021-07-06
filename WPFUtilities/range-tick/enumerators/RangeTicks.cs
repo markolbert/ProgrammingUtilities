@@ -60,6 +60,6 @@ namespace J4JSoftware.WPFUtilities
             }
         }
 
-        public abstract RangeParameters GetDefaultRange( double minValue, double maxValue );
+        public abstract RangeParameters<T> GetDefaultRange( double minValue, double maxValue );
     }
 }

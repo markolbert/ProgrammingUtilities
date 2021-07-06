@@ -19,13 +19,13 @@
 
 namespace J4JSoftware.WPFUtilities
 {
-    public record RangeParameters(
+    public record RangeParameters<T>(
         uint MajorTicks,
-        uint MinorTicksPerMajorTick,
-        double MinorTickSize,
+        T TickInfo,
         double RangeStart,
         double RangeEnd,
         double LowerInactiveRegion,
         double UpperInactiveRegion
-    );
+    )
+        where T : ScaledTick, new();
 }

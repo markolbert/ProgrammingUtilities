@@ -88,11 +88,11 @@ namespace J4JSoftware.WPFUtilities
             }
         }
 
-        public override RangeParameters GetDefaultRange(double minValue, double maxValue)
+        public override RangeParameters<MonthNumberTick> GetDefaultRange(double minValue, double maxValue)
         {
             var range = Math.Abs(maxValue - minValue);
             var exponent = Math.Log10(range);
-            var minorTick = new DoubleTick
+            var minorTick = new MonthNumberTick
             {
                 NormalizedSize = 1,
                 PowerOfTen = (int)exponent - 1,
@@ -108,10 +108,9 @@ namespace J4JSoftware.WPFUtilities
             var rangeStart = minorTick.RoundDown(minValue);
             var rangeEnd = minorTick.RoundUp(maxValue);
 
-            return new RangeParameters(
+            return new RangeParameters<MonthNumberTick>(
                 numMajor,
-                10,
-                minorTick.Size,
+                minorTick,
                 rangeStart,
                 rangeEnd,
                 Math.Abs(rangeStart - minValue),

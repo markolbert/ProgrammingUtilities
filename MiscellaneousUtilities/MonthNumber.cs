@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace J4JSoftware.WPFUtilities
+namespace J4JSoftware.Utilities
 {
     public static class MonthNumber
     {
