@@ -10,6 +10,7 @@ namespace J4JSoftware.WPFUtilities
         public uint NumberPerMajor { get; init; }
 
         public virtual double Size => NormalizedSize;
+        public double MajorSize => Size * NumberPerMajor;
 
         public virtual double RoundUp(double toRound)
         {

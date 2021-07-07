@@ -34,12 +34,9 @@ namespace J4JSoftware.WPFUtilities
         };
 
         public MonthNumberTicks(
-            int maxMonthlyYears = 10,
             IEnumerable<Tick>? yearTicks = null
         )
         {
-            MaxMonthlyYears = maxMonthlyYears <= 0 ? 10 : maxMonthlyYears;
-
             NormalizedRangeTicks = yearTicks?.ToList() ?? new List<Tick>
             {
                 new Tick{NormalizedSize = 1, NumberPerMajor = 10},
@@ -51,40 +48,30 @@ namespace J4JSoftware.WPFUtilities
             Default = NormalizedRangeTicks[ 0 ];
         }
 
-        public int MaxMonthlyYears { get; }
-
         public override IEnumerable<MonthNumberTick> GetEnumerator( double minValue, double maxValue )
         {
-            // for up to MaxMonthlyYears years of months we only work with the month tick sizes
             maxValue = maxValue <= 12 ? 12 : maxValue;
             minValue = minValue <= 12 ? 12 : minValue;
 
-            var years = (int) Math.Ceiling( ( maxValue - minValue ) / 12 );
-
-            if( years <= MaxMonthlyYears )
+            foreach( var monthlyTick in _monthlyTicks )
             {
-                foreach( var monthlyTick in _monthlyTicks )
+                yield return new MonthNumberTick
                 {
-                    yield return new MonthNumberTick
-                    {
-                        NormalizedSize = monthlyTick.NormalizedSize,
-                        PowerOfTen=0,
-                        NumberPerMajor = monthlyTick.NumberPerMajor
-                    };
-                }
+                    NormalizedSize = monthlyTick.NormalizedSize,
+                    PowerOfTen = 0,
+                    NumberPerMajor = monthlyTick.NumberPerMajor
+                };
             }
-            else
+
+            foreach( var baseMT in base.GetEnumerator( minValue / 12, maxValue / 12 )
+                .Where( x => x.PowerOfTen >= 0 ) )
             {
-                foreach( var baseMT in base.GetEnumerator( minValue / 12, maxValue / 12 )
-                    .Where( x => x.PowerOfTen >= 0 ) )
+                yield return new MonthNumberTick
                 {
-                    yield return new MonthNumberTick
-                    {
-                        NormalizedSize = baseMT.NormalizedSize * 12,
-                        PowerOfTen = baseMT.PowerOfTen,
-                        NumberPerMajor = baseMT.NumberPerMajor
-                    };
-                }
+                    NormalizedSize = baseMT.NormalizedSize * 12,
+                    PowerOfTen = baseMT.PowerOfTen,
+                    NumberPerMajor = baseMT.NumberPerMajor
+                };
             }
         }
 
@@ -99,17 +86,10 @@ namespace J4JSoftware.WPFUtilities
                 NumberPerMajor = 12
             };
 
-            var majorSize = Math.Pow(10, (int)exponent - 1);
-
-            var numMajor = Convert.ToUInt32(range / majorSize);
-            if (range % majorSize != 0)
-                numMajor++;
-
             var rangeStart = minorTick.RoundDown(minValue);
             var rangeEnd = minorTick.RoundUp(maxValue);
 
             return new RangeParameters<MonthNumberTick>(
-                numMajor,
                 minorTick,
                 rangeStart,
                 rangeEnd,

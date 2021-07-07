@@ -20,12 +20,27 @@
 namespace J4JSoftware.WPFUtilities
 {
     public record RangeParameters<T>(
-        uint MajorTicks,
         T TickInfo,
         double RangeStart,
         double RangeEnd,
         double LowerInactiveRegion,
         double UpperInactiveRegion
     )
-        where T : ScaledTick, new();
+        where T : ScaledTick, new()
+    {
+        public uint MajorTicks
+        {
+            get
+            {
+                var retVal = MinorTicksInRange / TickInfo.NumberPerMajor;
+
+                var modulo = MinorTicksInRange % TickInfo.NumberPerMajor;
+                if (modulo != 0) retVal++;
+
+                return retVal;
+            }
+        }
+
+        public uint MinorTicksInRange => TickInfo.GetMinorTicksInRange( RangeStart, RangeEnd );
+    }
 }

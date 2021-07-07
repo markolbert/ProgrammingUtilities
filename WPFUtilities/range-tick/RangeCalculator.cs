@@ -10,10 +10,14 @@ namespace J4JSoftware.WPFUtilities
     public class RangeCalculator<T>
         where T : ScaledTick, new()
     {
-        public static double DefaultRankingFunction( RangeParameters<T> rangeParameters ) =>
+        public static double RankByTickCount( RangeParameters<T> rangeParameters ) =>
             Math.Abs( 10 - (int) rangeParameters.MajorTicks )
             + Math.Abs( 10 - (int) rangeParameters.TickInfo.NumberPerMajor )
             + Math.Abs( rangeParameters.LowerInactiveRegion )
+            + Math.Abs( rangeParameters.UpperInactiveRegion );
+
+        public static double RankByInactiveRegions( RangeParameters<T> rangeParameters ) =>
+            Math.Abs( rangeParameters.LowerInactiveRegion )
             + Math.Abs( rangeParameters.UpperInactiveRegion );
 
         private readonly IRangeTicks<T> _ticks;
@@ -30,7 +34,7 @@ namespace J4JSoftware.WPFUtilities
             _logger?.SetLoggedType( GetType() );
         }
 
-        public Func<RangeParameters<T>, double> RankingFunction { get; set; } = DefaultRankingFunction;
+        public Func<RangeParameters<T>, double> RankingFunction { get; set; } = RankByTickCount;
 
         public bool IsValid => Alternatives.Any() && BestFit != null;
         public List<RangeParameters<T>> Alternatives { get; } = new();
@@ -56,15 +60,7 @@ namespace J4JSoftware.WPFUtilities
                 var roundedMin = minorTick.RoundDown( minValue );
                 var roundedMax = minorTick.RoundUp( maxValue );
 
-                var totalMinorTicks = minorTick.GetMinorTicksInRange( roundedMin, roundedMax );
-
-                var majorTicks = totalMinorTicks / minorTick.NumberPerMajor;
-
-                var modulo = totalMinorTicks % minorTick.NumberPerMajor;
-                if( modulo != 0 ) majorTicks++;
-
                 Alternatives.Add( new RangeParameters<T>(
-                    majorTicks,
                     minorTick,
                     roundedMin,
                     roundedMax,
@@ -76,13 +72,15 @@ namespace J4JSoftware.WPFUtilities
             if( !Alternatives.Any() )
                 Alternatives.Add(_ticks.GetDefaultRange(minValue, maxValue));
 
-            var junk = Alternatives.OrderBy(x => RankingFunction(x))
+            #if DEBUG
+            var sorted = Alternatives.OrderBy(x => RankingFunction(x))
                 .Select(x => new
                 {
                     Parameters = x,
                     FigureOfMerit = RankingFunction(x)
                 })
                 .ToList();
+            #endif
 
             BestFit = Alternatives!.OrderBy(x => RankingFunction(x))
                 .First();

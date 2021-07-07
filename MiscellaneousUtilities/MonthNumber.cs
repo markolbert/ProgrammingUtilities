@@ -21,5 +21,18 @@ namespace J4JSoftware.Utilities
 
             return new DateTime(year, month, 1);
         }
+
+        public static DateTime DateFromMonthNumber( double monthNumber )
+        {
+            var year = (int) monthNumber / 12;
+            var month = (int) monthNumber - 12 * year + 1;
+            var day = (int) Math.Round( monthNumber - 12 * year - month + 1 );
+
+            day = day <= 0 ? 1 : day;
+            var daysInMonth = DateTime.DaysInMonth( year, month );
+            day = day > daysInMonth ? daysInMonth : day;
+
+            return new DateTime( year, month, (int) day );
+        }
     }
 }

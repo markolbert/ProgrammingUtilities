@@ -52,17 +52,10 @@ namespace J4JSoftware.WPFUtilities
                 NumberPerMajor = 10
             };
 
-            var majorSize = Math.Pow(10, (int)exponent - 1);
-
-            var numMajor = Convert.ToUInt32(range / majorSize);
-            if (range % majorSize != 0)
-                numMajor++;
-
             var rangeStart = minorTick.RoundDown(minValue);
             var rangeEnd = minorTick.RoundUp(maxValue);
 
             return new RangeParameters<DoubleTick>(
-                numMajor,
                 minorTick,
                 rangeStart,
                 rangeEnd,
