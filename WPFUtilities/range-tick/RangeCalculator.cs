@@ -10,16 +10,6 @@ namespace J4JSoftware.WPFUtilities
     public class RangeCalculator<T>
         where T : ScaledTick, new()
     {
-        public static double RankByTickCount( RangeParameters<T> rangeParameters ) =>
-            Math.Abs( 10 - (int) rangeParameters.MajorTicks )
-            + Math.Abs( 10 - (int) rangeParameters.TickInfo.NumberPerMajor )
-            + Math.Abs( rangeParameters.LowerInactiveRegion )
-            + Math.Abs( rangeParameters.UpperInactiveRegion );
-
-        public static double RankByInactiveRegions( RangeParameters<T> rangeParameters ) =>
-            Math.Abs( rangeParameters.LowerInactiveRegion )
-            + Math.Abs( rangeParameters.UpperInactiveRegion );
-
         private readonly IRangeTicks<T> _ticks;
         private readonly IJ4JLogger? _logger;
 
@@ -34,13 +24,10 @@ namespace J4JSoftware.WPFUtilities
             _logger?.SetLoggedType( GetType() );
         }
 
-        public Func<RangeParameters<T>, double> RankingFunction { get; set; } = RankByTickCount;
-
-        public bool IsValid => Alternatives.Any() && BestFit != null;
+        public bool IsValid => Alternatives.Any();
         public List<RangeParameters<T>> Alternatives { get; } = new();
-        public RangeParameters<T>? BestFit { get; private set; }
 
-        public RangeParameters<T> Evaluate( double minValue, double maxValue )
+        public void Evaluate( double minValue, double maxValue )
         {
             Alternatives.Clear();
 
@@ -62,30 +49,15 @@ namespace J4JSoftware.WPFUtilities
 
                 Alternatives.Add( new RangeParameters<T>(
                     minorTick,
+                    minValue,
+                    maxValue,
                     roundedMin,
-                    roundedMax,
-                    Math.Abs(roundedMin - minValue),
-                    Math.Abs(roundedMax - maxValue) )
+                    roundedMax )
                 );
             }
 
             if( !Alternatives.Any() )
                 Alternatives.Add(_ticks.GetDefaultRange(minValue, maxValue));
-
-            #if DEBUG
-            var sorted = Alternatives.OrderBy(x => RankingFunction(x))
-                .Select(x => new
-                {
-                    Parameters = x,
-                    FigureOfMerit = RankingFunction(x)
-                })
-                .ToList();
-            #endif
-
-            BestFit = Alternatives!.OrderBy(x => RankingFunction(x))
-                .First();
-
-            return BestFit;
         }
     }
 }

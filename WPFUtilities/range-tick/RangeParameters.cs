@@ -17,14 +17,16 @@
 
 #endregion
 
+using System;
+
 namespace J4JSoftware.WPFUtilities
 {
     public record RangeParameters<T>(
         T TickInfo,
+        double MinimumValue,
+        double MaximumValue,
         double RangeStart,
-        double RangeEnd,
-        double LowerInactiveRegion,
-        double UpperInactiveRegion
+        double RangeEnd
     )
         where T : ScaledTick, new()
     {
@@ -42,5 +44,8 @@ namespace J4JSoftware.WPFUtilities
         }
 
         public uint MinorTicksInRange => TickInfo.GetMinorTicksInRange( RangeStart, RangeEnd );
+
+        public double UpperInactiveRegion => Math.Abs( MaximumValue - RangeEnd );
+        public double LowerInactiveRegion => Math.Abs( MinimumValue - RangeStart );
     }
 }
