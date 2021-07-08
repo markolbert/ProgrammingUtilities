@@ -27,8 +27,8 @@ namespace J4JSoftware.WPFUtilities
     {
         public static RangeParameters<T>? BestByTickCountAndInactiveRegion<T>( 
             this List<RangeParameters<T>> alternatives,
-            uint targetMajorTicks = 10,
-            uint targetMinorTicks = 10)
+            int targetMajorTicks = 10,
+            int targetMinorTicks = 10)
             where T : ScaledTick, new()
         {
             if( !alternatives.Any() )
@@ -46,11 +46,11 @@ namespace J4JSoftware.WPFUtilities
 
         public static RangeParameters<T>? BestByInactiveRegions<T>(
             this List<RangeParameters<T>> alternatives,
-            uint maxMajorTicks = uint.MaxValue
+            int maxMajorTicks = int.MaxValue
         )
             where T : ScaledTick, new()
         {
-            maxMajorTicks = maxMajorTicks <= 0 ? uint.MaxValue : maxMajorTicks;
+            maxMajorTicks = maxMajorTicks <= 0 ? int.MaxValue : maxMajorTicks;
 
             return alternatives
                 .Where( x => x.MajorTicks <= maxMajorTicks )
