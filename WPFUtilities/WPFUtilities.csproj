@@ -34,7 +34,6 @@
 	  <Compile Remove="range-tick\EndPointNature.cs" />
 	  <Compile Remove="range-tick\IDateRangeCalculator.cs" />
 	  <Compile Remove="range-tick\IntegerRangeCalculator.cs" />
-	  <Compile Remove="range-tick\IRangeCalculator.cs" />
 	  <Compile Remove="range-tick\MonthNumberRangeCalculator.cs" />
 	  <Compile Remove="range-tick\MonthRangeCalculator.cs" />
 	  <Compile Remove="range-tick\RangeCalculator-deprecated.cs" />

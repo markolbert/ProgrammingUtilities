@@ -17,16 +17,26 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public interface IRangeTicks<T>
-        where T : ScaledTick, new()
+    public record CustomTickManager<TSource, TTick> : TickManager<TSource, TTick>
+        where TTick : ScaledTick, new()
     {
-        Tick Default { get; }
+        public CustomTickManager(
+            Func<TSource, double> extractor,
+            MinorTickCollection<TTick> minorTickCollection
+        )
+            : base(false, extractor, minorTickCollection)
+        {
+        }
 
-        IEnumerable<T> GetEnumerator( double minValue, double maxValue );
-        RangeParameters<T> GetDefaultRange( double minValue, double maxValue );
+        public bool GetTickValues( double minValue, double maxValue, out List<TTick> result )
+        {
+            result = MinorTickCollection.GetAlternatives( minValue, maxValue );
+            return true;
+        }
     }
 }

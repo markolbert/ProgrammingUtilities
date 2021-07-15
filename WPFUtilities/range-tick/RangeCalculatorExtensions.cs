@@ -25,11 +25,10 @@ namespace J4JSoftware.WPFUtilities
 {
     public static class RangeCalculatorExtensions
     {
-        public static RangeParameters<T>? BestByTickCountAndInactiveRegion<T>( 
-            this List<RangeParameters<T>> alternatives,
+        public static RangeParameters? BestByTickCountAndInactiveRegion( 
+            this List<RangeParameters> alternatives,
             int targetMajorTicks = 10,
             int targetMinorTicks = 10)
-            where T : ScaledTick, new()
         {
             if( !alternatives.Any() )
                 return null;
@@ -44,11 +43,10 @@ namespace J4JSoftware.WPFUtilities
                 .First();
         }
 
-        public static RangeParameters<T>? BestByInactiveRegions<T>(
-            this List<RangeParameters<T>> alternatives,
+        public static RangeParameters? BestByInactiveRegions(
+            this List<RangeParameters> alternatives,
             int maxMajorTicks = int.MaxValue
         )
-            where T : ScaledTick, new()
         {
             maxMajorTicks = maxMajorTicks <= 0 ? int.MaxValue : maxMajorTicks;
 

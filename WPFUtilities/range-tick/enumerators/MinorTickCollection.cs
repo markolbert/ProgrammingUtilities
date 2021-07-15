@@ -24,22 +24,24 @@ using System.Linq;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public abstract class RangeTicks<T> : IRangeTicks<T>
-        where T : ScaledTick, new()
+    public abstract class MinorTickCollection<TTick> : ITickCollection<TTick>
+        where TTick : ScaledTick, new()
     {
-        protected RangeTicks()
+        protected MinorTickCollection()
         {
         }
 
-        protected List<Tick> NormalizedRangeTicks { get; init; }
+        protected List<TTick> NormalizedRangeTicks { get; init; }
 
         public Tick Default { get; init; }
 
-        public virtual IEnumerable<T> GetEnumerator( double minValue, double maxValue )
+        public virtual List<TTick> GetAlternatives( double minValue, double maxValue )
         {
             var expRange = new ExponentRange( minValue, maxValue );
 
             maxValue = Math.Abs( minValue > maxValue ? minValue : maxValue );
+
+            var retVal = new List<TTick>();
             
             for( var exponent = expRange.MinimumExponent; exponent <= expRange.MaximumExponent; exponent++ )
             {
@@ -50,16 +52,18 @@ namespace J4JSoftware.WPFUtilities
                         : minorTick.NormalizedSize * (double) ExponentRange.GetNormalizedValue( exponent );
 
                     if( minorTickSize < maxValue )
-                        yield return new T()
+                        retVal.Add( new TTick
                         {
                             NormalizedSize = minorTick.NormalizedSize,
                             NumberPerMajor = minorTick.NumberPerMajor,
                             PowerOfTen = exponent
-                        };
+                        } );
                 }
             }
+
+            return retVal;
         }
 
-        public abstract RangeParameters<T> GetDefaultRange( double minValue, double maxValue );
+        public abstract RangeParameters GetDefaultRangeParameters( double minValue, double maxValue );
     }
 }

@@ -24,28 +24,28 @@ using System.Linq;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public class DoubleTicks : RangeTicks<DoubleTick>
+    public class DoubleTickCollection : MinorTickCollection<ScaledTick>
     {
-        public DoubleTicks(
-            IEnumerable<Tick>? baseMultiples = null
+        public DoubleTickCollection(
+            IEnumerable<ScaledTick>? baseMultiples = null
         )
         {
-            NormalizedRangeTicks = baseMultiples?.ToList() ?? new List<Tick>
+            NormalizedRangeTicks = baseMultiples?.ToList() ?? new List<ScaledTick>
             {
-                new Tick { NormalizedSize = 1, NumberPerMajor = 10 },
-                new Tick { NormalizedSize = 2, NumberPerMajor = 5 },
-                new Tick { NormalizedSize = 5, NumberPerMajor = 2 },
-                new Tick { NormalizedSize = 25, NumberPerMajor = 4 },
+                new ScaledTick { NormalizedSize = 1, NumberPerMajor = 10 },
+                new ScaledTick { NormalizedSize = 2, NumberPerMajor = 5 },
+                new ScaledTick { NormalizedSize = 5, NumberPerMajor = 2 },
+                new ScaledTick { NormalizedSize = 25, NumberPerMajor = 4 },
             };
 
             Default = NormalizedRangeTicks[ 0 ];
         }
 
-        public override RangeParameters<DoubleTick> GetDefaultRange( double minValue, double maxValue )
+        public override RangeParameters GetDefaultRangeParameters( double minValue, double maxValue )
         {
             var range = Math.Abs(maxValue - minValue);
             var exponent = Math.Log10(range);
-            var minorTick = new DoubleTick
+            var minorTick = new ScaledTick
             {
                 NormalizedSize = 1,
                 PowerOfTen = (int)exponent - 1,
@@ -55,7 +55,7 @@ namespace J4JSoftware.WPFUtilities
             var rangeStart = minorTick.RoundDown(minValue);
             var rangeEnd = minorTick.RoundUp(maxValue);
 
-            return new RangeParameters<DoubleTick>(
+            return new RangeParameters(
                 minorTick,
                 rangeStart,
                 rangeEnd,

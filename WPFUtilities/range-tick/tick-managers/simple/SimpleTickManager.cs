@@ -21,30 +21,15 @@ using System;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public record RangeParameters(
-        ScaledTick TickInfo,
-        double MinimumValue,
-        double MaximumValue,
-        double RangeStart,
-        double RangeEnd
-    )
+    public record SimpleTickManager<TSource, TTick> : TickManager<TSource, TTick>
+        where TTick : ScaledTick, new()
     {
-        public uint MajorTicks
+        protected SimpleTickManager(
+            Func<TSource, double> extractor,
+            MinorTickCollection<TTick> minorTickCollection
+        )
+            : base( true, extractor, minorTickCollection )
         {
-            get
-            {
-                var retVal = MinorTicksInRange / TickInfo.NumberPerMajor;
-
-                var modulo = MinorTicksInRange % TickInfo.NumberPerMajor;
-                if (modulo != 0) retVal++;
-
-                return retVal;
-            }
         }
-
-        public uint MinorTicksInRange => TickInfo.GetMinorTicksInRange( RangeStart, RangeEnd );
-
-        public double UpperInactiveRegion => Math.Abs( MaximumValue - RangeEnd );
-        public double LowerInactiveRegion => Math.Abs( MinimumValue - RangeStart );
     }
 }

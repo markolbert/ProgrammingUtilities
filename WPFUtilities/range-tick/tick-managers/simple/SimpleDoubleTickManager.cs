@@ -17,34 +17,13 @@
 
 #endregion
 
-using System;
-
 namespace J4JSoftware.WPFUtilities
 {
-    public record RangeParameters(
-        ScaledTick TickInfo,
-        double MinimumValue,
-        double MaximumValue,
-        double RangeStart,
-        double RangeEnd
-    )
+    public record SimpleDoubleTickManager : SimpleTickManager<double, ScaledTick>
     {
-        public uint MajorTicks
+        public SimpleDoubleTickManager()
+            : base( x => x, new DoubleTickCollection() )
         {
-            get
-            {
-                var retVal = MinorTicksInRange / TickInfo.NumberPerMajor;
-
-                var modulo = MinorTicksInRange % TickInfo.NumberPerMajor;
-                if (modulo != 0) retVal++;
-
-                return retVal;
-            }
         }
-
-        public uint MinorTicksInRange => TickInfo.GetMinorTicksInRange( RangeStart, RangeEnd );
-
-        public double UpperInactiveRegion => Math.Abs( MaximumValue - RangeEnd );
-        public double LowerInactiveRegion => Math.Abs( MinimumValue - RangeStart );
     }
 }

@@ -18,33 +18,28 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public record RangeParameters(
-        ScaledTick TickInfo,
-        double MinimumValue,
-        double MaximumValue,
-        double RangeStart,
-        double RangeEnd
-    )
+    public interface ITickManager
     {
-        public uint MajorTicks
-        {
-            get
-            {
-                var retVal = MinorTicksInRange / TickInfo.NumberPerMajor;
+        Type SourceType { get; }
+        Type TickType { get; }
+        bool IsSimpleExtractor { get; }
 
-                var modulo = MinorTicksInRange % TickInfo.NumberPerMajor;
-                if (modulo != 0) retVal++;
-
-                return retVal;
-            }
-        }
-
-        public uint MinorTicksInRange => TickInfo.GetMinorTicksInRange( RangeStart, RangeEnd );
-
-        public double UpperInactiveRegion => Math.Abs( MaximumValue - RangeEnd );
-        public double LowerInactiveRegion => Math.Abs( MinimumValue - RangeStart );
+        bool ExtractDouble( object source, out double? result );
+        bool ExtractDoubles( IEnumerable<object> source, out List<double>? result );
+        List<ScaledTick> GetTickValues( double minValue, double maxValue );
+        RangeParameters GetDefaultRange( double minValue, double maxValue );
     }
+
+    public interface ITickManager<TSource, TTick> : ITickManager
+        where TTick : ScaledTick, new()
+    {
+        bool ExtractDouble(TSource source, out double result);
+        bool ExtractDoubles(IEnumerable<TSource> source, out List<double>? result);
+        bool GetTickValues(double minValue, double maxValue, out List<TTick> result);
+    }
+
 }

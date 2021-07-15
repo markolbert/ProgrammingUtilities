@@ -4,9 +4,17 @@ namespace J4JSoftware.WPFUtilities
 {
     public record ScaledTick : Tick
     {
-        protected ScaledTick()
+        public ScaledTick()
         {
         }
+
+        public ScaledTick( ScaledTick tick, int powerOfTen )
+        {
+            NormalizedSize = tick.NormalizedSize;
+            NumberPerMajor = tick.NumberPerMajor;
+            PowerOfTen = powerOfTen;
+        }
+
 
         public int PowerOfTen { get; init; }
 

@@ -39,15 +39,13 @@ namespace Test.WPFUtilities
             StaticConfiguredLogging( logConfig );
         }
 
-        public IRangeCalculator<TValue> GetRangeCalculator<TValue>() 
-            where TValue : notnull, IComparable<TValue> =>
-            Host!.Services.GetRequiredService<IRangeCalculator<TValue>>();
+        public IRangeCalculator GetRangeCalculator() => Host!.Services.GetRequiredService<IRangeCalculator>();
 
         protected override void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
         {
             base.SetupDependencyInjection( hbc, builder );
 
-            builder.RegisterModule<AutoFacWPFUtilities>();
+            builder.RegisterModule<AutofacRangeTick>();
         }
     }
 }
