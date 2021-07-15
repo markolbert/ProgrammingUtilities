@@ -19,6 +19,8 @@ namespace J4JSoftware.WPFUtilities
     {
         Dictionary<TKey, ISelectableNode<TKey, TEntity>> Nodes { get; }
 
+        IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false );
+
         ISelectableNode<TKey, TEntity> AddOrGetNode( TEntity entity );
         void AddOrGetNodes( IEnumerable<TEntity> entities );
 

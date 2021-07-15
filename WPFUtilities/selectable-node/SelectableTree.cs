@@ -73,6 +73,14 @@ namespace J4JSoftware.WPFUtilities
 
         public Dictionary<TKey, ISelectableNode<TKey, TEntity>> Nodes { get; } = new();
 
+        public IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false ) => getUnselected
+                ? Nodes
+                    .Where( x => !x.Value.IsSelected )
+                    .Select( x => x.Value.Entity )
+                : Nodes
+                    .Where( x => x.Value.IsSelected )
+                    .Select( x => x.Value.Entity );
+
         public ISelectableNode<TKey, TEntity> AddOrGetNode( TEntity entity )
         {
             var curKey = GetKey( entity );
