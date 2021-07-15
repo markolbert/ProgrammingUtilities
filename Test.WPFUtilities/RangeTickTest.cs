@@ -49,7 +49,35 @@ namespace Test.WPFUtilities
             }
         }
 
-        [ Theory ]
+        [Fact]
+        public void TestDateTimeList()
+        {
+            var values = new List<ValueHolder<DateTime>>();
+
+            var calculator = CompositionRoot.Default.GetRangeCalculator();
+
+            Thread.Sleep(1);
+            var random = new Random();
+
+            for (var loop = 0; loop < 1000; loop++)
+            {
+                for (var idx = 0; idx < 100; idx++)
+                {
+                    values.Add( new ValueHolder<DateTime>
+                    {
+                        Value = DateTime.Today.AddDays( 500 - random.Next( 0, 1001 ) )
+                    } );
+                }
+
+                calculator.Evaluate(values, values.TickExtractor(x => x.Value));
+                calculator.Alternatives.Should().NotBeNullOrEmpty();
+
+                var bestFit = calculator.Alternatives.BestByInactiveRegions(100);
+                bestFit.Should().NotBeNull();
+            }
+        }
+
+        [Theory ]
         [ InlineData( -76, 1307, -80, 1310 ) ]
         [ InlineData( -0.5, 5, -0.5, 5 ) ]
         [ InlineData( 0, 0, 0, 0 ) ]

@@ -49,21 +49,4 @@ namespace J4JSoftware.WPFUtilities
         void Evaluate<TSource>( [DisallowNull] TSource min, [DisallowNull] TSource max, ITickManager? manager = null );
         void Evaluate<TSource>( IEnumerable<TSource> source, ITickManager? manager = null );
     }
-
-    public interface IRangeCalculator<TValue>
-        where TValue : notnull, IComparable<TValue>
-    {
-        EndPointNature StartingPointNature { get; set; }
-        EndPointNature EndingPointNature { get; set; }
-        Func<RangeParameters<TValue>, double> RankingFunction { get; set; }
-
-        bool IsValid { get; }
-        List<RangeParameters<TValue>> Alternatives { get; }
-        RangeParameters<TValue>? BestFit { get; }
-
-        void Evaluate( TValue minValue, TValue maxValue );
-
-        TValue RoundUp( TValue toRound, decimal root );
-        TValue RoundDown( TValue toRound, decimal root );
-    }
 }
