@@ -25,30 +25,6 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public abstract class SelectableNodeFactory<TKey, TEntity> : ISelectableNodeFactory<TKey, TEntity>
-        where TKey : IComparable<TKey>
-    {
-        public abstract SelectableNode<TKey, TEntity> Create(TEntity entity, ISelectableNode<TKey, TEntity>? parentNode);
-    }
-
-    public class DefaultSelectableNodeComparer<TKey, TEntity> : IComparer<ISelectableNode<TKey, TEntity>>
-        where TKey : IComparable<TKey>
-    {
-        public int Compare( ISelectableNode<TKey, TEntity>? x, ISelectableNode<TKey, TEntity>? y )
-        {
-            if( x == null && y == null )
-                return 0;
-
-            if( x == null )
-                return 1;
-
-            if( y == null )
-                return -1;
-
-            return string.Compare( x.DisplayName, y.DisplayName, StringComparison.Ordinal );
-        }
-    }
-
     public abstract class SelectableNode<TKey, TEntity> : ObservableRecipient, ISelectableNode<TKey, TEntity>
         where TKey : IComparable<TKey>
     {
@@ -57,6 +33,7 @@ namespace J4JSoftware.WPFUtilities
         private string _displayName = string.Empty;
         private bool _isSelected;
         private Visibility _visibility = Visibility.Hidden;
+        private bool _suppressSelectionNotifications;
 
         protected SelectableNode(
             TEntity entity,
@@ -129,8 +106,22 @@ namespace J4JSoftware.WPFUtilities
 
         protected virtual void OnSelectionChanged( bool isSelected )
         {
-            if( _selectionChangedHandler != null )
+            if( !_suppressSelectionNotifications && _selectionChangedHandler != null )
                 _selectionChangedHandler( this, isSelected );
+        }
+
+        public virtual void ChangeSelectedOnSelfAndDescendants( bool isSelected )
+        {
+            _suppressSelectionNotifications = true;
+
+            IsSelected = isSelected;
+
+            foreach( var childNode in ChildNodes )
+            {
+                childNode.ChangeSelectedOnSelfAndDescendants( isSelected );
+            }
+
+            _suppressSelectionNotifications = false;
         }
 
         public virtual void UpdateDisplayName()
