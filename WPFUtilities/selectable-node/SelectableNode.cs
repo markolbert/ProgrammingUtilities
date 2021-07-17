@@ -25,14 +25,12 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public abstract class SelectableNode<TKey, TEntity> : ObservableRecipient, ISelectableNode<TKey, TEntity>
+    public abstract class SelectableNode<TKey, TEntity> : ISelectableNode<TKey, TEntity>
         where TKey : IComparable<TKey>
     {
         private readonly Action<ISelectableNode<TKey, TEntity>, bool>? _selectionChangedHandler;
 
-        private string _displayName = string.Empty;
         private bool _isSelected;
-        private Visibility _visibility = Visibility.Hidden;
         private bool _suppressSelectionNotifications;
 
         protected SelectableNode(
@@ -70,11 +68,7 @@ namespace J4JSoftware.WPFUtilities
         }
 
 
-        public string DisplayName
-        {
-            get => _displayName;
-            set => SetProperty( ref _displayName, value );
-        }
+        public string DisplayName { get; set; }
 
         public bool IsSelected
         {
@@ -82,26 +76,10 @@ namespace J4JSoftware.WPFUtilities
 
             set
             {
-                SetProperty( ref _isSelected, value );
+                _isSelected = value;
 
                 OnSelectionChanged( value );
             }
-        }
-
-        public Visibility Visibility
-        {
-            get => _visibility;
-
-            set
-            {
-                SetProperty( ref _visibility, value );
-
-                OnVisibilityChanged();
-            }
-        }
-
-        protected virtual void OnVisibilityChanged()
-        {
         }
 
         protected virtual void OnSelectionChanged( bool isSelected )

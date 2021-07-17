@@ -8,7 +8,6 @@ namespace J4JSoftware.WPFUtilities
     {
         string DisplayName { get; set; }
         bool IsSelected { get; set; }
-        Visibility Visibility { get; set; }
 
         void ChangeSelectedOnSelfAndDescendants( bool isSelected );
 

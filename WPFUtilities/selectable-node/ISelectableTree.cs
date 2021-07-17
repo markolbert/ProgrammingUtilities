@@ -9,8 +9,6 @@ namespace J4JSoftware.WPFUtilities
         void SetAll( bool isSelected );
         object? AddOrGetNode( object entity );
         void AddOrGetNodes( IEnumerable<object> entities );
-        
-        void UpdateDisplayNames(bool inclInvisible = true, bool inclUnselected = true);
     }
 
     public interface ISelectableTree<TKey, TEntity> : ISelectableTree, 
@@ -18,10 +16,10 @@ namespace J4JSoftware.WPFUtilities
         where TKey : IComparable<TKey>
     {
         Dictionary<TKey, ISelectableNode<TKey, TEntity>> Nodes { get; }
+        IEnumerable<TEntity> GetSelectedNodes(bool getUnselected = false);
 
         bool SetNode( TKey key, bool isSelected );
-
-        IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false );
+        void UpdateDisplayNames( IEnumerable<TKey> nodeKeys, bool inclUnselected = true );
 
         ISelectableNode<TKey, TEntity> AddOrGetNode( TEntity entity );
         void AddOrGetNodes( IEnumerable<TEntity> entities );

@@ -161,10 +161,10 @@ namespace J4JSoftware.WPFUtilities
         protected abstract TEntity? GetParentEntity( TEntity entity );
         protected abstract TKey GetKey( TEntity entity );
 
-        public virtual void UpdateDisplayNames( bool inclInvisible = true, bool inclUnselected = true )
+        public void UpdateDisplayNames( IEnumerable<TKey> nodeKeys, bool inclUnselected = true )
         {
             foreach( var node in Nodes
-                .Where( x => ( x.Value.Visibility == Visibility.Visible || inclInvisible )
+                .Where( x => nodeKeys.Any( y => x.Key.CompareTo( y ) == 0 )
                              && ( x.Value.IsSelected || inclUnselected ) ) )
             {
                 node.Value.UpdateDisplayName();
