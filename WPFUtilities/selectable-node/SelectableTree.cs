@@ -71,6 +71,26 @@ namespace J4JSoftware.WPFUtilities
             Nodes.Clear();
         }
 
+        public void SetAll( bool isSelected )
+        {
+            foreach( var node in _nodeCollection
+                .Where(x=>x.ParentNode == null  ) )
+            {
+                node.ChangeSelectedOnSelfAndDescendants( isSelected );
+            }
+        }
+
+        public bool SetNode( TKey key, bool isSelected )
+        {
+            var node = _nodeCollection.FirstOrDefault( x => x.Key.CompareTo( key ) == 0 );
+            if( node == null )
+                return false;
+
+            node.IsSelected = isSelected;
+
+            return true;
+        }
+
         public Dictionary<TKey, ISelectableNode<TKey, TEntity>> Nodes { get; } = new();
 
         public IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false ) => getUnselected
