@@ -18,12 +18,12 @@ namespace J4JSoftware.WPFUtilities
         Dictionary<TKey, ISelectableNode<TKey, TEntity>> Nodes { get; }
         IEnumerable<TEntity> GetSelectedNodes(bool getUnselected = false);
 
-        bool SetNode( TKey key, bool isSelected );
         void UpdateDisplayNames( IEnumerable<TKey> nodeKeys, bool inclUnselected = true );
 
         ISelectableNode<TKey, TEntity> AddOrGetNode( TEntity entity );
         void AddOrGetNodes( IEnumerable<TEntity> entities );
 
+        bool FindNode(TKey key, out ISelectableNode<TKey, TEntity>? result);
         void SortNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null );
     }
 }

@@ -24,7 +24,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Windows;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
@@ -80,18 +79,26 @@ namespace J4JSoftware.WPFUtilities
             }
         }
 
-        public bool SetNode( TKey key, bool isSelected )
-        {
-            var node = _nodeCollection.FirstOrDefault( x => x.Key.CompareTo( key ) == 0 );
-            if( node == null )
-                return false;
-
-            node.IsSelected = isSelected;
-
-            return true;
-        }
-
         public Dictionary<TKey, ISelectableNode<TKey, TEntity>> Nodes { get; } = new();
+
+        public bool FindNode( TKey key, out ISelectableNode<TKey, TEntity>? result ) =>
+            FindNodeInternal( key, Nodes.Select( x => x.Value ).ToList(), out result );
+
+        private bool FindNodeInternal( TKey key, List<ISelectableNode<TKey, TEntity>> nodesToSearch, out ISelectableNode<TKey, TEntity>? result )
+        {
+            result = nodesToSearch.FirstOrDefault( x => x.Key.CompareTo( key ) == 0 );
+
+            if( result != null )
+                return true;
+
+            foreach( var childNode in nodesToSearch.SelectMany( x => x.ChildNodes ) )
+            {
+                if( FindNodeInternal( key, childNode.ChildNodes, out result ) )
+                    return true;
+            }
+
+            return false;
+        }
 
         public IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false ) => getUnselected
                 ? Nodes

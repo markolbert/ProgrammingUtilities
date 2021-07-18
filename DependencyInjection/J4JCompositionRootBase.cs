@@ -150,6 +150,8 @@ namespace J4JSoftware.DependencyInjection
             services.AddDataProtection();
         }
 
+        #region Encryption/decryption
+
         public bool Protect( string plainText, out string? encrypted )
         {
             encrypted = null;
@@ -199,5 +201,7 @@ namespace J4JSoftware.DependencyInjection
 
             return true;
         }
+
+        #endregion
     }
 }
