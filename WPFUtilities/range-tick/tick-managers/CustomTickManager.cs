@@ -33,7 +33,7 @@ namespace J4JSoftware.WPFUtilities
         {
         }
 
-        public bool GetTickValues( double minValue, double maxValue, out List<TTick> result )
+        public override bool GetTickValues( double minValue, double maxValue, out List<TTick> result )
         {
             result = MinorTickCollection.GetAlternatives( minValue, maxValue );
             return true;

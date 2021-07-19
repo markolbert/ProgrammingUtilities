@@ -58,7 +58,7 @@ namespace J4JSoftware.WPFUtilities
             return true;
         }
 
-        public bool GetTickValues(double minValue, double maxValue, out List<TTick> result)
+        public virtual bool GetTickValues(double minValue, double maxValue, out List<TTick> result)
         {
             result = MinorTickCollection.GetAlternatives( minValue, maxValue );
             return true;

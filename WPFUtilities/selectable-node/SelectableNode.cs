@@ -58,6 +58,7 @@ namespace J4JSoftware.WPFUtilities
         public abstract TKey Key { get; }
         public ISelectableNode<TKey, TEntity>? ParentNode { get; }
         public List<ISelectableNode<TKey, TEntity>> ChildNodes { get; private set; } = new();
+        public bool IsLeafNode => !ChildNodes.Any();
 
         public void SortChildNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null )
         {
@@ -71,7 +72,6 @@ namespace J4JSoftware.WPFUtilities
                 childNode.SortChildNodes( sortComparer );
             }
         }
-
 
         public string DisplayName { get; set; } = "** undefined **";
 
