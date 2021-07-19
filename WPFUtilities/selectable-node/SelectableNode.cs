@@ -19,18 +19,23 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public abstract class SelectableNode<TKey, TEntity> : ISelectableNode<TKey, TEntity>
+    public abstract class SelectableNode<TKey, TEntity> : ISelectableNode<TKey, TEntity>, INotifyPropertyChanged
         where TKey : IComparable<TKey>
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         private readonly Action<ISelectableNode<TKey, TEntity>, bool>? _selectionChangedHandler;
 
         private bool _isSelected;
+        private bool _subtreeIsSelected;
         private bool _suppressSelectionNotifications;
 
         protected SelectableNode(
@@ -68,7 +73,7 @@ namespace J4JSoftware.WPFUtilities
         }
 
 
-        public string DisplayName { get; set; }
+        public string DisplayName { get; set; } = "** undefined **";
 
         public bool IsSelected
         {
@@ -82,10 +87,35 @@ namespace J4JSoftware.WPFUtilities
             }
         }
 
+        public bool SubtreeIsSelected
+        {
+            get => _subtreeIsSelected;
+
+            set
+            {
+                var changed = _subtreeIsSelected != value;
+
+                _subtreeIsSelected = value;
+
+                if( changed )
+                    OnPropertyChanged();
+            }
+        }
+
         protected virtual void OnSelectionChanged( bool isSelected )
         {
             if( !_suppressSelectionNotifications && _selectionChangedHandler != null )
                 _selectionChangedHandler( this, isSelected );
+
+            UpdateSubtreeSelectionState();
+        }
+
+        private void UpdateSubtreeSelectionState()
+        {
+            SubtreeIsSelected = IsSelected || ChildNodes.Any(x => x.IsSelected);
+
+            if ( ParentNode != null )
+                ((SelectableNode<TKey, TEntity>)ParentNode).UpdateSubtreeSelectionState();
         }
 
         public virtual void ChangeSelectedOnSelfAndDescendants( bool isSelected )
@@ -108,5 +138,10 @@ namespace J4JSoftware.WPFUtilities
         }
 
         protected abstract string GetDisplayName();
+
+        protected virtual void OnPropertyChanged( [ CallerMemberName ] string propertyName = "" )
+        {
+            PropertyChanged?.Invoke( this, new PropertyChangedEventArgs( propertyName ) );
+        }
     }
 }

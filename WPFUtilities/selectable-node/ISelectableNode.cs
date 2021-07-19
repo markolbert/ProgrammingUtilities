@@ -8,6 +8,7 @@ namespace J4JSoftware.WPFUtilities
     {
         string DisplayName { get; set; }
         bool IsSelected { get; set; }
+        bool SubtreeIsSelected { get; }
 
         void ChangeSelectedOnSelfAndDescendants( bool isSelected );
 
