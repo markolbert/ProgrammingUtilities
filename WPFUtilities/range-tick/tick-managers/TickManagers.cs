@@ -64,9 +64,12 @@ namespace J4JSoftware.WPFUtilities
         {
             get
             {
-                _logger?.Warning( "No ITickManager defined for '{0}'", sourceType );
+                if( _extractors.ContainsKey( sourceType ) )
+                    return _extractors[ sourceType ];
 
-                return _extractors.ContainsKey( sourceType ) ? _extractors[ sourceType ] : null;
+                _logger?.Warning("No ITickManager defined for '{0}'", sourceType);
+
+                return null;
             }
         }
     }

@@ -112,7 +112,7 @@ namespace J4JSoftware.WPFUtilities
 
         private void UpdateSubtreeSelectionState()
         {
-            SubtreeIsSelected = IsSelected || ChildNodes.Any(x => x.IsSelected);
+            SubtreeIsSelected = IsSelected || ChildNodes.Any(x => x.SubtreeIsSelected);
 
             if ( ParentNode != null )
                 ((SelectableNode<TKey, TEntity>)ParentNode).UpdateSubtreeSelectionState();
