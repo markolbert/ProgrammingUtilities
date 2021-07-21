@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace J4JSoftware.WPFUtilities
 {
@@ -11,11 +11,9 @@ namespace J4JSoftware.WPFUtilities
         void AddOrGetNodes( IEnumerable<object> entities );
     }
 
-    public interface ISelectableTree<TKey, TEntity> : ISelectableTree, 
-        IEnumerable<ISelectableNode<TKey, TEntity>>
-        where TKey : IComparable<TKey>
+    public interface ISelectableTree<TKey, TEntity> : ISelectableTree
     {
-        Dictionary<TKey, ISelectableNode<TKey, TEntity>> Nodes { get; }
+        ObservableCollection<ISelectableNode<TKey, TEntity>> Nodes { get; }
         IEnumerable<TEntity> GetSelectedNodes(bool getUnselected = false);
 
         void UpdateDisplayNames( IEnumerable<TKey> nodeKeys, bool inclUnselected = true );

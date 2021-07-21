@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Superpower.Model;
 
 namespace J4JSoftware.WPFUtilities
 {

@@ -18,12 +18,8 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Security.Cryptography.X509Certificates;
-using System.Windows.Documents;
-using System.Windows.Xps.Serialization;
 using J4JSoftware.Utilities;
 
 namespace J4JSoftware.WPFUtilities

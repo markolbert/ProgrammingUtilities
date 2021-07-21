@@ -18,125 +18,107 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public abstract class SelectableTree<TKey, TEntity, TContainer> : ISelectableTree<TKey, TEntity>
-        where TKey: IComparable<TKey>
-        where TContainer : class
+    public abstract class SelectableTree<TKey, TEntity> : ISelectableTree<TKey, TEntity>
+        where TKey: notnull
     {
+        private static readonly TKey _intKey = (TKey) Convert.ChangeType( 5, typeof(TKey) );
+
         private readonly ISelectableNodeFactory<TKey, TEntity> _nodeFactory;
-        private readonly ObservableCollection<ISelectableNode<TKey, TEntity>> _nodeCollection;
+        private readonly Dictionary<TKey, ISelectableNode<TKey, TEntity>> _masterNodeDict;
 
         protected SelectableTree(
             ISelectableNodeFactory<TKey, TEntity> nodeFactory,
-            TContainer nodeCollectionSource,
-            Expression<Func<TContainer, ObservableCollection<ISelectableNode<TKey, TEntity>>>> nodeCollection,
-            IJ4JLogger? logger
+            IJ4JLogger? logger,
+            IEqualityComparer<TKey>? keyComparer = null
         )
         {
             _nodeFactory = nodeFactory;
 
+            keyComparer ??= EqualityComparer<TKey>.Default;
+            _masterNodeDict = new Dictionary<TKey, ISelectableNode<TKey, TEntity>>( keyComparer );
+
             Logger = logger;
             Logger?.SetLoggedType(GetType());
-
-            var memExpr = (MemberExpression) nodeCollection.Body;
-            var nodeCollInfo = (PropertyInfo) memExpr.Member;
-
-            if(nodeCollInfo.GetValue(nodeCollectionSource) is not ObservableCollection<ISelectableNode<TKey, TEntity>> castColl )
-            {
-                Logger?.Fatal( "Node collection could not be found or is not an '{0}'",
-                    typeof(ObservableCollection<ISelectableNode<TKey, TEntity>>) );;
-
-                throw new ArgumentException(
-                    $"Node collection could not be found or is not an '{typeof(ObservableCollection<ISelectableNode<TKey, TEntity>>)}'" );
-            }
-
-            _nodeCollection = castColl;
         }
 
         protected IJ4JLogger? Logger { get; }
 
         public void Clear()
         {
-            _nodeCollection.Clear();
             Nodes.Clear();
+            _masterNodeDict.Clear();
         }
 
         public void SetAll( bool isSelected )
         {
-            foreach( var node in _nodeCollection
-                .Where(x=>x.ParentNode == null  ) )
+            foreach( var node in Nodes.SelectMany( x => x.DescendantsAndSelf ) )
             {
-                node.ChangeSelectedOnSelfAndDescendants( isSelected );
+                node.IsSelected = isSelected;
             }
         }
 
-        public Dictionary<TKey, ISelectableNode<TKey, TEntity>> Nodes { get; } = new();
+        public ObservableCollection<ISelectableNode<TKey, TEntity>> Nodes { get; } = new();
 
-        public bool FindNode( TKey key, out ISelectableNode<TKey, TEntity>? result ) =>
-            FindNodeInternal( key, Nodes.Select( x => x.Value ).ToList(), out result );
-
-        private bool FindNodeInternal( TKey key, List<ISelectableNode<TKey, TEntity>> nodesToSearch, out ISelectableNode<TKey, TEntity>? result )
+        public bool FindNode( TKey key, out ISelectableNode<TKey, TEntity>? result )
         {
-            result = nodesToSearch.FirstOrDefault( x => x.Key.CompareTo( key ) == 0 );
+            result = null;
 
-            if( result != null )
-                return true;
+            if( _masterNodeDict.ContainsKey( key ) )
+                result = _masterNodeDict[ key ];
 
-            foreach( var childNode in nodesToSearch.SelectMany( x => x.ChildNodes ) )
-            {
-                if( FindNodeInternal( key, childNode.ChildNodes, out result ) )
-                    return true;
-            }
-
-            return false;
+            return result != null;
         }
 
         public IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false ) => getUnselected
-                ? Nodes
+                ? _masterNodeDict
                     .Where( x => !x.Value.IsSelected )
                     .Select( x => x.Value.Entity )
-                : Nodes
+                : _masterNodeDict
                     .Where( x => x.Value.IsSelected )
                     .Select( x => x.Value.Entity );
 
+        ///TODO tracing and reversing the path through the selected nodes may not be necessary
         public ISelectableNode<TKey, TEntity> AddOrGetNode( TEntity entity )
         {
-            var curKey = GetKey( entity );
+            if( FindNode( GetKey( entity ), out var node ) )
+                return node!;
 
-            if( Nodes.ContainsKey( curKey ) )
-                return Nodes[ curKey ];
+            // trace the entities back up to a root entity, and then
+            // create, if necessary, nodes in reverse order from that path
+            var pathEntities = GetEntitiesPath( entity );
+            pathEntities.Reverse();
 
-            TEntity? curEntity = entity;
+            ISelectableNode<TKey, TEntity>? parentNode = null;
             ISelectableNode<TKey, TEntity>? retVal = null;
 
-            do
+            foreach( var pathEntity in pathEntities )
             {
-                var parentEntity = GetParentEntity( curEntity );
-                var parentNode = parentEntity == null ? null : AddOrGetNode( parentEntity );
+                var pathEntityKey = GetKey( pathEntity );
+                var match = EqualityComparer<TKey>.Default.Equals( pathEntityKey, _intKey );
 
-                retVal = _nodeFactory.Create( curEntity, parentNode );
+                bool nodeExists = FindNode( GetKey( pathEntity ), out retVal );
+                retVal ??= _nodeFactory.Create( pathEntity, parentNode );
 
-                Nodes.Add( retVal.Key, retVal );
+                if( !nodeExists )
+                {
+                    if( parentNode == null )
+                        Nodes.Add( retVal );
+                    else parentNode.ChildNodes.Add( retVal );
 
-                parentNode?.ChildNodes.Add( retVal );
+                    _masterNodeDict.Add( retVal.Key, retVal );
+                }
 
-                if( parentEntity == null )
-                    _nodeCollection.Add( retVal );
+                parentNode = retVal;
+            }
 
-                curEntity = parentEntity;
-
-            } while( curEntity != null && !Nodes.ContainsKey( GetKey( curEntity ) ) );
-
-            return retVal;
+            return retVal!;
         }
 
         public void AddOrGetNodes(IEnumerable<TEntity> entities)
@@ -151,30 +133,34 @@ namespace J4JSoftware.WPFUtilities
         {
             sortComparer ??= new DefaultSelectableNodeComparer<TKey, TEntity>();
 
-            var tempRoot = _nodeCollection
+            var tempRoot = Nodes
                 .OrderBy( x => x, sortComparer )
                 .ToList();
 
-            _nodeCollection.Clear();
+            Nodes.Clear();
 
             foreach( var node in tempRoot )
             {
-                _nodeCollection.Add( node );
+                Nodes.Add( node );
 
                 node.SortChildNodes( sortComparer );
             }
         }
 
-        protected abstract TEntity? GetParentEntity( TEntity entity );
+        protected abstract bool GetParentEntity( TEntity entity, out TEntity? parentEntity );
+
+        // don't reverse the entity path (i.e., the root entity should be the last entity in what's returned)
+        protected abstract List<TEntity> GetEntitiesPath( TEntity entity );
+        
         protected abstract TKey GetKey( TEntity entity );
 
         public void UpdateDisplayNames( IEnumerable<TKey> nodeKeys, bool inclUnselected = true )
         {
             foreach( var node in Nodes
-                .Where( x => nodeKeys.Any( y => x.Key.CompareTo( y ) == 0 )
-                             && ( x.Value.IsSelected || inclUnselected ) ) )
+                .Where( x => nodeKeys.Any( y => EqualityComparer<TKey>.Default.Equals(x.Key, y) )
+                             && ( x.IsSelected || inclUnselected ) ) )
             {
-                node.Value.UpdateDisplayName();
+                node.UpdateDisplayName();
             }
         }
 
@@ -202,19 +188,6 @@ namespace J4JSoftware.WPFUtilities
             {
                 AddOrGetNode( entity );
             }
-        }
-
-        public IEnumerator<ISelectableNode<TKey, TEntity>> GetEnumerator()
-        {
-            foreach( var kvp in Nodes )
-            {
-                yield return kvp.Value;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }

@@ -1,29 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public interface ISelectableNode
+    public interface ISelectableNode : INotifyPropertyChanged
     {
         string DisplayName { get; set; }
         bool IsSelected { get; set; }
-        bool SubtreeIsSelected { get; }
+        bool SubtreeHasSelectedItems { get; }
         bool IsLeafNode { get; }
-
-        void ChangeSelectedOnSelfAndDescendants( bool isSelected );
 
         void UpdateDisplayName();
     }
 
     public interface ISelectableNode<TKey, TEntity> : ISelectableNode
-        where TKey: IComparable<TKey>
     {
         TEntity Entity { get; }
         TKey Key { get; }
+        List<ISelectableNode<TKey, TEntity>> DescendantsAndSelf { get; }
 
         ISelectableNode<TKey, TEntity>? ParentNode { get; }
-        List<ISelectableNode<TKey, TEntity>> ChildNodes { get; }
+        ObservableCollection<ISelectableNode<TKey, TEntity>> ChildNodes { get; }
 
         void SortChildNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null );
     }

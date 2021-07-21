@@ -17,36 +17,27 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace J4JSoftware.WPFUtilities
 {
-    public abstract class SelectableNode<TKey, TEntity> : ISelectableNode<TKey, TEntity>, INotifyPropertyChanged
-        where TKey : IComparable<TKey>
+    public abstract class SelectableNode<TKey, TEntity> : ISelectableNode<TKey, TEntity>
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private readonly Action<ISelectableNode<TKey, TEntity>, bool>? _selectionChangedHandler;
-
         private bool _isSelected;
-        private bool _subtreeIsSelected;
-        private bool _suppressSelectionNotifications;
 
         protected SelectableNode(
             TEntity entity,
-            ISelectableNode<TKey, TEntity>? parentNode,
-            Action<ISelectableNode<TKey, TEntity>, bool>? selectionChangedHandler
+            ISelectableNode<TKey, TEntity>? parentNode
         )
         {
             Entity = entity;
             ParentNode = parentNode;
-            _selectionChangedHandler = selectionChangedHandler;
         }
 
         protected virtual void Initialize()
@@ -57,19 +48,24 @@ namespace J4JSoftware.WPFUtilities
         public TEntity Entity { get; }
         public abstract TKey Key { get; }
         public ISelectableNode<TKey, TEntity>? ParentNode { get; }
-        public List<ISelectableNode<TKey, TEntity>> ChildNodes { get; private set; } = new();
+        public ObservableCollection<ISelectableNode<TKey, TEntity>> ChildNodes { get; } = new();
         public bool IsLeafNode => !ChildNodes.Any();
 
         public void SortChildNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null )
         {
             sortComparer ??= new DefaultSelectableNodeComparer<TKey, TEntity>();
 
-            ChildNodes = ChildNodes.OrderBy( x => x, sortComparer )
+            var tempRoot = ChildNodes
+                .OrderBy(x => x, sortComparer)
                 .ToList();
 
-            foreach( var childNode in ChildNodes )
+            ChildNodes.Clear();
+
+            foreach (var node in tempRoot)
             {
-                childNode.SortChildNodes( sortComparer );
+                ChildNodes.Add(node);
+
+                node.SortChildNodes(sortComparer);
             }
         }
 
@@ -81,55 +77,57 @@ namespace J4JSoftware.WPFUtilities
 
             set
             {
-                _isSelected = value;
+                SetProperty( ref _isSelected, value );
 
-                OnSelectionChanged( value );
+                SelectableNode<TKey, TEntity>? curNode = (SelectableNode<TKey, TEntity>)this;
+
+                do
+                {
+                    curNode.OnPropertyChanged(nameof(SubtreeHasSelectedItems));
+                    curNode = (SelectableNode<TKey, TEntity>?)curNode.ParentNode;
+                } while (curNode != null);
             }
         }
 
-        public bool SubtreeIsSelected
+        public bool SubtreeHasSelectedItems
         {
-            get => _subtreeIsSelected;
+            get => DescendantsAndSelf.Any( x => x.IsSelected );
+        }
 
-            set
+        public List<ISelectableNode<TKey, TEntity>> Descendants
+        {
+            get
             {
-                var changed = _subtreeIsSelected != value;
+                var retVal = new List<ISelectableNode<TKey, TEntity>>();
 
-                _subtreeIsSelected = value;
+                foreach (var childNode in ChildNodes)
+                {
+                    AddDescendantsAndSelf(childNode, retVal);
+                }
 
-                if( changed )
-                    OnPropertyChanged();
+                return retVal;
             }
         }
 
-        protected virtual void OnSelectionChanged( bool isSelected )
+        public List<ISelectableNode<TKey, TEntity>> DescendantsAndSelf
         {
-            if( !_suppressSelectionNotifications && _selectionChangedHandler != null )
-                _selectionChangedHandler( this, isSelected );
-
-            UpdateSubtreeSelectionState();
-        }
-
-        private void UpdateSubtreeSelectionState()
-        {
-            SubtreeIsSelected = IsSelected || ChildNodes.Any(x => x.SubtreeIsSelected);
-
-            if ( ParentNode != null )
-                ((SelectableNode<TKey, TEntity>)ParentNode).UpdateSubtreeSelectionState();
-        }
-
-        public virtual void ChangeSelectedOnSelfAndDescendants( bool isSelected )
-        {
-            _suppressSelectionNotifications = true;
-
-            IsSelected = isSelected;
-
-            foreach( var childNode in ChildNodes )
+            get
             {
-                childNode.ChangeSelectedOnSelfAndDescendants( isSelected );
-            }
+                var retVal = Descendants;
+                retVal.Insert( 0, this );
 
-            _suppressSelectionNotifications = false;
+                return retVal;
+            }
+        }
+
+        private void AddDescendantsAndSelf( ISelectableNode<TKey, TEntity> curNode, List<ISelectableNode<TKey, TEntity>> descAndSelf )
+        {
+            descAndSelf.Add( curNode );
+
+            foreach( var childNode in curNode.ChildNodes )
+            {
+                AddDescendantsAndSelf( childNode, descAndSelf );
+            }
         }
 
         public virtual void UpdateDisplayName()
@@ -139,9 +137,18 @@ namespace J4JSoftware.WPFUtilities
 
         protected abstract string GetDisplayName();
 
-        protected virtual void OnPropertyChanged( [ CallerMemberName ] string propertyName = "" )
+        private bool SetProperty<T>( ref T field, T value, [ CallerMemberName ] string callerName = "" )
         {
-            PropertyChanged?.Invoke( this, new PropertyChangedEventArgs( propertyName ) );
+            if( EqualityComparer<T>.Default.Equals(field, value) ) 
+                return false;
+            
+            field = value;
+            OnPropertyChanged( callerName );
+
+            return true;
         }
+
+        private void OnPropertyChanged( [ CallerMemberName ] string callerName = "" ) =>
+            PropertyChanged?.Invoke( this, new PropertyChangedEventArgs( callerName ) );
     }
 }

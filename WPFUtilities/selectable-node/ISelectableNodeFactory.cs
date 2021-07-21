@@ -17,12 +17,9 @@
 
 #endregion
 
-using System;
-
 namespace J4JSoftware.WPFUtilities
 {
     public interface ISelectableNodeFactory<TKey, TEntity>
-        where TKey : IComparable<TKey>
     {
         SelectableNode<TKey, TEntity> Create(TEntity entity, ISelectableNode<TKey, TEntity>? parentNode);
     }

@@ -23,7 +23,6 @@ using System.Collections.Generic;
 namespace J4JSoftware.WPFUtilities
 {
     public class DefaultSelectableNodeComparer<TKey, TEntity> : IComparer<ISelectableNode<TKey, TEntity>>
-        where TKey : IComparable<TKey>
     {
         public int Compare( ISelectableNode<TKey, TEntity>? x, ISelectableNode<TKey, TEntity>? y )
         {
