@@ -72,6 +72,13 @@ The publisher and app name jointly define (again, on Windows at least) the
 user's local settings folder. On Windows this is generally located at 
 C:\\Users\\**[user name]**\\AppData\\Local\\**[publisher]**\\**[appName]**\\.
 
+Another class defined in the library, `XamlJ4JCompositionRoot<>`, tweaks the 
+way `J4JCompositionRoot<>` works to support WPF (and I presume other Microsoft
+XAML-based frameworks). `XamlJ4JCompositionRoot<>` provides a flag you can use to
+see if code is running at design-time, and it redefines `ApplicationConfigurationFolder`
+so that it points to the correct location on disk depending upon whether the code
+is running at design-time or runtime.
+
 [table of contents](#Table-of-Contents)
 
 #### IJ4JLogger Configuration
@@ -181,5 +188,14 @@ with two methods:
 |Unprotect|decrypts text|<ul><li>**encryptedText** (string): the text to decrypt</li><li>**decrypted** (out string?): the decrypted text, if the decryption succeeded</li></ul>|
 
 Both methods return true if they succeed or false if they fail.
+
+#### Deprecated Services
+The class `XamlJ4JCompositionRoot<>` provides a way to register design-time and run-time
+viewmodels which implement the same interface. I found this useful in an earlier stage of
+my learning WPF. I've since found the capability to be unnecessary. It will be removed at
+some point.
+
+By default, all instances of `XamlJ4JCompositionRoot<>` do not support using viewmodel
+dependencies. You can override the default by specifying `useViewModelDependency: true` in the constructor call.
 
 [table of contents](#Table-of-Contents)
