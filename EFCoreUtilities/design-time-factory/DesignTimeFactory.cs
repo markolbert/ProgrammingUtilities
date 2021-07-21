@@ -18,35 +18,62 @@
 #endregion
 
 using System;
-using System.Reflection;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using SQLitePCL;
 
 namespace J4JSoftware.EFCoreUtilities
 {
     public abstract class DesignTimeFactory<TDbContext> : IDesignTimeDbContextFactory<TDbContext>
         where TDbContext : DbContext
-
     {
-        private readonly ConstructorInfo _ctor;
+        private readonly string? _srcCodeFilePath;
 
-        public DesignTimeFactory()
+        public DesignTimeFactory( string? srcCodeFilePath )
         {
-            // ensure TDbContext can be created from a IDbContextFactoryConfiguration
-            var ctor = typeof(TDbContext).GetConstructor( new[] { typeof(IDbContextFactoryConfiguration) } );
+            _srcCodeFilePath = srcCodeFilePath;
 
-            if( ctor == null )
+            var genOptionsType = typeof(DbContextOptions<>);
+            var optionsType = genOptionsType.MakeGenericType( typeof(TDbContext) );
+
+            var ctors = typeof(TDbContext).GetConstructors().ToList();
+            if( ctors.Count == 0 )
+                throw new ArgumentException( $"No constructors" );
+
+            ctors = ctors.Where( x => x.GetParameters().Length == 2 ).ToList();
+            if( ctors.Count == 0 )
+                throw new ArgumentException( $"No constructors with 2 parameters" );
+
+            ctors = ctors.Where( x => x.GetParameters()[ 0 ].ParameterType.IsAssignableFrom( optionsType ) ).ToList();
+            if( ctors.Count == 0 )
+                throw new ArgumentException( $"No constructors with 1st parameter assignable from {optionsType}" );
+
+            ctors = ctors.Where( x => x.GetParameters()[ 1 ].ParameterType.IsAssignableTo( typeof(IDatabaseConfig) ) )
+                .ToList();
+            if( ctors.Count == 0 )
                 throw new ArgumentException(
-                    $"{typeof(TDbContext).Name} cannot be constructed from a {nameof(IDbContextFactoryConfiguration)}" );
-
-            _ctor = ctor;
+                    $"No constructors with 2nd parameter assignable to {typeof(IDatabaseConfig)}" );
         }
 
-        public virtual TDbContext CreateDbContext( string[] args )
+        public TDbContext CreateDbContext( string[] args )
         {
-            return (TDbContext) _ctor.Invoke( new object[] { GetDatabaseConfiguration() } );
+            var dbPath = string.IsNullOrEmpty( _srcCodeFilePath )
+                ? args[ 0 ]
+                : Path.Combine( Path.GetDirectoryName( _srcCodeFilePath )!, args[ 0 ] );
+
+            var optionsBuilder = GetOptionsBuilder( dbPath );
+
+            return (TDbContext) Activator.CreateInstance( typeof(TDbContext), new object?[]
+            {
+                optionsBuilder.Options,
+                GetDatabaseConfig( dbPath )
+            } )!;
         }
 
-        protected abstract IDbContextFactoryConfiguration GetDatabaseConfiguration();
+        protected abstract IDatabaseConfig GetDatabaseConfig( string dbPath );
+        protected abstract DbContextOptionsBuilder<TDbContext> GetOptionsBuilder( string dbPath );
     }
 }

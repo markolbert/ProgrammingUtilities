@@ -23,7 +23,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace J4JSoftware.EFCoreUtilities
 {
-    public class SqliteDesignTimeFactory<TDbContext> : DesignTimeFactoryNG<TDbContext>
+    public class SqliteDesignTimeFactory<TDbContext> : DesignTimeFactory<TDbContext>
         where TDbContext : DbContext
     {
         public SqliteDesignTimeFactory( string? srcCodeFilePath )
