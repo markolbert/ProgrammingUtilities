@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using J4JSoftware.Logging;
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection.Deprecated
 {
     public class ViewModelDependencyBuilder
     {

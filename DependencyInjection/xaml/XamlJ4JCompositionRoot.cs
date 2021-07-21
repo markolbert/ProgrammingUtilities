@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using J4JSoftware.DependencyInjection.Deprecated;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Hosting;
 
@@ -13,19 +14,21 @@ namespace J4JSoftware.DependencyInjection
         where TJ4JLogger : IJ4JLoggerConfiguration, new()
     {
         private readonly Func<bool> _inDesignMode;
-        private readonly ViewModelDependencyBuilder _vmDepBuilder;
+        private readonly ViewModelDependencyBuilder? _vmDepBuilder;
 
         protected XamlJ4JCompositionRoot(
             string publisher,
             string appName,
             Func<bool> inDesignMode,
-            string? dataProtectionPurpose = null
+            string? dataProtectionPurpose = null,
+            bool useViewModelDependency = false
         )
             : base(publisher, appName, dataProtectionPurpose)
         {
             _inDesignMode = inDesignMode;
 
-            _vmDepBuilder = new ViewModelDependencyBuilder(CachedLogger);
+            if( useViewModelDependency )
+                _vmDepBuilder = new ViewModelDependencyBuilder(CachedLogger);
         }
 
         public bool InDesignMode => _inDesignMode();
@@ -35,13 +38,19 @@ namespace J4JSoftware.DependencyInjection
 
         protected virtual void RegisterViewModels(ViewModelDependencyBuilder builder)
         {
+            if( _vmDepBuilder == null )
+                throw new NotSupportedException(
+                    $"You are trying to register ViewModel dependencies, a deprecated feature, without having enabled them in the constructor call" );
         }
 
         protected override void SetupDependencyInjection(HostBuilderContext hbc, ContainerBuilder builder)
         {
             base.SetupDependencyInjection(hbc, builder);
 
-            RegisterViewModels(_vmDepBuilder);
+            if( _vmDepBuilder == null )
+                return;
+
+            RegisterViewModels( _vmDepBuilder );
 
             foreach (var vmd in _vmDepBuilder.ViewModelDependencies)
             {
