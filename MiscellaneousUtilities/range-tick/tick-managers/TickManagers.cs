@@ -26,11 +26,11 @@ namespace J4JSoftware.Utilities
     public class TickManagers : ITickManagers
     {
         private readonly Dictionary<Type, ITickManager> _extractors = new();
-        private readonly J4JLogger? _logger;
+        private readonly IJ4JLogger? _logger;
 
         public TickManagers(
             IEnumerable<ITickManager> extractors,
-            J4JLogger? logger )
+            IJ4JLogger? logger )
         {
             _logger = logger;
             _logger?.SetLoggedType(GetType());

@@ -29,7 +29,7 @@ namespace J4JSoftware.ConsoleUtilities
 {
     public static class Prompters
     {
-        public static T GetEnum<T>( T curValue, T defaultValue, List<T>? values = null, J4JLogger? logger = null,
+        public static T GetEnum<T>( T curValue, T defaultValue, List<T>? values = null, IJ4JLogger? logger = null,
             int indent = 4 )
             where T : Enum
         {

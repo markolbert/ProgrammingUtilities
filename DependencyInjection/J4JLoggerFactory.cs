@@ -19,29 +19,27 @@
 
 using System;
 using J4JSoftware.Logging;
-using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public interface IJ4JCompositionRootBase : IJ4JProtection
+    internal class J4JLoggerFactory
     {
-        IHost? Host { get; }
-        bool Initialized { get; }
-        string ApplicationName { get; }
-        string ApplicationConfigurationFolder { get; }
-        string UserConfigurationFolder { get; }
-        IJ4JProtection Protection { get; }
-        IJ4JLogger GetJ4JLogger( Action<J4JLogger>? configureLogger = null );
-        void Initialize();
-    }
+        private readonly Func<J4JLogger> _loggerFactory;
 
-    public interface IJ4JCompositionRoot : IJ4JCompositionRootBase
-    {
-        bool UseConsoleLifetime { get; set; }
-    }
+        public J4JLoggerFactory(
+            Func<J4JLogger> loggerFactory
+        )
+        {
+            _loggerFactory = loggerFactory;
+        }
 
-    public interface IJ4JViewModelLocator : IJ4JCompositionRootBase
-    {
-        bool InDesignMode { get; }
+        public J4JLogger CreateInstance( Action<J4JLogger> configurator )
+        {
+            var retVal = _loggerFactory();
+
+            configurator( retVal );
+
+            return retVal;
+        }
     }
 }

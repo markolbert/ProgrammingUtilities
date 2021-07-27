@@ -15,11 +15,11 @@ namespace J4JSoftware.Utilities
         private readonly string _collName;
         private readonly string _nodeName;
 
-        private readonly J4JLogger? _logger;
+        private readonly IJ4JLogger? _logger;
 
         public CollectionChangedHandler(
             ObservableCollection<ISelectableNode<TKey, TEntity>> obsColl,
-            J4JLogger? logger,
+            IJ4JLogger? logger,
             string collName = ""
         )
         {

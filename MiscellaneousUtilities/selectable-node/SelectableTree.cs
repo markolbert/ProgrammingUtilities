@@ -35,7 +35,7 @@ namespace J4JSoftware.Utilities
 
         protected SelectableTree(
             ISelectableNodeFactory<TKey, TEntity> nodeFactory,
-            J4JLogger? logger,
+            IJ4JLogger? logger,
             IEqualityComparer<TKey>? keyComparer = null
         )
         {
@@ -48,7 +48,7 @@ namespace J4JSoftware.Utilities
             Logger?.SetLoggedType(GetType());
         }
 
-        protected J4JLogger? Logger { get; }
+        protected IJ4JLogger? Logger { get; }
 
         public void Clear()
         {

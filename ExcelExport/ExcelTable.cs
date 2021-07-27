@@ -26,14 +26,14 @@ namespace J4JSoftware.Excel
 {
     public class ExcelTable
     {
-        private readonly J4JLogger? _logger;
+        private readonly IJ4JLogger? _logger;
 
         internal ExcelTable(
             ExcelSheet sheet,
             int upperLeftRow,
             int upperLeftColumn,
             TableOrientation orientation,
-            J4JLogger? logger = null )
+            IJ4JLogger? logger = null )
         {
             ExcelSheet = sheet;
 

@@ -8,11 +8,11 @@ namespace J4JSoftware.Utilities
     public class RangeCalculator : IRangeCalculator
     {
         private readonly ITickManagers _managers;
-        private readonly J4JLogger? _logger;
+        private readonly IJ4JLogger? _logger;
 
         public RangeCalculator(
             ITickManagers managers,
-            J4JLogger? logger
+            IJ4JLogger? logger
         )
         {
             _managers = managers;

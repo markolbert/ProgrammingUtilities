@@ -32,14 +32,14 @@ namespace J4JSoftware.ConsoleUtilities
         private readonly Dictionary<string, PropertyValidation> _updaters = new();
 
         public ConfigurationUpdater(
-            Func<J4JLogger>? loggerFactory
+            Func<IJ4JLogger>? loggerFactory
         )
         {
             Logger = loggerFactory?.Invoke();
             Logger?.SetLoggedType( GetType() );
         }
 
-        protected J4JLogger? Logger { get; }
+        protected IJ4JLogger? Logger { get; }
 
         public virtual bool Update( TConfig config )
         {

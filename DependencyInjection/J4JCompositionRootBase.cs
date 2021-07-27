@@ -62,14 +62,13 @@ namespace J4JSoftware.DependencyInjection
         public string UserConfigurationFolder { get; }
         public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
 
-        public J4JLogger GetJ4JLogger( Action<J4JLogger>? configureLogger = null )
+        public IJ4JLogger GetJ4JLogger( Action<J4JLogger>? configurator = null )
         {
-            configureLogger ??= ConfigureLoggerDefaults;
+            configurator ??= ConfigureLoggerDefaults;
 
-            var retVal = Host?.Services.GetRequiredService<J4JLogger>()!;
-            configureLogger( retVal );
+            var loggerFactory = Host?.Services.GetRequiredService<J4JLoggerFactory>()!;
 
-            return retVal;
+            return loggerFactory.CreateInstance( configurator );
         }
 
         protected abstract void ConfigureLoggerDefaults( J4JLogger logger );
@@ -122,10 +121,15 @@ namespace J4JSoftware.DependencyInjection
                 .SingleInstance();
 
             var loggerReg = builder.RegisterType<J4JLogger>()
-                .AsSelf();
+                .AsSelf()
+                .AsImplementedInterfaces();
 
             if( SingleLoggingInstance )
                 loggerReg.SingleInstance();
+
+            builder.RegisterType<J4JLoggerFactory>()
+                .AsSelf()
+                .SingleInstance();
         }
 
         protected virtual void SetupServices( HostBuilderContext hbc, IServiceCollection services )
