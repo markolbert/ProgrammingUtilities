@@ -40,6 +40,8 @@ namespace Test.WPFUtilities
                 bestFit.Should().NotBeNull();
 
                 var min = values.Min( x => x.Value );
+                if( min < 0 )
+                    System.Diagnostics.Debugger.Break();
                 min = Math.Floor( min );
                 Math.Floor( bestFit!.RangeStart ).Should().Be( min );
 
