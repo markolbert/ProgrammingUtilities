@@ -25,9 +25,9 @@ namespace J4JSoftware.DependencyInjection.Deprecated
 {
     public class ViewModelDependencyBuilder
     {
-        private readonly IJ4JLogger _logger;
+        private readonly J4JBaseLogger _logger;
 
-        public ViewModelDependencyBuilder( IJ4JLogger logger )
+        public ViewModelDependencyBuilder( J4JBaseLogger logger )
         {
             _logger = logger;
         }

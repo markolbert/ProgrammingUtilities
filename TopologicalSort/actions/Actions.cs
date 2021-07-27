@@ -25,7 +25,7 @@ namespace J4JSoftware.Utilities
     {
         protected Actions(
             ActionsContext context,
-            IJ4JLogger? logger = null
+            J4JLogger? logger = null
         )
         {
             Context = context;
@@ -34,7 +34,7 @@ namespace J4JSoftware.Utilities
             Logger?.SetLoggedType( GetType() );
         }
 
-        protected IJ4JLogger? Logger { get; }
+        protected J4JLogger? Logger { get; }
         protected ActionsContext Context { get; }
 
         public virtual bool Process( TSource src )

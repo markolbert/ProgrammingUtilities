@@ -17,12 +17,25 @@
 
 #endregion
 
-namespace J4JSoftware.WPFUtilities
+using System;
+using System.Collections.Generic;
+
+namespace J4JSoftware.Utilities
 {
-    public record RangeParameters<TValue>(
-        int MajorTicks,
-        int MinorTicksPerMajorTick,
-        decimal MinorTickWidth,
-        TValue RangeStart,
-        TValue RangeEnd);
+    public class DefaultSelectableNodeComparer<TKey, TEntity> : IComparer<ISelectableNode<TKey, TEntity>>
+    {
+        public int Compare( ISelectableNode<TKey, TEntity>? x, ISelectableNode<TKey, TEntity>? y )
+        {
+            if( x == null && y == null )
+                return 0;
+
+            if( x == null )
+                return 1;
+
+            if( y == null )
+                return -1;
+
+            return string.Compare( x.DisplayName, y.DisplayName, StringComparison.Ordinal );
+        }
+    }
 }

@@ -10,8 +10,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public class XamlJ4JCompositionRoot<TJ4JLogger> : J4JCompositionRootBase<TJ4JLogger>, IJ4JViewModelLocator
-        where TJ4JLogger : IJ4JLoggerConfiguration, new()
+    public abstract class XamlJ4JCompositionRoot : J4JCompositionRootBase, IJ4JViewModelLocator
     {
         private readonly Func<bool> _inDesignMode;
         private readonly ViewModelDependencyBuilder? _vmDepBuilder;

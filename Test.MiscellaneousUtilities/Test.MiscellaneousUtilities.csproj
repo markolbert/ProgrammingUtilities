@@ -21,6 +21,7 @@
 </ItemGroup>
 
 <ItemGroup>
+  <ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
   <ProjectReference Include="..\MiscellaneousUtilities\MiscellaneousUtilities.csproj" />
 </ItemGroup>
 

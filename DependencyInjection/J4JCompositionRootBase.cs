@@ -29,13 +29,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public abstract class J4JCompositionRootBase<TJ4JLogger>
-        where TJ4JLogger : IJ4JLoggerConfiguration, new()
+    public abstract class J4JCompositionRootBase
     {
         private readonly string _dataProtectionPurpose;
-
-        private IChannelConfigProvider? _channelProvider;
-        private IJ4JLoggerConfiguration? _loggerConfig;
 
         protected J4JCompositionRootBase(
             string publisher,
@@ -55,9 +51,10 @@ namespace J4JSoftware.DependencyInjection
         protected IHostBuilder? HostBuilder { get; private set; }
 
         // CachedLogger is used to capture log events during the host building process,
-        // when the ultimate IJ4JLogger instance is not yet available
+        // when the ultimate J4JLogger instance is not yet available
         protected J4JCachedLogger CachedLogger { get; } = new();
 
+        public bool SingleLoggingInstance { get; set; }
         public IHost? Host { get; private set; }
         public bool Initialized => Host != null;
         public string ApplicationName { get; }
@@ -65,20 +62,17 @@ namespace J4JSoftware.DependencyInjection
         public string UserConfigurationFolder { get; }
         public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
 
-        protected void ConfigurationBasedLogging( IChannelConfigProvider provider )
+        public J4JLogger GetJ4JLogger( Action<J4JLogger>? configureLogger = null )
         {
-            _channelProvider = provider;
+            configureLogger ??= ConfigureLoggerDefaults;
+
+            var retVal = Host?.Services.GetRequiredService<J4JLogger>()!;
+            configureLogger( retVal );
+
+            return retVal;
         }
 
-        protected void StaticConfiguredLogging( IJ4JLoggerConfiguration loggerConfig )
-        {
-            _loggerConfig = loggerConfig;
-        }
-
-        public IJ4JLogger GetJ4JLogger()
-        {
-            return Host?.Services.GetRequiredService<IJ4JLogger>()!;
-        }
+        protected abstract void ConfigureLoggerDefaults( J4JLogger logger );
 
         public void Initialize()
         {
@@ -89,7 +83,7 @@ namespace J4JSoftware.DependencyInjection
 
             Host = HostBuilder.Build();
 
-            GetJ4JLogger().OutputCache( CachedLogger.Cache );
+            GetJ4JLogger().OutputCache( CachedLogger );
 
             HostBuilder = null;
         }
@@ -127,22 +121,11 @@ namespace J4JSoftware.DependencyInjection
                 .OnActivating( x => x.Instance.Purpose = _dataProtectionPurpose )
                 .SingleInstance();
 
-            // we configure J4JLogger one of two ways depending upon how we were constructed
-            // the channel provider way assumes the configuration information is contained 
-            // within the IConfiguration system
-            if( _channelProvider == null && _loggerConfig == null )
-                throw new NullReferenceException(
-                    $"J4JLogger can't be configured. Call either {nameof(ConfigurationBasedLogging)}() or {nameof(StaticConfiguredLogging)}()" );
+            var loggerReg = builder.RegisterType<J4JLogger>()
+                .AsSelf();
 
-            if( _channelProvider != null )
-            {
-                _channelProvider.Source = hbc.Configuration;
-                builder.RegisterJ4JLogging<J4JLoggerConfiguration>( _channelProvider );
-            }
-            else
-            {
-                builder.RegisterJ4JLogging( _loggerConfig! );
-            }
+            if( SingleLoggingInstance )
+                loggerReg.SingleInstance();
         }
 
         protected virtual void SetupServices( HostBuilderContext hbc, IServiceCollection services )

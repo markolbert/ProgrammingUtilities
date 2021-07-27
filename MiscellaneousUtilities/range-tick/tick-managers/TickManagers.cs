@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using J4JSoftware.Logging;
 
-namespace J4JSoftware.WPFUtilities
+namespace J4JSoftware.Utilities
 {
     public class TickManagers : ITickManagers
     {

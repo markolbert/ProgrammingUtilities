@@ -30,8 +30,8 @@ namespace J4JSoftware.Excel
 {
     public class ExcelWorkbook : IEnumerable<ExcelSheet>
     {
-        private readonly IJ4JLogger? _logger;
-        private readonly Func<IJ4JLogger>? _loggerFactory;
+        private readonly J4JLogger? _logger;
+        private readonly Func<J4JLogger>? _loggerFactory;
         private readonly List<ExcelSheet> _worksheets = new();
         private readonly XSSFWorkbook _xssfWorkbook;
         private int _activeSheetIndex = -1;
@@ -41,7 +41,7 @@ namespace J4JSoftware.Excel
 
         public ExcelWorkbook(
             string? filePath = null,
-            Func<IJ4JLogger>? loggerFactory = null
+            Func<J4JLogger>? loggerFactory = null
         )
         {
             _loggerFactory = loggerFactory;
@@ -55,7 +55,7 @@ namespace J4JSoftware.Excel
         }
 
         public ExcelWorkbook(
-            Func<IJ4JLogger>? loggerFactory = null
+            Func<J4JLogger>? loggerFactory = null
         )
             : this( null, loggerFactory )
         {

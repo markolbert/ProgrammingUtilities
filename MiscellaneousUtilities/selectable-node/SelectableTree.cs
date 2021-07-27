@@ -23,7 +23,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using J4JSoftware.Logging;
 
-namespace J4JSoftware.WPFUtilities
+namespace J4JSoftware.Utilities
 {
     public abstract class SelectableTree<TKey, TEntity> : ISelectableTree<TKey, TEntity>
         where TKey: notnull

@@ -24,14 +24,14 @@ namespace J4JSoftware.Utilities
     public abstract class TopoAction<TSource> : IAction<TSource>
     {
         protected TopoAction(
-            IJ4JLogger logger
+            J4JLogger logger
         )
         {
             Logger = logger;
             Logger.SetLoggedType( GetType() );
         }
 
-        protected IJ4JLogger Logger { get; }
+        protected J4JLogger Logger { get; }
 
         public bool Process( TSource src )
         {

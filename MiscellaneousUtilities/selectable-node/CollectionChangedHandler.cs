@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using J4JSoftware.Logging;
 
-namespace J4JSoftware.WPFUtilities
+namespace J4JSoftware.Utilities
 {
     ///TODO may not be needed
     public class CollectionChangedHandler<TKey, TEntity>

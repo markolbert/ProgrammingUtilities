@@ -17,6 +17,7 @@
 
 #endregion
 
+using System;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Hosting;
 
@@ -30,7 +31,7 @@ namespace J4JSoftware.DependencyInjection
         string ApplicationConfigurationFolder { get; }
         string UserConfigurationFolder { get; }
         IJ4JProtection Protection { get; }
-        IJ4JLogger GetJ4JLogger();
+        J4JLogger GetJ4JLogger( Action<J4JLogger>? configureLogger = null );
         void Initialize();
     }
 

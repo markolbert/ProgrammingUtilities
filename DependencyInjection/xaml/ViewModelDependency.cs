@@ -24,9 +24,9 @@ namespace J4JSoftware.DependencyInjection.Deprecated
 {
     public class ViewModelDependency
     {
-        private readonly IJ4JLogger? _logger;
+        private readonly J4JBaseLogger? _logger;
 
-        public ViewModelDependency( Type vmInterface, IJ4JLogger? logger )
+        public ViewModelDependency( Type vmInterface, J4JBaseLogger? logger )
         {
             _logger = logger;
             _logger?.SetLoggedType( GetType() );

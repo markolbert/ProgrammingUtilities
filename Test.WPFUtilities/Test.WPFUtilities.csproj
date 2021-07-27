@@ -8,7 +8,9 @@
 </PropertyGroup>
 
 <ItemGroup>
+  <Compile Remove="CompositionRoot.cs" />
   <Compile Remove="RangeTickTest-deprecated.cs" />
+  <Compile Remove="RangeTickTest.cs" />
 </ItemGroup>
 
 <ItemGroup>

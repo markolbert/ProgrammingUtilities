@@ -1,14 +1,11 @@
-﻿using System;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using J4JSoftware.DependencyInjection;
 using J4JSoftware.Logging;
-using J4JSoftware.WPFUtilities;
+using J4JSoftware.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog.Events;
 
-namespace Test.WPFUtilities
+namespace Test.MiscellaneousUtilities
 {
     public class CompositionRoot : J4JCompositionRoot
     {

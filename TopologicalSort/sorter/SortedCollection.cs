@@ -32,14 +32,14 @@ namespace J4JSoftware.Utilities
         private List<T>? _sorted;
 
         protected SortedCollection(
-            IJ4JLogger? logger = null
+            J4JLogger? logger = null
         )
         {
             Logger = logger;
             Logger?.SetLoggedType( GetType() );
         }
 
-        protected IJ4JLogger? Logger { get; }
+        protected J4JLogger? Logger { get; }
         protected List<T> Available { get; } = new();
 
         public List<T> SortedSequence

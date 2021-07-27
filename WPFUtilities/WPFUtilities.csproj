@@ -22,25 +22,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="range-tick\rounders\**" />
-	  <EmbeddedResource Remove="range-tick\rounders\**" />
+	  <Compile Remove="range-tick\**" />
+	  <Compile Remove="selectable-node\**" />
+	  <EmbeddedResource Remove="range-tick\**" />
+	  <EmbeddedResource Remove="selectable-node\**" />
+	  <None Remove="range-tick\**" />
+	  <None Remove="selectable-node\**" />
+	  <Page Remove="range-tick\**" />
+	  <Page Remove="selectable-node\**" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="AutofacRangeTick.cs" />
 	  <Compile Remove="AutoFacWPFUtilities.cs" />
-	  <Compile Remove="range-tick\DateRangeFocus.cs" />
-	  <Compile Remove="range-tick\DecimalRangeCalculator.cs" />
-	  <Compile Remove="range-tick\DoubleRangeCalculator.cs" />
-	  <Compile Remove="range-tick\EndPointNature.cs" />
-	  <Compile Remove="range-tick\IDateRangeCalculator.cs" />
-	  <Compile Remove="range-tick\IntegerRangeCalculator.cs" />
-	  <Compile Remove="range-tick\MonthNumberRangeCalculator.cs" />
-	  <Compile Remove="range-tick\MonthRangeCalculator.cs" />
-	  <Compile Remove="range-tick\RangeCalculator-deprecated.cs" />
-	  <Compile Remove="range-tick\RangeCalculator-deprecated.static-protected.cs" />
-	  <Compile Remove="range-tick\RangeCalculator.static-protected.cs" />
-	  <Compile Remove="range-tick\RangeParameters-deprecated.cs" />
-	  <Compile Remove="range-tick\RoundTo.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

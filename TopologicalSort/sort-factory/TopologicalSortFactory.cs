@@ -7,9 +7,9 @@ namespace J4JSoftware.Utilities
 {
     public class TopologicalSortFactory : ITopologicalSortFactory
     {
-        private readonly IJ4JLogger? _logger;
+        private readonly J4JLogger? _logger;
 
-        public TopologicalSortFactory( IJ4JLogger? logger )
+        public TopologicalSortFactory( J4JLogger? logger )
         {
             _logger = logger;
             _logger?.SetLoggedType( GetType() );

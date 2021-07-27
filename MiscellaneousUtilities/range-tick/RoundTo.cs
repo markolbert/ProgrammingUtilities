@@ -1,4 +1,4 @@
-﻿namespace J4JSoftware.WPFUtilities
+﻿namespace J4JSoftware.Utilities
 {
     public enum RoundTo
     {

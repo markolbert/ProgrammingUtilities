@@ -28,13 +28,13 @@ namespace J4JSoftware.Excel
     public class ExcelSheet
     {
         private readonly List<ICell> _cells = new();
-        private readonly IJ4JLogger? _logger;
-        private readonly Func<IJ4JLogger>? _loggerFactory;
+        private readonly J4JLogger? _logger;
+        private readonly Func<J4JLogger>? _loggerFactory;
         private readonly List<IRow> _rows = new();
 
         internal ExcelSheet(
             ISheet xssfSheet,
-            Func<IJ4JLogger>? loggerFactory = null )
+            Func<J4JLogger>? loggerFactory = null )
         {
             _loggerFactory = loggerFactory;
 

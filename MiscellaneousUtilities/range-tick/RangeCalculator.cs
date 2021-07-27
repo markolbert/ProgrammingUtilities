@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using J4JSoftware.Logging;
 
-namespace J4JSoftware.WPFUtilities
+namespace J4JSoftware.Utilities
 {
     public class RangeCalculator : IRangeCalculator
     {

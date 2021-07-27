@@ -23,8 +23,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public class J4JCompositionRoot<TJ4JLogger> : J4JCompositionRootBase<TJ4JLogger>, IJ4JCompositionRoot
-        where TJ4JLogger : IJ4JLoggerConfiguration, new()
+    public abstract class J4JCompositionRoot : J4JCompositionRootBase, IJ4JCompositionRoot
     {
         protected J4JCompositionRoot(
             string publisher,

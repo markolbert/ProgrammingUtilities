@@ -17,11 +17,13 @@
 
 #endregion
 
-namespace J4JSoftware.WPFUtilities
+namespace J4JSoftware.Utilities
 {
-    public enum EndPointNature
+    public record SimpleDecimalTickManager : SimpleTickManager<decimal, ScaledTick>
     {
-        Inclusive,
-        Exclusive
+        public SimpleDecimalTickManager()
+            : base(x => (double) x, new DoubleTickCollection())
+        {
+        }
     }
 }

@@ -17,10 +17,16 @@
 
 #endregion
 
-namespace J4JSoftware.WPFUtilities
+using System.Collections.Generic;
+
+namespace J4JSoftware.Utilities
 {
-    public enum DateRangeFocus
+    public interface ITickCollection<TTick>
+        where TTick : ScaledTick, new()
     {
-        Month
+        Tick Default { get; }
+
+        List<TTick> GetAlternatives( double minValue, double maxValue );
+        RangeParameters GetDefaultRangeParameters( double minValue, double maxValue );
     }
 }

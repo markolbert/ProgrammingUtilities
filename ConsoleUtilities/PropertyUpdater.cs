@@ -24,13 +24,13 @@ namespace J4JSoftware.ConsoleUtilities
 {
     public abstract class PropertyUpdater<TProp> : IPropertyUpdater<TProp>
     {
-        protected PropertyUpdater( IJ4JLogger? logger )
+        protected PropertyUpdater( J4JLogger? logger )
         {
             Logger = logger;
             Logger?.SetLoggedType( GetType() );
         }
 
-        protected IJ4JLogger? Logger { get; }
+        protected J4JLogger? Logger { get; }
 
         public abstract UpdaterResult Update( TProp? origValue, out TProp? newValue );
 
