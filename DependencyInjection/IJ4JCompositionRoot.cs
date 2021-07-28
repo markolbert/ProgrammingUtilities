@@ -19,6 +19,7 @@
 
 using System;
 using J4JSoftware.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
@@ -31,7 +32,7 @@ namespace J4JSoftware.DependencyInjection
         string ApplicationConfigurationFolder { get; }
         string UserConfigurationFolder { get; }
         IJ4JProtection Protection { get; }
-        IJ4JLogger GetJ4JLogger( Action<J4JLogger>? configureLogger = null );
+        IJ4JLogger GetJ4JLogger( Action<J4JLogger, IConfiguration>? configureLogger = null );
         void Initialize();
     }
 

@@ -62,7 +62,7 @@ namespace J4JSoftware.DependencyInjection
         public string UserConfigurationFolder { get; }
         public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
 
-        public IJ4JLogger GetJ4JLogger( Action<J4JLogger>? configurator = null )
+        public IJ4JLogger GetJ4JLogger( Action<J4JLogger, IConfiguration>? configurator = null )
         {
             configurator ??= ConfigureLoggerDefaults;
 
@@ -71,7 +71,7 @@ namespace J4JSoftware.DependencyInjection
             return loggerFactory.CreateInstance( configurator );
         }
 
-        protected abstract void ConfigureLoggerDefaults( J4JLogger logger );
+        protected abstract void ConfigureLoggerDefaults( J4JLogger logger, IConfiguration configuration );
 
         public void Initialize()
         {

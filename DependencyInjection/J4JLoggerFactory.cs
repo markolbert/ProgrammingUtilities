@@ -19,25 +19,29 @@
 
 using System;
 using J4JSoftware.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace J4JSoftware.DependencyInjection
 {
     internal class J4JLoggerFactory
     {
         private readonly Func<J4JLogger> _loggerFactory;
+        private readonly IConfiguration _config;
 
         public J4JLoggerFactory(
-            Func<J4JLogger> loggerFactory
+            Func<J4JLogger> loggerFactory,
+            IConfiguration config
         )
         {
             _loggerFactory = loggerFactory;
+            _config = config;
         }
 
-        public J4JLogger CreateInstance( Action<J4JLogger> configurator )
+        public J4JLogger CreateInstance( Action<J4JLogger, IConfiguration> configurator )
         {
             var retVal = _loggerFactory();
 
-            configurator( retVal );
+            configurator( retVal, _config );
 
             return retVal;
         }
