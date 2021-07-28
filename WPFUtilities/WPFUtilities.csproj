@@ -38,10 +38,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Page Remove="CustomComboBox.xaml" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
 		<Pack>True</Pack>
 		<PackagePath></PackagePath>
