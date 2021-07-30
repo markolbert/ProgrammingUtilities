@@ -32,13 +32,13 @@ namespace J4JSoftware.DependencyInjection
     public abstract class J4JCompositionRootBase
     {
         private readonly string _dataProtectionPurpose;
-        private readonly ILoggerConfig? _loggerConfig;
+        private readonly Type? _loggerConfigType;
 
         protected J4JCompositionRootBase(
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
-            ILoggerConfig? loggerConfig = null
+            Type? loggerConfigType = null
             )
         {
             ApplicationName = appName;
@@ -50,11 +50,17 @@ namespace J4JSoftware.DependencyInjection
 
             _dataProtectionPurpose = dataProtectionPurpose ?? GetType().Name;
 
-            _loggerConfig = loggerConfig;
+            if( loggerConfigType != null && !typeof(ILoggerConfig).IsAssignableFrom( loggerConfigType ) )
+                CachedLogger.Error( "Supplied logger configuration Type '{0}' does not implement {1}", 
+                    loggerConfigType,
+                    typeof(ILoggerConfig) );
+            else _loggerConfigType = loggerConfigType;
         }
 
         protected IHostBuilder? HostBuilder { get; private set; }
 
+        // always test to ensure configuration is defined because it may not be if you
+        // supplied an invalid loggerConfigType to the constructor
         protected virtual void ConfigureLogger( J4JLogger logger, ILoggerConfig? configuration )
         {
         }
@@ -131,7 +137,12 @@ namespace J4JSoftware.DependencyInjection
             builder.Register( c =>
                 {
                     var retVal = new J4JLogger();
-                    ConfigureLogger( retVal, _loggerConfig );
+
+                    var loggerConfig = _loggerConfigType != null
+                        ? c.Resolve( _loggerConfigType ) as ILoggerConfig
+                        : null;
+
+                    ConfigureLogger( retVal, loggerConfig );
 
                     return retVal;
                 } )

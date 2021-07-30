@@ -20,10 +20,10 @@ namespace J4JSoftware.DependencyInjection
             string appName,
             Func<bool> inDesignMode,
             string? dataProtectionPurpose = null,
-            ILoggerConfig? loggerConfig = null,
+            Type? loggerConfigType = null,
             bool useViewModelDependency = false
         )
-            : base(publisher, appName, dataProtectionPurpose, loggerConfig)
+            : base(publisher, appName, dataProtectionPurpose, loggerConfigType)
         {
             _inDesignMode = inDesignMode;
 

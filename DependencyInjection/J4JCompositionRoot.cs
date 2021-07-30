@@ -29,9 +29,9 @@ namespace J4JSoftware.DependencyInjection
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
-            ILoggerConfig? loggerConfig = null
+            Type? loggerConfigType = null
             )
-            : base( publisher, appName, dataProtectionPurpose, loggerConfig )
+            : base( publisher, appName, dataProtectionPurpose, loggerConfigType )
         {
         }
 
