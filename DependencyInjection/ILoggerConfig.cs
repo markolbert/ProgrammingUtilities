@@ -17,31 +17,17 @@
 
 #endregion
 
-using System;
-using J4JSoftware.Logging;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-
 namespace J4JSoftware.DependencyInjection
 {
-    public interface IJ4JCompositionRootBase : IJ4JProtection
+    public interface ILoggerConfig
     {
-        IHost? Host { get; }
-        bool Initialized { get; }
-        string ApplicationName { get; }
-        string ApplicationConfigurationFolder { get; }
-        string UserConfigurationFolder { get; }
-        IJ4JProtection Protection { get; }
-        void Initialize();
+        object GetConfiguration();
     }
 
-    public interface IJ4JCompositionRoot : IJ4JCompositionRootBase
+    public interface ILoggerConfig<out T> : ILoggerConfig
+        where T : class
     {
-        bool UseConsoleLifetime { get; set; }
+        T Configuration { get; }
     }
 
-    public interface IJ4JViewModelLocator : IJ4JCompositionRootBase
-    {
-        bool InDesignMode { get; }
-    }
 }

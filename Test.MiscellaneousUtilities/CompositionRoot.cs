@@ -2,6 +2,7 @@
 using J4JSoftware.DependencyInjection;
 using J4JSoftware.Logging;
 using J4JSoftware.Utilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -22,7 +23,7 @@ namespace Test.MiscellaneousUtilities
         {
         }
 
-        protected override void ConfigureLoggerDefaults( J4JLogger logger )
+        protected override void ConfigureLogger( J4JLogger logger, ILoggerConfig? configuration )
         {
             logger.AddDebug();
         }

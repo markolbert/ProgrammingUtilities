@@ -28,8 +28,10 @@ namespace J4JSoftware.DependencyInjection
         protected J4JCompositionRoot(
             string publisher,
             string appName,
-            string? dataProtectionPurpose = null )
-            : base( publisher, appName, dataProtectionPurpose )
+            string? dataProtectionPurpose = null,
+            ILoggerConfig? loggerConfig = null
+            )
+            : base( publisher, appName, dataProtectionPurpose, loggerConfig )
         {
         }
 

@@ -32,11 +32,14 @@ namespace J4JSoftware.DependencyInjection
     public abstract class J4JCompositionRootBase
     {
         private readonly string _dataProtectionPurpose;
+        private readonly ILoggerConfig? _loggerConfig;
 
         protected J4JCompositionRootBase(
             string publisher,
             string appName,
-            string? dataProtectionPurpose = null )
+            string? dataProtectionPurpose = null,
+            ILoggerConfig? loggerConfig = null
+            )
         {
             ApplicationName = appName;
 
@@ -46,32 +49,26 @@ namespace J4JSoftware.DependencyInjection
                 appName );
 
             _dataProtectionPurpose = dataProtectionPurpose ?? GetType().Name;
+
+            _loggerConfig = loggerConfig;
         }
 
         protected IHostBuilder? HostBuilder { get; private set; }
+
+        protected virtual void ConfigureLogger( J4JLogger logger, ILoggerConfig? configuration )
+        {
+        }
 
         // CachedLogger is used to capture log events during the host building process,
         // when the ultimate J4JLogger instance is not yet available
         protected J4JCachedLogger CachedLogger { get; } = new();
 
-        public bool SingleLoggingInstance { get; set; }
         public IHost? Host { get; private set; }
         public bool Initialized => Host != null;
         public string ApplicationName { get; }
         public abstract string ApplicationConfigurationFolder { get; }
         public string UserConfigurationFolder { get; }
         public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
-
-        public IJ4JLogger GetJ4JLogger( Action<J4JLogger, IConfiguration>? configurator = null )
-        {
-            configurator ??= ConfigureLoggerDefaults;
-
-            var loggerFactory = Host?.Services.GetRequiredService<J4JLoggerFactory>()!;
-
-            return loggerFactory.CreateInstance( configurator );
-        }
-
-        protected abstract void ConfigureLoggerDefaults( J4JLogger logger, IConfiguration configuration );
 
         public void Initialize()
         {
@@ -82,7 +79,10 @@ namespace J4JSoftware.DependencyInjection
 
             Host = HostBuilder.Build();
 
-            GetJ4JLogger().OutputCache( CachedLogger );
+            // output anything we've logged to the startup/cached logger 
+            // to the real logger
+            var logger = Host!.Services.GetRequiredService<IJ4JLogger>();
+            logger.OutputCache( CachedLogger );
 
             HostBuilder = null;
         }
@@ -122,13 +122,20 @@ namespace J4JSoftware.DependencyInjection
 
             var loggerReg = builder.RegisterType<J4JLogger>()
                 .AsSelf()
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces()
+                .SingleInstance();
 
-            if( SingleLoggingInstance )
-                loggerReg.SingleInstance();
+            builder.Register( c => hbc.Configuration )
+                .As<IConfiguration>();
 
-            builder.RegisterType<J4JLoggerFactory>()
-                .AsSelf()
+            builder.Register( c =>
+                {
+                    var retVal = new J4JLogger();
+                    ConfigureLogger( retVal, _loggerConfig );
+
+                    return retVal;
+                } )
+                .As<IJ4JLogger>()
                 .SingleInstance();
         }
 
