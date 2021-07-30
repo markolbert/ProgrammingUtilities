@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public abstract class XamlJ4JCompositionRoot<TLoggerConfig> : J4JCompositionRootBase, IJ4JViewModelLocator
+    public abstract class XamlJ4JCompositionRoot : J4JCompositionRootBase, IJ4JViewModelLocator
     {
         private readonly Func<bool> _inDesignMode;
         private readonly ViewModelDependencyBuilder? _vmDepBuilder;
@@ -21,14 +22,15 @@ namespace J4JSoftware.DependencyInjection
             Func<bool> inDesignMode,
             string? dataProtectionPurpose = null,
             Type? loggerConfigType = null,
-            bool useViewModelDependency = false
+            bool useViewModelDependency = false,
+            params Assembly[] loggerChannelAssemblies
         )
-            : base(publisher, appName, dataProtectionPurpose, loggerConfigType)
+            : base( publisher, appName, dataProtectionPurpose, loggerConfigType, loggerChannelAssemblies )
         {
             _inDesignMode = inDesignMode;
 
             if( useViewModelDependency )
-                _vmDepBuilder = new ViewModelDependencyBuilder(CachedLogger);
+                _vmDepBuilder = new ViewModelDependencyBuilder( CachedLogger );
         }
 
         public bool InDesignMode => _inDesignMode();

@@ -18,7 +18,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -33,12 +36,14 @@ namespace J4JSoftware.DependencyInjection
     {
         private readonly string _dataProtectionPurpose;
         private readonly Type? _loggerConfigType;
+        private readonly List<Assembly> _loggerChannelAssemblies;
 
         protected J4JCompositionRootBase(
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
-            Type? loggerConfigType = null
+            Type? loggerConfigType = null,
+            params Assembly[] loggerChannelAssemblies
             )
         {
             ApplicationName = appName;
@@ -55,6 +60,13 @@ namespace J4JSoftware.DependencyInjection
                     loggerConfigType,
                     typeof(ILoggerConfig) );
             else _loggerConfigType = loggerConfigType;
+
+            _loggerChannelAssemblies = loggerChannelAssemblies.ToList();
+
+            var baseLoggerAssembly = typeof(IJ4JLogger).Assembly;
+
+            if( !_loggerChannelAssemblies.Contains( baseLoggerAssembly ) )
+                _loggerChannelAssemblies.Add( baseLoggerAssembly );
         }
 
         protected IHostBuilder? HostBuilder { get; private set; }
@@ -64,6 +76,28 @@ namespace J4JSoftware.DependencyInjection
         protected virtual void ConfigureLogger( J4JLogger logger, ILoggerConfig? configuration )
         {
         }
+
+        protected Dictionary<string, Type> RegisteredLoggerChannelTypes { get; } =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        public IChannel? GetLoggerChannel<TChannelConfig>(Type channelType, TChannelConfig? parameters)
+            where TChannelConfig : ChannelParameters
+        {
+            var channelID = channelType.GetCustomAttribute<ChannelIDAttribute>(false);
+
+            if( !typeof(IChannel).IsAssignableFrom( channelType )
+                || channelID == null
+                || channelID.ParametersType != typeof(TChannelConfig)
+                || !RegisteredLoggerChannelTypes.ContainsKey( channelID.Name ) )
+                return null;
+
+            return (IChannel?) Host!.Services.GetRequiredService( channelType );
+        }
+
+        public TLoggerChannel? GetLoggerChannel<TLoggerChannel, TChannelConfig>( TChannelConfig? parameters )
+            where TLoggerChannel : class, IChannel
+            where TChannelConfig : ChannelParameters =>
+            (TLoggerChannel?) GetLoggerChannel( typeof(TLoggerChannel), parameters );
 
         // CachedLogger is used to capture log events during the host building process,
         // when the ultimate J4JLogger instance is not yet available
@@ -147,6 +181,35 @@ namespace J4JSoftware.DependencyInjection
                     return retVal;
                 } )
                 .As<IJ4JLogger>()
+                .SingleInstance();
+
+            builder.RegisterAssemblyTypes( _loggerChannelAssemblies.ToArray() )
+                .Where( t => !t.IsAbstract
+                             && t.GetConstructors().Any( c =>
+                             {
+                                 var parameters = c.GetParameters();
+
+                                 var typeIsValid = parameters.Length == 1
+                                                   && typeof(J4JLogger).IsAssignableFrom(
+                                                       parameters[ 0 ].ParameterType );
+
+                                 if( !typeIsValid )
+                                     return typeIsValid;
+
+                                 var attr = t.GetCustomAttribute<ChannelIDAttribute>( false );
+
+                                 if( attr != null )
+                                     RegisteredLoggerChannelTypes.Add( attr.Name, t );
+                                 else
+                                     CachedLogger.Error<Type, string>(
+                                         "Found a J4JLogger Channel type ({0}) which does not have a {1}", 
+                                         t,
+                                         nameof(ChannelIDAttribute) );
+
+                                 return typeIsValid;
+                             } ) )
+                .AsImplementedInterfaces()
+                .AsSelf()
                 .SingleInstance();
         }
 

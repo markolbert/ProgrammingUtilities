@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using System.Reflection;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Hosting;
 
@@ -29,9 +30,10 @@ namespace J4JSoftware.DependencyInjection
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
-            Type? loggerConfigType = null
+            Type? loggerConfigType = null,
+            params Assembly[] loggerChannelAssemblies
             )
-            : base( publisher, appName, dataProtectionPurpose, loggerConfigType )
+            : base( publisher, appName, dataProtectionPurpose, loggerConfigType, loggerChannelAssemblies )
         {
         }
 
