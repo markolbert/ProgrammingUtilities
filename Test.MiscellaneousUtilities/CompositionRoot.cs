@@ -23,10 +23,7 @@ namespace Test.MiscellaneousUtilities
         {
         }
 
-        protected override void ConfigureLogger( J4JLogger logger, ILoggerConfig? configuration )
-        {
-            logger.AddDebug();
-        }
+        protected override void ConfigureLogger( J4JLogger logger ) => logger.AddDebug();
 
         public IRangeCalculator GetRangeCalculator() => Host!.Services.GetRequiredService<IRangeCalculator>();
 

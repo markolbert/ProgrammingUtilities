@@ -21,10 +21,6 @@
 		<PackageReleaseNotes>license changed</PackageReleaseNotes>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Compile Remove="actions\IActionProcessor.cs" />
-	</ItemGroup>
-
   <ItemGroup>
     <None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
       <Pack>True</Pack>

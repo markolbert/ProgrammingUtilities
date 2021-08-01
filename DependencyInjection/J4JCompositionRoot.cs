@@ -30,10 +30,12 @@ namespace J4JSoftware.DependencyInjection
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
-            Type? loggerConfigType = null,
+            Type? loggingConfigType = null,
+            ILoggerConfigurator? loggerConfigurator = null,
             params Assembly[] loggerChannelAssemblies
-            )
-            : base( publisher, appName, dataProtectionPurpose, loggerConfigType, loggerChannelAssemblies )
+        )
+            : base( publisher, appName, dataProtectionPurpose, loggingConfigType, loggerConfigurator,
+                loggerChannelAssemblies )
         {
         }
 

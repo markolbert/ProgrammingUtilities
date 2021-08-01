@@ -35,14 +35,15 @@ namespace J4JSoftware.DependencyInjection
     public abstract class J4JCompositionRootBase
     {
         private readonly string _dataProtectionPurpose;
-        private readonly Type? _loggerConfigType;
         private readonly List<Assembly> _loggerChannelAssemblies;
+        private readonly Type? _loggingConfigType;
 
         protected J4JCompositionRootBase(
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
-            Type? loggerConfigType = null,
+            Type? loggingConfigType = null,
+            ILoggerConfigurator? loggerConfigurator = null,
             params Assembly[] loggerChannelAssemblies
             )
         {
@@ -55,11 +56,9 @@ namespace J4JSoftware.DependencyInjection
 
             _dataProtectionPurpose = dataProtectionPurpose ?? GetType().Name;
 
-            if( loggerConfigType != null && !typeof(ILoggerConfig).IsAssignableFrom( loggerConfigType ) )
-                CachedLogger.Error( "Supplied logger configuration Type '{0}' does not implement {1}", 
-                    loggerConfigType,
-                    typeof(ILoggerConfig) );
-            else _loggerConfigType = loggerConfigType;
+            _loggingConfigType = loggingConfigType;
+
+            LoggerConfigurator = loggerConfigurator ?? new LoggerConfigurator( GetLoggerChannel );
 
             _loggerChannelAssemblies = loggerChannelAssemblies.ToList();
 
@@ -71,37 +70,40 @@ namespace J4JSoftware.DependencyInjection
 
         protected IHostBuilder? HostBuilder { get; private set; }
 
+        // CachedLogger is used to capture log events during the host building process,
+        // when the ultimate J4JLogger instance is not yet available
+        protected J4JCachedLogger CachedLogger { get; } = new();
+
+        // LoggerConfigurator is used to configure the J4JLogger returned by J4JCompositionRootBase.
+        protected ILoggerConfigurator LoggerConfigurator { get; }
+
+        // LoggerConfiguration will hold an instance of whatever Type you've declared to contain
+        // logging configuration information...if you've specified the Type in the constructor call
+        // and registered a concrete class for it.
+        protected object? LoggerConfiguration =>
+            _loggingConfigType == null ? null : Host!.Services.GetService(_loggingConfigType);
+
         // always test to ensure configuration is defined because it may not be if you
-        // supplied an invalid loggerConfigType to the constructor
-        protected virtual void ConfigureLogger( J4JLogger logger, ILoggerConfig? configuration )
-        {
-        }
+        // supplied a loggerConfigType to the constructor which you forgot to register
+        protected abstract void ConfigureLogger( J4JLogger logger );
 
         protected Dictionary<string, Type> RegisteredLoggerChannelTypes { get; } =
             new(StringComparer.OrdinalIgnoreCase);
 
-        public IChannel? GetLoggerChannel<TChannelConfig>(Type channelType, TChannelConfig? parameters)
-            where TChannelConfig : ChannelParameters
+        public IChannel? GetLoggerChannel(J4JLogger logger, Type channelType)
         {
             var channelID = channelType.GetCustomAttribute<ChannelIDAttribute>(false);
 
             if( !typeof(IChannel).IsAssignableFrom( channelType )
                 || channelID == null
-                || channelID.ParametersType != typeof(TChannelConfig)
                 || !RegisteredLoggerChannelTypes.ContainsKey( channelID.Name ) )
                 return null;
+            
+            var retVal = (IChannel?) Host!.Services.GetRequiredService( channelType );
+            retVal?.SetAssociatedLogger( logger );
 
-            return (IChannel?) Host!.Services.GetRequiredService( channelType );
+            return retVal;
         }
-
-        public TLoggerChannel? GetLoggerChannel<TLoggerChannel, TChannelConfig>( TChannelConfig? parameters )
-            where TLoggerChannel : class, IChannel
-            where TChannelConfig : ChannelParameters =>
-            (TLoggerChannel?) GetLoggerChannel( typeof(TLoggerChannel), parameters );
-
-        // CachedLogger is used to capture log events during the host building process,
-        // when the ultimate J4JLogger instance is not yet available
-        protected J4JCachedLogger CachedLogger { get; } = new();
 
         public IHost? Host { get; private set; }
         public bool Initialized => Host != null;
@@ -160,41 +162,30 @@ namespace J4JSoftware.DependencyInjection
                 .OnActivating( x => x.Instance.Purpose = _dataProtectionPurpose )
                 .SingleInstance();
 
-            var loggerReg = builder.RegisterType<J4JLogger>()
-                .AsSelf()
-                .AsImplementedInterfaces()
-                .SingleInstance();
-
             builder.Register( c => hbc.Configuration )
                 .As<IConfiguration>();
 
-            builder.Register( c =>
-                {
-                    var retVal = new J4JLogger();
-
-                    var loggerConfig = _loggerConfigType != null
-                        ? c.Resolve( _loggerConfigType ) as ILoggerConfig
-                        : null;
-
-                    ConfigureLogger( retVal, loggerConfig );
-
-                    return retVal;
-                } )
+            // register J4JLogger, as both itself and as IJ4JLogger,
+            // because its configuration depends on being able to resolve
+            // more than just the interface
+            builder.RegisterType<J4JLogger>()
+                .OnActivated( x => ConfigureLogger( x.Instance ) )
                 .As<IJ4JLogger>()
+                .AsSelf()
                 .SingleInstance();
 
+            // Register logging channels. This also updates the protected property RegisteredLoggerChannelTypes
+            // so resolution of channel types doesn't require access to the builder context
             builder.RegisterAssemblyTypes( _loggerChannelAssemblies.ToArray() )
                 .Where( t => !t.IsAbstract
+                             && typeof(IChannel).IsAssignableFrom(t)
                              && t.GetConstructors().Any( c =>
                              {
+                                 // constructor must be parameterless
                                  var parameters = c.GetParameters();
 
-                                 var typeIsValid = parameters.Length == 1
-                                                   && typeof(J4JLogger).IsAssignableFrom(
-                                                       parameters[ 0 ].ParameterType );
-
-                                 if( !typeIsValid )
-                                     return typeIsValid;
+                                 if( parameters.Length != 0 )
+                                     return false;
 
                                  var attr = t.GetCustomAttribute<ChannelIDAttribute>( false );
 
@@ -206,7 +197,7 @@ namespace J4JSoftware.DependencyInjection
                                          t,
                                          nameof(ChannelIDAttribute) );
 
-                                 return typeIsValid;
+                                 return true;
                              } ) )
                 .AsImplementedInterfaces()
                 .AsSelf()

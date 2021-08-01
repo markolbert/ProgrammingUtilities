@@ -22,17 +22,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="range-tick\**" />
-	  <Compile Remove="selectable-node\**" />
-	  <EmbeddedResource Remove="range-tick\**" />
-	  <EmbeddedResource Remove="selectable-node\**" />
-	  <None Remove="range-tick\**" />
-	  <None Remove="selectable-node\**" />
-	  <Page Remove="range-tick\**" />
-	  <Page Remove="selectable-node\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Compile Remove="AutofacRangeTick.cs" />
 	  <Compile Remove="AutoFacWPFUtilities.cs" />
 	</ItemGroup>
