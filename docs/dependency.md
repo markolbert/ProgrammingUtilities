@@ -6,6 +6,11 @@ capabilities are provided by [Autofac](https://autofac.org/).
 
 This assembly targets Net5 and has nullability enabled.
 
+#### Changes
+|Version|Summary of Changes|
+|-------|------------------|
+|2.0|Added support for XAML-based projects (e.g., WPF). Added support for configuring `J4JLogger` from `IConfiguration` API.|
+
 #### Table of Contents
 - [Initialization](#initialization)
 - [IJ4JLogger Configuration](#IJ4JLogger-Configuration)
@@ -15,16 +20,16 @@ This assembly targets Net5 and has nullability enabled.
 
 #### Initialization
 I'm a huge fan of [Autofac](https://autofac.org/) and use it in just about everything I write.
-But I found there was a lot of boilerplate code I had to use to 
-integrate it with the Net5 `IConfiguration` system, my own `IJ4JLogger`
-functionality, etc. This assembly is my way of simplifying that setup.
+But I found there was a lot of boilerplate code I had to use to integrate it with the Net5 
+`IConfiguration` system, my own `IJ4JLogger` functionality, etc. This assembly is my way of 
+simplifying that setup.
 
-The key class, `J4JCompositionRoot<>` is essentially a wrapper around the
-Net5 `IHostBuilder` and `IHost` systems. You use it by creating a
-derived class, specifying the type your app uses to configure the
-`IJ4JLogger` system (see the github documentation for 
-[`IJ4JLogger`](https://github.com/markolbert/J4JLogging) for
-more details):
+The key class, `J4JCompositionRootBase` is essentially a wrapper around the Net5 `IHostBuilder` 
+and `IHost` systems. You don't derive from `J4JCompositionRootBase` directly. Instead, you use
+one of its specialized derivations, `J4JCompositionRoot` or `XAMLCompositionRoot`. The former
+targets command-line apps while the latter targets XAML-based apps (e.g., WPF).
+
+In either case you start by creating a derived class in your app:
 ```csharp
 public class CompositionRoot : J4JCompositionRoot<J4JLoggerConfiguration>
 {
@@ -48,9 +53,8 @@ public class CompositionRoot : J4JCompositionRoot<J4JLoggerConfiguration>
         UseConsoleLifetime = true;
     }
 ```
-I typically use this *static property/private constructor* pattern
-because I want to have only one instance of my composition root throughout
-my app (it *is* a root, after all :)).
+I typically use this *static property/private constructor* pattern because I want to have only 
+one instance of my composition root throughout my app (it *is* a root, after all :)).
 
 You **must** call `Initialize()` on your composition root
 instance for it to become functional. Behind the scenes this calls the

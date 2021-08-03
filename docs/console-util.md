@@ -4,6 +4,11 @@ as-needed basis.
 
 This assembly targets Net5 and has nullability enabled.
 
+#### Changes
+|Version|Summary of Changes|
+|-------|------------------|
+|1.3|modified to reflect updated `J4JLogger` API|
+
 #### Introduction
 The Net5 `IConfiguration` system is highly flexible and can assemble
 configuration information from many sources. However, when it's done
