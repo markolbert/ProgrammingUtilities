@@ -24,9 +24,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public abstract class J4JCompositionRoot : J4JCompositionRootBase, IJ4JCompositionRoot
+    public abstract class ConsoleCompositionRoot : CompositionRootBase, IConsoleCompositionRoot
     {
-        protected J4JCompositionRoot(
+        protected ConsoleCompositionRoot(
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
@@ -39,15 +39,18 @@ namespace J4JSoftware.DependencyInjection
         {
         }
 
-        public bool UseConsoleLifetime { get; set; }
+        public bool UseConsoleLifetime { get; protected set; }
         public override string ApplicationConfigurationFolder => Environment.CurrentDirectory;
 
-        protected override void InitializeInternal()
+        protected override bool Build()
         {
-            base.InitializeInternal();
+            // we need to update HostBuilder >>before<< the build actually takes place
+            // because after the host is built HostBuilder will be null. That's why
+            // we don't call the base method first
+            if (UseConsoleLifetime)
+                HostBuilder!.UseConsoleLifetime();
 
-            if( UseConsoleLifetime )
-                HostBuilder.UseConsoleLifetime();
+            return base.Build();
         }
     }
 }

@@ -32,13 +32,13 @@ using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public abstract class J4JCompositionRootBase
+    public abstract class CompositionRootBase
     {
         private readonly string _dataProtectionPurpose;
         private readonly List<Assembly> _loggerChannelAssemblies;
         private readonly Type? _loggingConfigType;
 
-        protected J4JCompositionRootBase(
+        protected CompositionRootBase(
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
@@ -66,15 +66,49 @@ namespace J4JSoftware.DependencyInjection
 
             if( !_loggerChannelAssemblies.Contains( baseLoggerAssembly ) )
                 _loggerChannelAssemblies.Add( baseLoggerAssembly );
+
+            Initialize();
         }
 
         protected IHostBuilder? HostBuilder { get; private set; }
+
+        private void Initialize() => ConfigureHostBuilder();
+
+        // override to change the way the host building process is initialized
+        // doing so should be rare
+        protected virtual void ConfigureHostBuilder()
+        {
+            HostBuilder = new HostBuilder()
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
+            HostBuilder.ConfigureAppConfiguration(SetupAppEnvironment);
+            HostBuilder.ConfigureHostConfiguration(SetupConfigurationEnvironment);
+            HostBuilder.ConfigureContainer<ContainerBuilder>(SetupDependencyInjection);
+            HostBuilder.ConfigureServices(SetupServices);
+        }
+
+        protected virtual bool Build()
+        {
+            if( HostBuilder == null )
+                return false;
+
+            Host = HostBuilder.Build();
+
+            // output anything we've logged to the startup/cached logger 
+            // to the real logger
+            var logger = Host!.Services.GetRequiredService<IJ4JLogger>();
+            logger.OutputCache(CachedLogger);
+
+            HostBuilder = null;
+
+            return true;
+        }
 
         // CachedLogger is used to capture log events during the host building process,
         // when the ultimate J4JLogger instance is not yet available
         protected J4JCachedLogger CachedLogger { get; } = new();
 
-        // LoggerConfigurator is used to configure the J4JLogger returned by J4JCompositionRootBase.
+        // LoggerConfigurator is used to configure the J4JLogger returned by CompositionRootBase.
         protected ILoggerConfigurator LoggerConfigurator { get; }
 
         // LoggerConfiguration will hold an instance of whatever Type you've declared to contain
@@ -111,36 +145,6 @@ namespace J4JSoftware.DependencyInjection
         public abstract string ApplicationConfigurationFolder { get; }
         public string UserConfigurationFolder { get; }
         public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
-
-        public void Initialize()
-        {
-            HostBuilder = new HostBuilder()
-                .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
-
-            InitializeInternal();
-
-            Host = HostBuilder.Build();
-
-            // output anything we've logged to the startup/cached logger 
-            // to the real logger
-            var logger = Host!.Services.GetRequiredService<IJ4JLogger>();
-            logger.OutputCache( CachedLogger );
-
-            HostBuilder = null;
-        }
-
-        // override to change the way the host building process is initialized
-        protected virtual void InitializeInternal()
-        {
-            if( HostBuilder == null )
-                throw new NullReferenceException(
-                    $"{nameof(Initialize)}() must be called before {nameof(InitializeInternal)}()" );
-
-            HostBuilder.ConfigureAppConfiguration( SetupAppEnvironment );
-            HostBuilder.ConfigureHostConfiguration( SetupConfigurationEnvironment );
-            HostBuilder.ConfigureContainer<ContainerBuilder>( SetupDependencyInjection );
-            HostBuilder.ConfigureServices( SetupServices );
-        }
 
         protected virtual void SetupAppEnvironment( HostBuilderContext hbc, IConfigurationBuilder builder )
         {

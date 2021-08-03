@@ -10,11 +10,11 @@ using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public abstract class XamlJ4JCompositionRoot : J4JCompositionRootBase, IJ4JViewModelLocator
+    public abstract class XamlCompositionRoot : CompositionRootBase, IXamlCompositionRoot
     {
         private readonly Func<bool> _inDesignMode;
 
-        protected XamlJ4JCompositionRoot(
+        protected XamlCompositionRoot(
             string publisher,
             string appName,
             Func<bool> inDesignMode,
