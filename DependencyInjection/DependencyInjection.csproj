@@ -16,9 +16,9 @@
 	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	  <PackageIcon>Diego nuspec.png</PackageIcon>
 	  <RepositoryType>git</RepositoryType>
-	  <Version>1.2.0.0</Version>
-	  <AssemblyVersion>1.2.0.0</AssemblyVersion>
-	  <PackageReleaseNotes>adjustments to support the WPF (and perhaps other XAML-based) framework</PackageReleaseNotes>
+	  <Version>2.0.0.0</Version>
+	  <AssemblyVersion>2.0.0.0</AssemblyVersion>
+	  <PackageReleaseNotes>added support for XAML-based projects (e.g., WPF); added support for configuring J4JLogger from IConfiguration</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
