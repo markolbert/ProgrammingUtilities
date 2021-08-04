@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Test.MiscellaneousUtilities
 {
-    public class CompositionRoot : ConsoleCompositionRoot
+    public class CompositionRoot : ConsoleRoot
     {
         private static CompositionRoot? _compRoot;
 

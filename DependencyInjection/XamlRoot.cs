@@ -5,26 +5,21 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
-using J4JSoftware.Logging;
 using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public abstract class XamlCompositionRoot : CompositionRootBase, IXamlCompositionRoot
+    public abstract class XamlRoot : CompositionRoot
     {
         private readonly Func<bool> _inDesignMode;
 
-        protected XamlCompositionRoot(
+        protected XamlRoot(
             string publisher,
             string appName,
             Func<bool> inDesignMode,
-            string? dataProtectionPurpose = null,
-            Type? loggingConfigType = null,
-            ILoggerConfigurator? loggerConfigurator = null,
-            params Assembly[] loggerChannelAssemblies
+            string? dataProtectionPurpose = null
         )
-            : base( publisher, appName, dataProtectionPurpose, loggingConfigType, loggerConfigurator,
-                loggerChannelAssemblies )
+            : base( publisher, appName, dataProtectionPurpose )
         {
             _inDesignMode = inDesignMode;
         }

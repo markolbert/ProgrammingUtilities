@@ -19,29 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VisualUtilities", "VisualUt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.VisualUtilities", "Test.VisualUtilities\Test.VisualUtilities.csproj", "{1BE4B93C-D5E5-4F31-B538-CBD99E8F3BC1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{227978C5-DDD3-4B0E-8A15-1322EEE164A2}"
-	ProjectSection(SolutionItems) = preProject
-		docs\console-util.md = docs\console-util.md
-		docs\dependency.md = docs\dependency.md
-		docs\efcore.md = docs\efcore.md
-		docs\excel-export.md = docs\excel-export.md
-		LICENSE.md = LICENSE.md
-		docs\mahappsmatdesign.md = docs\mahappsmatdesign.md
-		docs\miscutils.md = docs\miscutils.md
-		README.md = README.md
-		docs\topo-sort.md = docs\topo-sort.md
-		docs\visual-utils.md = docs\visual-utils.md
-		docs\wpf-utilities.md = docs\wpf-utilities.md
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLogging", "..\J4JLogging\J4JLogging\J4JLogging.csproj", "{BF7C19D5-2FB6-4B94-B73C-337880DF5582}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleUtilities", "ConsoleUtilities\ConsoleUtilities.csproj", "{FF7C4C81-7A1D-4993-B84C-FAF638524772}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{1BD26D51-9727-4FAB-81AD-2C6EC2661711}"
-	ProjectSection(SolutionItems) = preProject
-		docs\assets\topo-actions.png = docs\assets\topo-actions.png
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WPFUtilities", "WPFUtilities\WPFUtilities.csproj", "{54A3B007-2BCD-4FBC-82F0-618E0396789D}"
 EndProject
@@ -115,7 +95,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BF7C19D5-2FB6-4B94-B73C-337880DF5582} = {D8043E93-B428-4A53-A8FD-B5057D43A005}
-		{1BD26D51-9727-4FAB-81AD-2C6EC2661711} = {227978C5-DDD3-4B0E-8A15-1322EEE164A2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4181E7AB-9170-480C-A128-CAB8740DD30B}

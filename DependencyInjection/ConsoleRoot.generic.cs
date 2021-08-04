@@ -18,25 +18,23 @@
 #endregion
 
 using System;
-using System.Reflection;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Hosting;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public abstract class ConsoleCompositionRoot : CompositionRootBase, IConsoleCompositionRoot
+    public abstract class ConsoleRoot<TLoggerConfig, TLoggerConfigurator> 
+        : CompositionRoot<TLoggerConfig, TLoggerConfigurator>
+        where TLoggerConfig : class
+        where TLoggerConfigurator : class, ILoggerConfigurator
     {
-        protected ConsoleCompositionRoot(
+        protected ConsoleRoot(
             string publisher,
             string appName,
             bool useConsoleLifetime = true,
-            string? dataProtectionPurpose = null,
-            Type? loggingConfigType = null,
-            ILoggerConfigurator? loggerConfigurator = null,
-            params Assembly[] loggerChannelAssemblies
+            string? dataProtectionPurpose = null
         )
-            : base( publisher, appName, dataProtectionPurpose, loggingConfigType, loggerConfigurator,
-                loggerChannelAssemblies )
+            : base(publisher, appName, dataProtectionPurpose)
         {
             UseConsoleLifetime = useConsoleLifetime;
         }

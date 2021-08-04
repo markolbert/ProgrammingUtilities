@@ -23,7 +23,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public interface IConsoleCompositionRoot : ICompositionRootBase
+    public interface IConsoleRoot : ICompositionRootBase
     {
         bool UseConsoleLifetime { get; }
     }
