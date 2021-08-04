@@ -29,6 +29,7 @@ namespace J4JSoftware.DependencyInjection
         protected ConsoleCompositionRoot(
             string publisher,
             string appName,
+            bool useConsoleLifetime = true,
             string? dataProtectionPurpose = null,
             Type? loggingConfigType = null,
             ILoggerConfigurator? loggerConfigurator = null,
@@ -37,9 +38,10 @@ namespace J4JSoftware.DependencyInjection
             : base( publisher, appName, dataProtectionPurpose, loggingConfigType, loggerConfigurator,
                 loggerChannelAssemblies )
         {
+            UseConsoleLifetime = useConsoleLifetime;
         }
 
-        public bool UseConsoleLifetime { get; protected set; }
+        public bool UseConsoleLifetime { get; }
         public override string ApplicationConfigurationFolder => Environment.CurrentDirectory;
 
         protected override bool Build()
