@@ -23,7 +23,8 @@ namespace J4JSoftware.DependencyInjection
 {
     public class TypeTester : ITypeTester
     {
-        public static TypeTester NonAbstract { get; } = new TypeTester( x => !x.IsAbstract );
+        public static TypeTester NonAbstract { get; } = new( x => !x.IsAbstract );
+        public static TypeTester NonGeneric { get; } = new( x => !x.IsGenericType );
 
         private readonly Func<Type, bool>[] _testers;
 

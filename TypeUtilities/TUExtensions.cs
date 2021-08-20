@@ -63,6 +63,10 @@ namespace J4JSoftware.DependencyInjection
                         retVal.Add(TypeTester.NonAbstract);
                         break;
 
+                    case PredefinedTypeTests.NonGeneric:
+                        retVal.Add( TypeTester.NonGeneric );
+                        break;
+
                     default:
                         throw new InvalidEnumArgumentException(
                             $"Unsupported {nameof(PredefinedTypeTests)} value '{test}'");
