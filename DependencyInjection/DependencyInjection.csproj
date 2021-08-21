@@ -22,16 +22,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="type-test\ConstructorTester.cs" />
-    <Compile Remove="type-test\ConstructorTesterBase.cs" />
-    <Compile Remove="type-test\ConstructorTesterPermuted.cs" />
-    <Compile Remove="type-test\ITypeTester.cs" />
-    <Compile Remove="type-test\Permute.cs" />
-    <Compile Remove="type-test\PredefinedTypeTests.cs" />
-    <Compile Remove="type-test\TypeTester.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Autofac" Version="6.2.0" />
     <PackageReference Include="Autofac.Configuration" Version="6.0.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
@@ -53,9 +43,5 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="type-test\" />
   </ItemGroup>
 </Project>
