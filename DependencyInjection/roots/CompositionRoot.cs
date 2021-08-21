@@ -25,6 +25,8 @@ using System.Reflection;
 using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using J4JSoftware.Configuration.CommandLine;
+using J4JSoftware.Configuration.CommandLine.support;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,10 +38,13 @@ namespace J4JSoftware.DependencyInjection
     {
         private readonly string _dataProtectionPurpose;
 
+        private J4JCommandLineFactory? _cmdLineFactory;
+
         protected CompositionRoot(
             string publisher,
             string appName,
-            string? dataProtectionPurpose = null
+            string? dataProtectionPurpose = null,
+            string osName = OSNames.Windows
         )
         {
             ApplicationName = appName;
@@ -51,8 +56,14 @@ namespace J4JSoftware.DependencyInjection
 
             _dataProtectionPurpose = dataProtectionPurpose ?? GetType().Name;
 
+            OperatingSystem = osName;
+
             Initialize();
         }
+
+        public string OperatingSystem { get; }
+
+        protected virtual IEnumerable<Assembly> CommandLineAssemblies => Enumerable.Empty<Assembly>();
 
         protected IHostBuilder? HostBuilder { get; private set; }
 
@@ -62,6 +73,10 @@ namespace J4JSoftware.DependencyInjection
         // doing so should be rare
         protected virtual void ConfigureHostBuilder()
         {
+            _cmdLineFactory = new J4JCommandLineFactory( 
+                CommandLineAssemblies, 
+                new J4JLoggerFactory( () => CachedLogger ) );
+
             HostBuilder = new HostBuilder()
                 .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
 
@@ -132,6 +147,19 @@ namespace J4JSoftware.DependencyInjection
         }
 
         protected virtual void SetupConfigurationEnvironment( IConfigurationBuilder builder )
+        {
+            var parser = _cmdLineFactory!.GetParser( OperatingSystem );
+
+            if( parser == null )
+                return;
+
+            builder.AddJ4JCommandLine( parser, CachedLogger, out var options, out _ );
+
+            ConfigureCommandLineParsing( options! );
+            options!.FinishConfiguration();
+        }
+
+        protected virtual void ConfigureCommandLineParsing( IOptionCollection options )
         {
         }
 
