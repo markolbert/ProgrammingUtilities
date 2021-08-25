@@ -25,6 +25,6 @@ namespace J4JSoftware.DependencyInjection
         NonGeneric,
         ParameterlessConstructor,
         OnlyJ4JLoggerRequired,
-        OnlyJ4JLoggerFactoryRequired
+        //OnlyJ4JLoggerFactoryRequired
     }
 }

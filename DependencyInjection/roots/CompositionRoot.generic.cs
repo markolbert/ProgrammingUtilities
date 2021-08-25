@@ -35,7 +35,6 @@ namespace J4JSoftware.DependencyInjection
 {
     public abstract class CompositionRoot<TLoggerConfig, TLoggerConfigurator> : CompositionRoot
         where TLoggerConfig: class
-        where TLoggerConfigurator: class, ILoggerConfigurator
     {
         private readonly IEnumerable<Assembly>? _loggerChannelAssemblies;
 
@@ -51,25 +50,6 @@ namespace J4JSoftware.DependencyInjection
             : base( publisher, appName, dataProtectionPurpose )
         {
             _loggerChannelAssemblies = loggerChannelAssemblies;
-        }
-
-        protected override IEnumerable<Assembly> LoggerChannelAssemblies
-        {
-            get
-            {
-                foreach( var assembly in base.LoggerChannelAssemblies )
-                {
-                    yield return assembly;
-                }
-
-                if( _loggerChannelAssemblies == null )
-                    yield break;
-
-                foreach( var assembly in _loggerChannelAssemblies )
-                {
-                    yield return assembly;
-                }
-            }
         }
 
         protected abstract void RegisterLoggerConfiguration( ContainerBuilder builder );
@@ -90,20 +70,6 @@ namespace J4JSoftware.DependencyInjection
                 _loggerConfigurator ??= Host!.Services.GetRequiredService<TLoggerConfigurator>();
                 return _loggerConfigurator;
             }
-        }
-
-        protected override void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
-        {
-            base.SetupDependencyInjection( hbc, builder );
-
-            // Logger configurators require a single constructor parameter, a reference
-            // to an object which can provide logging channels...which CompositionRoot<>
-            // can do, so we just point the constructor at this instance.
-            builder.RegisterType<TLoggerConfigurator>()
-                .WithParameter( new PositionalParameter( 0, this ) )
-                .AsSelf();
-
-            RegisterLoggerConfiguration( builder );
         }
     }
 }

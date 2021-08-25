@@ -31,12 +31,15 @@ using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog.Events;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public abstract class CompositionRoot : IChannelFactory
+    public abstract class CompositionRoot
     {
         private readonly string _dataProtectionPurpose;
+        private readonly string _coreLoggingTemplate;
+        private readonly LogEventLevel _minLogEventLevel;
 
         private J4JCommandLineFactory? _cmdLineFactory;
 
@@ -44,7 +47,9 @@ namespace J4JSoftware.DependencyInjection
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
-            string osName = OSNames.Windows
+            string osName = OSNames.Windows,
+            string coreLoggingTemplate = J4JLoggerConfiguration.DefaultCoreTemplate,
+            LogEventLevel minimumLogEventLevel = LogEventLevel.Verbose
         )
         {
             ApplicationName = appName;
@@ -57,6 +62,8 @@ namespace J4JSoftware.DependencyInjection
             _dataProtectionPurpose = dataProtectionPurpose ?? GetType().Name;
 
             OperatingSystem = osName;
+            _coreLoggingTemplate = coreLoggingTemplate;
+            _minLogEventLevel = minimumLogEventLevel;
 
             Initialize();
         }
@@ -73,9 +80,7 @@ namespace J4JSoftware.DependencyInjection
         // doing so should be rare
         protected virtual void ConfigureHostBuilder()
         {
-            _cmdLineFactory = new J4JCommandLineFactory( 
-                CommandLineAssemblies, 
-                new J4JLoggerFactory( () => CachedLogger ) );
+            _cmdLineFactory = new J4JCommandLineFactory( CommandLineAssemblies, CachedLogger );
 
             HostBuilder = new HostBuilder()
                 .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
@@ -107,32 +112,9 @@ namespace J4JSoftware.DependencyInjection
         // when the ultimate J4JLogger instance is not yet available
         protected J4JCachedLogger CachedLogger { get; } = new();
 
-        protected virtual IEnumerable<Assembly> LoggerChannelAssemblies
+        protected virtual void ConfigureLogger(J4JLoggerConfiguration loggerConfig)
         {
-            get
-            {
-                yield return typeof(J4JLogger).Assembly;
-            }
-        }
-
-        protected virtual void ConfigureLogger( J4JLogger logger )
-        {
-        }
-
-        protected Dictionary<string, ChannelIDAttribute> RegisteredLoggerChannelDescriptors { get; } =
-            new(StringComparer.OrdinalIgnoreCase);
-
-        public IChannel? GetLoggerChannel( J4JLogger logger, string channelName )
-        {
-            if( !RegisteredLoggerChannelDescriptors.ContainsKey( channelName ) )
-                return null;
-
-            var retVal = (IChannel?) Host!.Services
-                .GetRequiredService( RegisteredLoggerChannelDescriptors[ channelName ].ChannelType );
-
-            retVal?.SetAssociatedLogger( logger );
-
-            return retVal;
+            loggerConfig.AddEnricher<CallingContextEnricher>();
         }
 
         public IHost? Host { get; private set; }
@@ -141,6 +123,10 @@ namespace J4JSoftware.DependencyInjection
         public abstract string ApplicationConfigurationFolder { get; }
         public string UserConfigurationFolder { get; }
         public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
+        public IConfigurationRoot ConfigurationRoot => Host?.Services.GetRequiredService<IConfigurationRoot>()!;
+        public IParser? Parser { get; private set; }
+        public CommandLineSource CommandLineSource { get; private set; }
+        public IOptionCollection? Options { get; private set; }
 
         protected virtual void SetupAppEnvironment( HostBuilderContext hbc, IConfigurationBuilder builder )
         {
@@ -148,18 +134,23 @@ namespace J4JSoftware.DependencyInjection
 
         protected virtual void SetupConfigurationEnvironment( IConfigurationBuilder builder )
         {
-            var parser = _cmdLineFactory!.GetParser( OperatingSystem );
+            Parser = _cmdLineFactory!.GetParser( OperatingSystem );
 
-            if( parser == null )
+            if( Parser == null )
                 return;
 
-            builder.AddJ4JCommandLine( parser, CachedLogger, out var options, out _ );
+            builder.AddJ4JCommandLine( Parser, CachedLogger, out var options, out var cmdLineSrc );
+            Options = options;
+            CommandLineSource = cmdLineSrc;
 
-            ConfigureCommandLineParsing( options! );
-            options!.FinishConfiguration();
+            if( Options == null )
+                return;
+
+            ConfigureCommandLineParsing();
+            Options.FinishConfiguration();
         }
 
-        protected virtual void ConfigureCommandLineParsing( IOptionCollection options )
+        protected virtual void ConfigureCommandLineParsing()
         {
         }
 
@@ -178,42 +169,14 @@ namespace J4JSoftware.DependencyInjection
             builder.Register( c => hbc.Configuration )
                 .As<IConfiguration>();
 
-            // register J4JLogger, as both itself and as IJ4JLogger,
-            // because its configuration depends on being able to resolve
-            // more than just the interface
-            builder.RegisterType<J4JLogger>()
-                .OnActivated( x => ConfigureLogger( x.Instance ) )
-                .As<IJ4JLogger>()
-                .AsSelf()
-                .SingleInstance();
+            builder.Register( c =>
+                {
+                    var loggerConfig = new J4JLoggerConfiguration();
+                    ConfigureLogger( loggerConfig );
 
-            // Register logging channels. This also updates the protected property RegisteredLoggerChannelTypes
-            // so resolution of channel types doesn't require access to the builder context
-            builder.RegisterAssemblyTypes( LoggerChannelAssemblies.ToArray() )
-                .Where( t => !t.IsAbstract
-                             && typeof(IChannel).IsAssignableFrom(t)
-                             && t.GetConstructors().Any( c =>
-                             {
-                                 // constructor must be parameterless
-                                 var parameters = c.GetParameters();
-
-                                 if( parameters.Length != 0 )
-                                     return false;
-
-                                 var attr = t.GetCustomAttribute<ChannelIDAttribute>( false );
-
-                                 if( attr != null )
-                                     RegisteredLoggerChannelDescriptors.Add( attr.Name, attr );
-                                 else
-                                     CachedLogger.Error<Type, string>(
-                                         "Found a J4JLogger Channel type ({0}) which does not have a {1}", 
-                                         t,
-                                         nameof(ChannelIDAttribute) );
-
-                                 return true;
-                             } ) )
+                    return loggerConfig.CreateLogger();
+                } )
                 .AsImplementedInterfaces()
-                .AsSelf()
                 .SingleInstance();
         }
 

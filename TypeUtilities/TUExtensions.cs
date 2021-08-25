@@ -55,9 +55,9 @@ namespace J4JSoftware.DependencyInjection
                         retVal.Add(new ConstructorTester<T>(typeof(IJ4JLogger)));
                         break;
 
-                    case PredefinedTypeTests.OnlyJ4JLoggerFactoryRequired:
-                        retVal.Add(new ConstructorTester<T>(typeof(IJ4JLoggerFactory)));
-                        break;
+                    //case PredefinedTypeTests.OnlyJ4JLoggerFactoryRequired:
+                    //    retVal.Add(new ConstructorTester<T>(typeof(IJ4JLoggerFactory)));
+                    //    break;
 
                     case PredefinedTypeTests.NonAbstract:
                         retVal.Add(TypeTester.NonAbstract);

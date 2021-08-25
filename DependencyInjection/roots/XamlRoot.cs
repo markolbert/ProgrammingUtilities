@@ -5,7 +5,10 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using J4JSoftware.Configuration.CommandLine;
+using J4JSoftware.Logging;
 using Microsoft.Extensions.Hosting;
+using Serilog.Events;
 
 namespace J4JSoftware.DependencyInjection
 {
@@ -17,9 +20,12 @@ namespace J4JSoftware.DependencyInjection
             string publisher,
             string appName,
             Func<bool> inDesignMode,
-            string? dataProtectionPurpose = null
+            string? dataProtectionPurpose = null,
+            string osName = OSNames.Windows,
+            string coreLoggingTemplate = J4JLoggerConfiguration.DefaultCoreTemplate,
+            LogEventLevel minimumLogEventLevel = LogEventLevel.Verbose
         )
-            : base( publisher, appName, dataProtectionPurpose )
+            : base( publisher, appName, dataProtectionPurpose, osName, coreLoggingTemplate, minimumLogEventLevel )
         {
             _inDesignMode = inDesignMode;
         }

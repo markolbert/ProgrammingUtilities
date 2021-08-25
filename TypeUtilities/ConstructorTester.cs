@@ -28,7 +28,7 @@ namespace J4JSoftware.DependencyInjection
     {
         public static ConstructorTester<T> ParameterLess { get; } = new();
         public static ConstructorTester<T> RequiresLogger { get; } = new(typeof(IJ4JLogger));
-        public static ConstructorTester<T> RequiresLoggerFactory { get; } = new(typeof(IJ4JLoggerFactory));
+        //public static ConstructorTester<T> RequiresLoggerFactory { get; } = new(typeof(IJ4JLoggerFactory));
 
         public ConstructorTester(
             params Type[] reqdParameters
