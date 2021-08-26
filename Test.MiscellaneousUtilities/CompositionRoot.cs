@@ -5,6 +5,7 @@ using J4JSoftware.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 
 namespace Test.MiscellaneousUtilities
 {
@@ -31,7 +32,13 @@ namespace Test.MiscellaneousUtilities
         {
         }
 
-        protected override void ConfigureLogger( J4JLogger logger ) => logger.AddDebug();
+        protected override void ConfigureLogger( J4JLoggerConfiguration loggerConfig )
+        {
+            loggerConfig
+                .AddEnricher<CallingContextEnricher>()
+                .SerilogConfiguration
+                .WriteTo.Debug( outputTemplate: J4JLoggerConfiguration.GetOutputTemplate( true ) );
+        }
 
         public IRangeCalculator GetRangeCalculator() => Host!.Services.GetRequiredService<IRangeCalculator>();
 

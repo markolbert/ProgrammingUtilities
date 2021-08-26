@@ -123,13 +123,16 @@ namespace J4JSoftware.DependencyInjection
         public abstract string ApplicationConfigurationFolder { get; }
         public string UserConfigurationFolder { get; }
         public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
-        public IConfigurationRoot ConfigurationRoot => Host?.Services.GetRequiredService<IConfigurationRoot>()!;
+
+        public IConfiguration Configuration { get; private set; }
+
         public IParser? Parser { get; private set; }
         public CommandLineSource CommandLineSource { get; private set; }
         public IOptionCollection? Options { get; private set; }
 
         protected virtual void SetupAppEnvironment( HostBuilderContext hbc, IConfigurationBuilder builder )
         {
+            Configuration = hbc.Configuration;
         }
 
         protected virtual void SetupConfigurationEnvironment( IConfigurationBuilder builder )
