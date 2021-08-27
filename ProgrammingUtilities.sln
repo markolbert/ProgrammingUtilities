@@ -35,6 +35,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TypeUtilities", "TypeUtilit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JCommandLine", "..\J4JCommandLine\J4JCommandLine\J4JCommandLine.csproj", "{69333E18-667C-48FF-B398-5F6A75C66D4A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.DependencyInjection", "Test.DependencyInjection\Test.DependencyInjection.csproj", "{52825A6E-7305-4826-A31C-474565A92BEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,10 @@ Global
 		{69333E18-667C-48FF-B398-5F6A75C66D4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69333E18-667C-48FF-B398-5F6A75C66D4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69333E18-667C-48FF-B398-5F6A75C66D4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52825A6E-7305-4826-A31C-474565A92BEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52825A6E-7305-4826-A31C-474565A92BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52825A6E-7305-4826-A31C-474565A92BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52825A6E-7305-4826-A31C-474565A92BEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

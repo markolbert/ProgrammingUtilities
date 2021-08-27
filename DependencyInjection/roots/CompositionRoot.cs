@@ -38,8 +38,6 @@ namespace J4JSoftware.DependencyInjection
     public abstract class CompositionRoot
     {
         private readonly string _dataProtectionPurpose;
-        private readonly string _coreLoggingTemplate;
-        private readonly LogEventLevel _minLogEventLevel;
 
         private J4JCommandLineFactory? _cmdLineFactory;
 
@@ -47,9 +45,7 @@ namespace J4JSoftware.DependencyInjection
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
-            string osName = OSNames.Windows,
-            string coreLoggingTemplate = J4JLoggerConfiguration.DefaultCoreTemplate,
-            LogEventLevel minimumLogEventLevel = LogEventLevel.Verbose
+            string osName = OSNames.Windows
         )
         {
             ApplicationName = appName;
@@ -62,8 +58,6 @@ namespace J4JSoftware.DependencyInjection
             _dataProtectionPurpose = dataProtectionPurpose ?? GetType().Name;
 
             OperatingSystem = osName;
-            _coreLoggingTemplate = coreLoggingTemplate;
-            _minLogEventLevel = minimumLogEventLevel;
 
             Initialize();
         }
@@ -128,7 +122,7 @@ namespace J4JSoftware.DependencyInjection
 
         public IParser? Parser { get; private set; }
         public CommandLineSource CommandLineSource { get; private set; }
-        public IOptionCollection? Options { get; private set; }
+        public IOptionCollection? CommandLineOptions { get; private set; }
 
         protected virtual void SetupAppEnvironment( HostBuilderContext hbc, IConfigurationBuilder builder )
         {
@@ -143,14 +137,14 @@ namespace J4JSoftware.DependencyInjection
                 return;
 
             builder.AddJ4JCommandLine( Parser, CachedLogger, out var options, out var cmdLineSrc );
-            Options = options;
+            CommandLineOptions = options;
             CommandLineSource = cmdLineSrc;
 
-            if( Options == null )
+            if( CommandLineOptions == null )
                 return;
 
             ConfigureCommandLineParsing();
-            Options.FinishConfiguration();
+            CommandLineOptions.FinishConfiguration();
         }
 
         protected virtual void ConfigureCommandLineParsing()
@@ -168,9 +162,6 @@ namespace J4JSoftware.DependencyInjection
                 .As<IDataProtection>()
                 .OnActivating( x => x.Instance.Purpose = _dataProtectionPurpose )
                 .SingleInstance();
-
-            builder.Register( c => hbc.Configuration )
-                .As<IConfiguration>();
 
             builder.Register( c =>
                 {

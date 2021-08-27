@@ -21,11 +21,9 @@ namespace J4JSoftware.DependencyInjection
             string appName,
             Func<bool> inDesignMode,
             string? dataProtectionPurpose = null,
-            string osName = OSNames.Windows,
-            string coreLoggingTemplate = J4JLoggerConfiguration.DefaultCoreTemplate,
-            LogEventLevel minimumLogEventLevel = LogEventLevel.Verbose
+            string osName = OSNames.Windows
         )
-            : base( publisher, appName, dataProtectionPurpose, osName, coreLoggingTemplate, minimumLogEventLevel )
+            : base( publisher, appName, dataProtectionPurpose, osName )
         {
             _inDesignMode = inDesignMode;
         }
