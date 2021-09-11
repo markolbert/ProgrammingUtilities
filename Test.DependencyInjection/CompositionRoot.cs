@@ -8,7 +8,7 @@ using J4JSoftware.DependencyInjection;
 
 namespace Test.DependencyInjection
 {
-    public class CompositionRoot : ConsoleRoot
+    public sealed class CompositionRoot : ConsoleRoot
     {
         private readonly Action<IOptionCollection> _configureOptions;
 
@@ -19,6 +19,8 @@ namespace Test.DependencyInjection
             : base( "J4JSoftware", "DITest", true, osName: osName)
         {
             _configureOptions = configureOptions;
+
+            Build();
         }
 
         protected override void ConfigureCommandLineParsing()
