@@ -108,7 +108,6 @@ namespace J4JSoftware.DependencyInjection
 
         protected virtual void ConfigureLogger(J4JLoggerConfiguration loggerConfig)
         {
-            loggerConfig.AddEnricher<CallingContextEnricher>();
         }
 
         public IHost? Host { get; private set; }
@@ -118,10 +117,10 @@ namespace J4JSoftware.DependencyInjection
         public string UserConfigurationFolder { get; }
         public IJ4JProtection Protection => Host?.Services.GetRequiredService<IJ4JProtection>()!;
 
-        public IConfiguration Configuration { get; private set; }
+        public IConfiguration? Configuration { get; private set; }
 
         public IParser? Parser { get; private set; }
-        public CommandLineSource CommandLineSource { get; private set; }
+        public CommandLineSource? CommandLineSource { get; private set; }
         public IOptionCollection? CommandLineOptions { get; private set; }
 
         protected virtual void SetupAppEnvironment( HostBuilderContext hbc, IConfigurationBuilder builder )
