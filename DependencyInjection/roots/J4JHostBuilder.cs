@@ -12,6 +12,7 @@ using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Configuration.CommandLine;
 using J4JSoftware.Configuration.CommandLine.support;
 using J4JSoftware.Logging;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -319,6 +320,15 @@ namespace J4JSoftware.DependencyInjection
                 } )
                 .AsSelf()
                 .SingleInstance();
+
+            builder.Register( c =>
+                {
+                    var provider = c.Resolve<IDataProtectionProvider>();
+
+                    return new J4JProtection( provider, _dataProtectionPurpose );
+                } )
+                .As<IJ4JProtection>()
+                .SingleInstance();
         }
 
         protected virtual void SetupServices(HostBuilderContext hbc, IServiceCollection services)
@@ -327,7 +337,6 @@ namespace J4JSoftware.DependencyInjection
                 return;
 
             services.AddDataProtection();
-            //services.AddSingleton<IJ4JProtection, J4JProtection>();
         }
 
         #endregion

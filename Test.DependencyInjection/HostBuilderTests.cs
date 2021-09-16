@@ -132,6 +132,30 @@ namespace Test.DependencyInjection
             }
         }
 
+        [Fact]
+        public void Protection()
+        {
+            var builder = new J4JHostBuilder()
+                .ApplicationName("Test")
+                .Publisher("J4JSoftware")
+                .OperatingSystem(OSNames.Windows);
+
+            var host = BuildHost(builder);
+
+            var protector = host!.Services.GetRequiredService<IJ4JProtection>();
+            protector.Should().NotBeNull();
+
+            protector.Protect( "test text", out var encrypted )
+                .Should()
+                .BeTrue();
+
+            protector.Unprotect( encrypted!, out var decrypted )
+                .Should()
+                .BeTrue();
+
+            decrypted.Should().Be( "test text" );
+        }
+
         private IHost BuildHost( J4JHostBuilder builder )
         {
             var host = builder.Build(out var status, out var missing);
