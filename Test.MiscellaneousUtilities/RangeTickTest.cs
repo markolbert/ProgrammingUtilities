@@ -5,6 +5,7 @@ using System.Threading;
 using FluentAssertions;
 using J4JSoftware.Utilities;
 using Xunit;
+#pragma warning disable 8618
 
 namespace Test.MiscellaneousUtilities
 {

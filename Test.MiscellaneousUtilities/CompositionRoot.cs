@@ -35,9 +35,8 @@ namespace Test.MiscellaneousUtilities
         protected override void ConfigureLogger( J4JLoggerConfiguration loggerConfig )
         {
             loggerConfig
-                .AddEnricher<CallingContextEnricher>()
                 .SerilogConfiguration
-                .WriteTo.Debug( outputTemplate: J4JLoggerConfiguration.GetOutputTemplate( true ) );
+                .WriteTo.Debug( outputTemplate: loggerConfig.GetOutputTemplate( true ) );
         }
 
         public IRangeCalculator GetRangeCalculator() => Host!.Services.GetRequiredService<IRangeCalculator>();
