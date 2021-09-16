@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Xunit;
+#pragma warning disable 8618
 
 namespace Test.DependencyInjection
 {
@@ -76,7 +77,7 @@ namespace Test.DependencyInjection
                 .Publisher( "J4JSoftware" )
                 .OperatingSystem( OSNames.Windows );
 
-            builder.SetupConfiguration( config_config )
+            builder.AddConfigurationInitializers( config_config )
                 .SetupLogging( config_logger );
 
             var host = BuildHost(builder);

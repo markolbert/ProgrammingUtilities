@@ -46,16 +46,25 @@ namespace J4JSoftware.DependencyInjection
         private string _appName = string.Empty;
         private string _dataProtectionPurpose;
         private string _osName = string.Empty;
-        private Action<IConfigurationBuilder>? _configConfigurator;
-        private Action<J4JLoggerConfiguration>? _loggerConfigurator;
-        private Action<IOptionCollection>? _optionsConfigurator;
         private List<Assembly> _cmdLineAssemblies = new();
         private Func<Type?, string, int, string, string>? _filePathTrimmer;
         private CommandLineSource? _cmdLineSource;
 
+        private List<Action<HostBuilderContext, IConfigurationBuilder>> _envConfigurators = new();
+        private List<Action<IConfigurationBuilder>> _configConfigurators = new();
+        private List<Action<HostBuilderContext, ContainerBuilder>> _diConfigurators = new();
+        private List<Action<HostBuilderContext, IServiceCollection>> _svcConfigurators = new();
+
+        private Action<J4JLoggerConfiguration>? _loggerConfigurator;
+        private Action<IOptionCollection>? _optionsConfigurator;
+
         public J4JHostBuilder()
         {
             _dataProtectionPurpose = GetType().Name;
+
+            _envConfigurators.Add(SetupAppEnvironmentInternal);
+            _diConfigurators.Add( SetupDependencyInjectionInternal );
+            _svcConfigurators.Add( SetupServicesInternal );
         }
 
         // Logger is used to capture log events during the host building process,
@@ -69,10 +78,25 @@ namespace J4JSoftware.DependencyInjection
             var retVal = new HostBuilder()
                 .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
 
-            retVal.ConfigureAppConfiguration(SetupAppEnvironment);
-            retVal.ConfigureHostConfiguration(SetupConfigurationEnvironment);
-            retVal.ConfigureContainer<ContainerBuilder>(SetupDependencyInjection);
-            retVal.ConfigureServices(SetupServices);
+            foreach( var configurator in _envConfigurators )
+            {
+                retVal.ConfigureAppConfiguration( configurator );
+            }
+
+            foreach( var configurator in _configConfigurators )
+            {
+                retVal.ConfigureHostConfiguration( configurator );
+            }
+
+            foreach( var configurator in _diConfigurators )
+            {
+                retVal.ConfigureContainer( configurator );
+            }
+
+            foreach( var configurator in _svcConfigurators )
+            {
+                retVal.ConfigureServices( configurator );
+            }
 
             return retVal;
         }
@@ -132,10 +156,34 @@ namespace J4JSoftware.DependencyInjection
             return this;
         }
 
-        public J4JHostBuilder SetupConfiguration( Action<IConfigurationBuilder> configurator )
+        public J4JHostBuilder AddEnvironmentInitializers(params Action<HostBuilderContext, IConfigurationBuilder>[] configurators)
         {
-            if( OkayToSet )
-                _configConfigurator = configurator;
+            if (OkayToSet && configurators.Length > 0)
+                _envConfigurators.AddRange(configurators);
+
+            return this;
+        }
+
+        public J4JHostBuilder AddConfigurationInitializers( params Action<IConfigurationBuilder>[] configurators )
+        {
+            if( OkayToSet && configurators.Length > 0 )
+                _configConfigurators.AddRange( configurators );
+
+            return this;
+        }
+
+        public J4JHostBuilder AddDependencyInjectionInitializers(params Action<HostBuilderContext, ContainerBuilder>[] configurators)
+        {
+            if (OkayToSet && configurators.Length > 0)
+                _diConfigurators.AddRange(configurators);
+
+            return this;
+        }
+
+        public J4JHostBuilder AddServicesInitializers(params Action<HostBuilderContext, IServiceCollection>[] configurators)
+        {
+            if (OkayToSet && configurators.Length > 0)
+                _svcConfigurators.AddRange(configurators);
 
             return this;
         }
@@ -155,10 +203,6 @@ namespace J4JSoftware.DependencyInjection
 
             return this;
         }
-
-        #endregion
-
-        #region Command line access
 
         #endregion
 
@@ -183,6 +227,10 @@ namespace J4JSoftware.DependencyInjection
             _buildStatus = BuildStatus.NotBuilt;
 
             _inDesignMode = inDesignMode;
+
+            // only add the command line parsing code if we need to
+            if( _optionsConfigurator != null )
+                _configConfigurators.Add( SetupCommandLineParsing );
 
             IHost? host = null;
 
@@ -222,28 +270,11 @@ namespace J4JSoftware.DependencyInjection
 
         #region Define host-building environment
 
-        protected virtual void SetupAppEnvironment(HostBuilderContext hbc, IConfigurationBuilder builder)
+        private void SetupCommandLineParsing( IConfigurationBuilder builder )
         {
-            if (!OkayToSet)
-                return;
-
-            ConfigurationDuringBuild = hbc.Configuration;
-        }
-
-        protected virtual void SetupConfigurationEnvironment(IConfigurationBuilder builder)
-        {
-            if (!OkayToSet)
-                return;
-
-            _configConfigurator?.Invoke( builder );
-
-            // only need to set up J4JCommandLine subsystem if a configurator was defined
-            if( _optionsConfigurator == null )
-                return;
-
             _cmdLineAssemblies = _cmdLineAssemblies.Distinct().ToList();
 
-            var cmdLineFactory = new J4JCommandLineFactory(_cmdLineAssemblies, Logger);
+            var cmdLineFactory = new J4JCommandLineFactory( _cmdLineAssemblies, Logger );
 
             var parser = cmdLineFactory!.GetParser( _osName );
             if( parser == null )
@@ -254,24 +285,32 @@ namespace J4JSoftware.DependencyInjection
                 return;
             }
 
-            builder.AddJ4JCommandLine(parser, Logger, out var options, out var cmdLineSrc);
+            builder.AddJ4JCommandLine( parser, Logger, out var options, out var cmdLineSrc );
 
-            if (options == null)
+            if( options == null )
             {
                 _buildStatus = BuildStatus.Aborted;
-                Logger.Fatal("Could not add J4JCommandLine functionality");
+                Logger.Fatal( "Could not add J4JCommandLine functionality" );
 
                 return;
             }
 
-            _optionsConfigurator( options );
-            
+            _optionsConfigurator!( options );
+
             _cmdLineSource = cmdLineSrc;
 
             options.FinishConfiguration();
         }
 
-        protected virtual void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
+        private void SetupAppEnvironmentInternal(HostBuilderContext hbc, IConfigurationBuilder builder)
+        {
+            if (!OkayToSet)
+                return;
+
+            ConfigurationDuringBuild = hbc.Configuration;
+        }
+
+        private void SetupDependencyInjectionInternal( HostBuilderContext hbc, ContainerBuilder builder )
         {
             if (!OkayToSet)
                 return;
@@ -331,7 +370,7 @@ namespace J4JSoftware.DependencyInjection
                 .SingleInstance();
         }
 
-        protected virtual void SetupServices(HostBuilderContext hbc, IServiceCollection services)
+        private void SetupServicesInternal(HostBuilderContext hbc, IServiceCollection services)
         {
             if( !OkayToSet )
                 return;

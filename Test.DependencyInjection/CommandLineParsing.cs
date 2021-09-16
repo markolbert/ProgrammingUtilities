@@ -55,7 +55,8 @@ namespace Test.DependencyInjection
         public void CompositionRootParsing( string osName, string cmdLine, bool flag, string text )
         {
             var root = new CompositionRoot( ConfigureOptions, osName );
-            root.CommandLineSource.SetCommandLine( cmdLine );
+            root.CommandLineSource.Should().NotBeNull();
+            root.CommandLineSource!.SetCommandLine( cmdLine );
 
             var result = root.Configuration.Get<SimpleObject>();
             result.Should().NotBeNull();
