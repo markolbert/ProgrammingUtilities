@@ -38,6 +38,7 @@ namespace J4JSoftware.DependencyInjection
     public abstract class CompositionRoot
     {
         private readonly string _dataProtectionPurpose;
+        private readonly Func<Type?, string, int, string, string>? _filePathTrimmer;
 
         private J4JCommandLineFactory? _cmdLineFactory;
 
@@ -45,7 +46,8 @@ namespace J4JSoftware.DependencyInjection
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
-            string osName = OSNames.Windows
+            string osName = OSNames.Windows,
+            Func<Type?, string, int, string, string>? filePathTrimmer = null
         )
         {
             ApplicationName = appName;
@@ -58,6 +60,7 @@ namespace J4JSoftware.DependencyInjection
             _dataProtectionPurpose = dataProtectionPurpose ?? GetType().Name;
 
             OperatingSystem = osName;
+            _filePathTrimmer = filePathTrimmer;
 
             Initialize();
         }
@@ -164,7 +167,7 @@ namespace J4JSoftware.DependencyInjection
 
             builder.Register( c =>
                 {
-                    var loggerConfig = new J4JLoggerConfiguration();
+                    var loggerConfig = new J4JLoggerConfiguration( _filePathTrimmer );
                     ConfigureLogger( loggerConfig );
 
                     return loggerConfig.CreateLogger();
