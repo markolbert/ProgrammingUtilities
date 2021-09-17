@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog.Data;
 
 namespace J4JSoftware.DependencyInjection
 {
@@ -71,9 +72,7 @@ namespace J4JSoftware.DependencyInjection
         // when the ultimate J4JLogger instance is not yet available
         public J4JCachedLogger Logger { get; } = new();
 
-        // override to change the way the host building process is initialized
-        // doing so should be rare
-        protected virtual IHostBuilder CreateHostBuilder()
+        private IHostBuilder CreateHostBuilder()
         {
             var retVal = new HostBuilder()
                 .UseServiceProviderFactory( new AutofacServiceProviderFactory() );

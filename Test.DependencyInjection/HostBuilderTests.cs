@@ -28,34 +28,38 @@ namespace Test.DependencyInjection
         [Fact]
         public void FailNotConfigured()
         {
-            var builder = new J4JHostBuilder();
+            var config = new J4JHostConfiguration();
+            config.MissingRequirements.Should().Be( Requirements.AllMissing );
 
-            builder.Build( out var status, out var missing ).Should().BeNull();
-            status.Should().Be( J4JHostBuilder.BuildStatus.NotInitialized );
-            missing.Should().Be( J4JHostBuilder.Requirements.AllMissing );
+            var builder = config.CreateHostBuilder();
+            builder.Should().BeNull();
         }
 
         [Fact]
         public void SucceedConfigured()
         {
-            var builder = new J4JHostBuilder()
+            var config = new J4JHostConfiguration()
                 .ApplicationName( "Test" )
                 .Publisher( "J4JSoftware" )
                 .OperatingSystem( OSNames.Windows );
 
-            var host = BuildHost( builder );
+            config.MissingRequirements.Should().Be(Requirements.AllMet);
+
+            var host = BuildHost( config );
         }
 
         [Fact]
         public void LoggerTest()
         {
-            var builder = new J4JHostBuilder()
+            var config = new J4JHostConfiguration()
                 .ApplicationName( "Test" )
                 .Publisher( "J4JSoftware" )
                 .OperatingSystem( OSNames.Windows )
-                .SetupLogging( config_logger );
+                .LoggerInitializer( config_logger );
 
-            var host = BuildHost(builder);
+            config.MissingRequirements.Should().Be(Requirements.AllMet);
+
+            var host = BuildHost( config );
 
             var logger = host.Services.GetRequiredService<IJ4JLogger>();
             logger.SetLoggedType( GetType() );
@@ -72,15 +76,15 @@ namespace Test.DependencyInjection
         [Fact]
         public void LoggerJSONTest()
         {
-            var builder = new J4JHostBuilder()
+            var config = new J4JHostConfiguration()
                 .ApplicationName( "Test" )
                 .Publisher( "J4JSoftware" )
-                .OperatingSystem( OSNames.Windows );
+                .OperatingSystem( OSNames.Windows )
+                .AddConfigurationInitializers( config_config );
 
-            builder.AddConfigurationInitializers( config_config )
-                .SetupLogging( config_logger );
+            config.LoggerInitializer( config_logger );
 
-            var host = BuildHost(builder);
+            var host = BuildHost(config);
 
             var logger = host.Services.GetRequiredService<IJ4JLogger>();
             logger.SetLoggedType(GetType());
@@ -95,21 +99,21 @@ namespace Test.DependencyInjection
             {
                 loggerConfig.SerilogConfiguration
                     .ReadFrom
-                    .Configuration( builder!.ConfigurationDuringBuild );
+                    .Configuration( config!.ConfigurationDuringBuild );
             }
         }
 
         [Fact]
         public void CommandLineParsing()
         {
-            var builder = new J4JHostBuilder()
-                .ApplicationName("Test")
-                .Publisher("J4JSoftware")
-                .OperatingSystem(OSNames.Windows);
+            var config = new J4JHostConfiguration()
+                .ApplicationName( "Test" )
+                .Publisher( "J4JSoftware" )
+                .OperatingSystem( OSNames.Windows );
 
-            builder.DefineCommandLineOptions( define_options );
+            config.OptionsInitializer( define_options );
 
-            var host = BuildHost( builder );
+            var host = BuildHost( config );
 
             var hostInfo = host!.Services.GetRequiredService<J4JHostInfo>();
             hostInfo.Should().NotBeNull();
@@ -117,14 +121,14 @@ namespace Test.DependencyInjection
 
             hostInfo.CommandLineSource!.SetCommandLine( "/s /t \"hello\"" );
 
-            var config = host.Services.GetRequiredService<IConfiguration>();
-            config.Should().NotBeNull();
+            var optConfig = host.Services.GetRequiredService<IConfiguration>();
+            optConfig.Should().NotBeNull();
 
-            var cmdOptions = config.Get<OptionsTest>();
+            var cmdOptions = optConfig.Get<OptionsTest>();
             cmdOptions.Should().NotBeNull();
 
             cmdOptions.Switch.Should().BeTrue();
-            cmdOptions.Text.Should().Be( "hello" );
+            cmdOptions.Text.Should().Be("hello");
 
             void define_options( IOptionCollection options )
             {
@@ -136,12 +140,12 @@ namespace Test.DependencyInjection
         [Fact]
         public void Protection()
         {
-            var builder = new J4JHostBuilder()
+            var config = new J4JHostConfiguration()
                 .ApplicationName("Test")
                 .Publisher("J4JSoftware")
                 .OperatingSystem(OSNames.Windows);
 
-            var host = BuildHost(builder);
+            var host = BuildHost(config);
 
             var protector = host!.Services.GetRequiredService<IJ4JProtection>();
             protector.Should().NotBeNull();
@@ -157,13 +161,15 @@ namespace Test.DependencyInjection
             decrypted.Should().Be( "test text" );
         }
 
-        private IHost BuildHost( J4JHostBuilder builder )
+        private IHost BuildHost( J4JHostConfiguration config )
         {
-            var host = builder.Build(out var status, out var missing);
-            host.Should().NotBeNull();
+            config.MissingRequirements.Should().Be( Requirements.AllMet );
 
-            status.Should().Be(J4JHostBuilder.BuildStatus.Built);
-            missing.Should().Be(J4JHostBuilder.Requirements.AllMet);
+            var builder = config.CreateHostBuilder();
+            builder.Should().NotBeNull();
+
+            var host = builder!.Build();
+            host.Should().NotBeNull();
 
             host!.Services.GetRequiredService<IConfiguration>().Should().NotBeNull();
             host.Services.GetRequiredService<IJ4JLogger>().Should().NotBeNull();
