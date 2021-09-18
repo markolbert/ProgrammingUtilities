@@ -18,17 +18,22 @@
 #endregion
 
 using System;
-using J4JSoftware.Configuration.CommandLine;
-using J4JSoftware.Logging;
-using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public record J4JHostInfo(
+    public record ConfigurationFolders(
         string Publisher,
         string ApplicationName,
-        string OperatingSystem,
-        Func<bool>? InDesignMode,
-        CommandLineSource? CommandLineSource ) 
-        : ConfigurationFolders( Publisher, ApplicationName, InDesignMode );
+        Func<bool>? InDesignMode)
+    {
+        public string ApplicationConfigurationFolder => InDesignMode?.Invoke() ?? false
+            ? AppContext.BaseDirectory
+            : Environment.CurrentDirectory;
+
+        public string UserConfigurationFolder => Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            Publisher,
+            ApplicationName);
+    }
 }
