@@ -19,6 +19,7 @@
 
 using System;
 using System.Reflection;
+using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Configuration.CommandLine;
@@ -26,11 +27,30 @@ using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog.Events;
 
 namespace J4JSoftware.DependencyInjection
 {
     public static class J4JHostConfigurationExtensions
     {
+        public static string ToText( this J4JHostRequirements requirements )
+        {
+            var sb = new StringBuilder();
+
+            if( (requirements & J4JHostRequirements.ApplicationName) == J4JHostRequirements.ApplicationName )
+                sb.Append( "Application Name, " );
+
+            if ((requirements & J4JHostRequirements.OperatingSystem) == J4JHostRequirements.OperatingSystem)
+                sb.Append("Operating System, ");
+
+            if ((requirements & J4JHostRequirements.Publisher) == J4JHostRequirements.Publisher)
+                sb.Append("Publisher");
+
+            var retVal = sb.ToString().Trim();
+
+            return retVal[ ^0 ] == ',' ? retVal[ 0..^1 ] : retVal;
+        }
+
         public static J4JHostConfiguration Publisher( this J4JHostConfiguration config, string publisher )
         {
             config.Publisher = publisher;
@@ -55,6 +75,18 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
+        public static J4JHostConfiguration CaseSensitiveFileSystem( this J4JHostConfiguration config )
+        {
+            config.CaseSensitiveFileSystem = true;
+            return config;
+        }
+
+        public static J4JHostConfiguration CaseInsensitiveFileSystem(this J4JHostConfiguration config)
+        {
+            config.CaseSensitiveFileSystem = false;
+            return config;
+        }
+
         public static J4JHostConfiguration AddCommandLineAssemblies(this J4JHostConfiguration config, params Assembly[] cmdLineAssemblies )
         {
             config.CommandLineAssemblies.AddRange( cmdLineAssemblies );
@@ -64,6 +96,28 @@ namespace J4JSoftware.DependencyInjection
         public static J4JHostConfiguration FilePathTrimmer(this J4JHostConfiguration config, Func<Type?, string, int, string, string> filePathTrimmer)
         {
             config.FilePathTrimmer = filePathTrimmer;
+            return config;
+        }
+
+        public static J4JHostConfiguration AddApplicationConfigurationFile( 
+            this J4JHostConfiguration config,
+            string filePath,
+            bool optional = true,
+            bool reloadOnChange = false
+            )
+        {
+            config.ApplicationConfigurationFiles.Add( new ConfigurationFile( filePath, optional, reloadOnChange ) );
+            return config;
+        }
+
+        public static J4JHostConfiguration AddUserConfigurationFile(
+            this J4JHostConfiguration config,
+            string filePath,
+            bool optional = true,
+            bool reloadOnChange = false
+                )
+        {
+            config.UserConfigurationFiles.Add( new ConfigurationFile( filePath, optional, reloadOnChange ) );
             return config;
         }
 
@@ -82,6 +136,7 @@ namespace J4JSoftware.DependencyInjection
             config.ConfigurationInitializers.AddRange(initializers);
             return config;
         }
+
         public static J4JHostConfiguration AddDependencyInjectionInitializers(
             this J4JHostConfiguration config,
             params Action<HostBuilderContext, ContainerBuilder>[] initializers)
@@ -100,9 +155,19 @@ namespace J4JSoftware.DependencyInjection
 
         public static J4JHostConfiguration LoggerInitializer(
             this J4JHostConfiguration config,
-            Action<J4JLoggerConfiguration> initializer )
+            Action<IConfiguration, J4JLoggerConfiguration> initializer )
         {
             config.LoggerInitializer = initializer;
+            return config;
+        }
+
+        public static J4JHostConfiguration AddNetEventSinkToLogger(
+            this J4JHostConfiguration config,
+            string? outputTemplate = null,
+            LogEventLevel minimumLevel = LogEventLevel.Verbose
+        )
+        {
+            config.NetEventConfiguration = new NetEventConfiguration( outputTemplate, minimumLevel );
             return config;
         }
 
@@ -118,11 +183,14 @@ namespace J4JSoftware.DependencyInjection
 
         public static IHostBuilder? CreateHostBuilder( this J4JHostConfiguration config )
         {
-            if( config.MissingRequirements != Requirements.AllMet )
+            if( config.MissingRequirements != J4JHostRequirements.AllMet )
                 return null;
 
             var retVal = new HostBuilder()
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
+            if( retVal == null )
+                return null;
 
             foreach (var configurator in config.EnvironmentInitializers)
             {
