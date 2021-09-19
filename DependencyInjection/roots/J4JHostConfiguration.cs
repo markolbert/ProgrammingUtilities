@@ -64,9 +64,9 @@ namespace J4JSoftware.DependencyInjection
         // when the ultimate J4JLogger instance is not yet available
         public J4JCachedLogger Logger { get; } = new();
 
-        public string Publisher { get; set; }= string.Empty;
-        public string ApplicationName { get; set; } = string.Empty;
-        public string DataProtectionPurpose { get; set; } = string.Empty;
+        internal string Publisher { get; set; }= string.Empty;
+        internal string ApplicationName { get; set; } = string.Empty;
+        internal string DataProtectionPurpose { get; set; } = string.Empty;
 
         public string OperatingSystem
         {
@@ -183,14 +183,9 @@ namespace J4JSoftware.DependencyInjection
 
         private void SetupDependencyInjection(HostBuilderContext hbc, ContainerBuilder builder)
         {
-            //builder.RegisterType<J4JProtection>()
-            //    .WithParameter("purpose", DataProtectionPurpose)
-            //    .As<IJ4JProtection>()
-            //    .SingleInstance();
-
             builder.RegisterType<DataProtection>()
                 .As<IDataProtection>()
-                .OnActivating(x => x.Instance.Purpose = DataProtectionPurpose)
+                .OnActivating(x => x.Instance.Purpose = string.IsNullOrEmpty( DataProtectionPurpose) ? ApplicationName : DataProtectionPurpose)
                 .SingleInstance();
 
             builder.RegisterType<J4JProtection>()
