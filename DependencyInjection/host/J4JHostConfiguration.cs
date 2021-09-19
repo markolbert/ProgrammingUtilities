@@ -40,6 +40,7 @@ namespace J4JSoftware.DependencyInjection
         private readonly Func<bool> _inDesignMode;
 
         private string _osName = string.Empty;
+        private IOptionCollection? _options;
 
         public J4JHostConfiguration()
             : this( () => false )
@@ -174,7 +175,9 @@ namespace J4JSoftware.DependencyInjection
                 return;
             }
 
-            OptionsInitializer!( options );
+            _options = options;
+
+            OptionsInitializer!( _options );
 
             CommandLineSource = cmdLineSrc;
 
@@ -217,6 +220,12 @@ namespace J4JSoftware.DependencyInjection
                 })
                 .As<IJ4JProtection>()
                 .SingleInstance();
+
+            // expose IOptionCollection when J4JCommandLine subsystem is being used
+            if( _options != null )
+                builder.Register( c => _options )
+                    .AsImplementedInterfaces()
+                    .SingleInstance();
         }
 
         private void SetupLogging( HostBuilderContext hbc, ContainerBuilder builder )
