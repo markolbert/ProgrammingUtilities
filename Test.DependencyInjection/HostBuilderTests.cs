@@ -29,7 +29,7 @@ namespace Test.DependencyInjection
         public void FailNotConfigured()
         {
             var config = new J4JHostConfiguration();
-            config.MissingRequirements.Should().Be( Requirements.AllMissing );
+            config.MissingRequirements.Should().Be( J4JHostRequirements.AllMissing );
 
             var builder = config.CreateHostBuilder();
             builder.Should().BeNull();
@@ -43,7 +43,7 @@ namespace Test.DependencyInjection
                 .Publisher( "J4JSoftware" )
                 .OperatingSystem( OSNames.Windows );
 
-            config.MissingRequirements.Should().Be(Requirements.AllMet);
+            config.MissingRequirements.Should().Be(J4JHostRequirements.AllMet);
 
             var host = BuildHost( config );
         }
@@ -57,7 +57,7 @@ namespace Test.DependencyInjection
                 .OperatingSystem( OSNames.Windows )
                 .LoggerInitializer( config_logger );
 
-            config.MissingRequirements.Should().Be(Requirements.AllMet);
+            config.MissingRequirements.Should().Be(J4JHostRequirements.AllMet);
 
             var host = BuildHost( config );
 
@@ -65,7 +65,7 @@ namespace Test.DependencyInjection
             logger.SetLoggedType( GetType() );
             logger.Fatal( "This is a test fatal event" );
 
-            void config_logger( J4JLoggerConfiguration loggerConfig )
+            void config_logger( IConfiguration buildConfig, J4JLoggerConfiguration loggerConfig )
             {
                 loggerConfig.SerilogConfiguration
                     .WriteTo
@@ -95,11 +95,11 @@ namespace Test.DependencyInjection
                 configBuilder.AddJsonFile( Path.Combine( Environment.CurrentDirectory, "appConfig.json" ), false );
             }
 
-            void config_logger( J4JLoggerConfiguration loggerConfig )
+            void config_logger( IConfiguration buildConfig, J4JLoggerConfiguration loggerConfig )
             {
                 loggerConfig.SerilogConfiguration
                     .ReadFrom
-                    .Configuration( config!.ConfigurationDuringBuild );
+                    .Configuration( buildConfig );
             }
         }
 
@@ -163,7 +163,7 @@ namespace Test.DependencyInjection
 
         private IHost BuildHost( J4JHostConfiguration config )
         {
-            config.MissingRequirements.Should().Be( Requirements.AllMet );
+            config.MissingRequirements.Should().Be( J4JHostRequirements.AllMet );
 
             var builder = config.CreateHostBuilder();
             builder.Should().NotBeNull();
