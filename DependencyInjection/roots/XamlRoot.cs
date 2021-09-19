@@ -12,6 +12,7 @@ using Serilog.Events;
 
 namespace J4JSoftware.DependencyInjection
 {
+    [Obsolete("Use J4JHostConfiguration IHostBuilder instead")]
     public abstract class XamlRoot : CompositionRoot
     {
         private readonly Func<bool> _inDesignMode;

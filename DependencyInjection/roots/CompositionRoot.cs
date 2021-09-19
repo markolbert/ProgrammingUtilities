@@ -35,6 +35,7 @@ using Serilog.Events;
 
 namespace J4JSoftware.DependencyInjection
 {
+    [Obsolete("Use J4JHostConfiguration IHostBuilder instead")]
     public abstract class CompositionRoot
     {
         private readonly string _dataProtectionPurpose;
