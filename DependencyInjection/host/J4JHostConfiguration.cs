@@ -24,7 +24,6 @@ using System.Linq;
 using System.Reflection;
 using Autofac;
 using J4JSoftware.Configuration.CommandLine;
-using J4JSoftware.Configuration.CommandLine.support;
 using J4JSoftware.Logging;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
@@ -59,6 +58,8 @@ namespace J4JSoftware.DependencyInjection
             DependencyInjectionInitializers.Add( SetupLogging );
 
             ServicesInitializers.Add( SetupServices );
+
+            CommandLineTextToValueConverters.AddRange( BindabilityValidator.GetBuiltInConverters( Logger ) );
         }
 
         // used to capture log events during the host building process,
@@ -69,22 +70,25 @@ namespace J4JSoftware.DependencyInjection
         internal string ApplicationName { get; set; } = string.Empty;
         internal string DataProtectionPurpose { get; set; } = string.Empty;
 
-        public string OperatingSystem
-        {
-            get => _osName;
-
-            set
-            {
-                _osName = value;
-
-                CaseSensitiveFileSystem = _osName.Equals( OSNames.Linux, StringComparison.OrdinalIgnoreCase );
-            }
-        }
-
+        internal CommandLineOperatingSystems OperatingSystem { get; set; } = CommandLineOperatingSystems.Undefined;
         internal bool CaseSensitiveFileSystem { get; set; } = false;
+
+        internal StringComparison FileSystemTextComparison =>
+            CaseSensitiveFileSystem ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+
         internal List<ConfigurationFile> ApplicationConfigurationFiles { get; } = new();
         internal List<ConfigurationFile> UserConfigurationFiles { get; } = new();
-        internal List<Assembly> CommandLineAssemblies { get; } = new();
+
+        internal IAvailableTokens? CommandLineAvailableTokens { get; set; }
+        internal IBindabilityValidator? CommandLineBindabilityValidator { get; set; }
+        internal List<ITextToValue> CommandLineTextToValueConverters { get; } = new();
+        internal IOptionsGenerator? CommandLineOptionsGenerator { get; set; }
+        internal List<ICleanupTokens> CommandLineCleanupProcessors { get; } = new();
+        internal Action<IOptionCollection>? CommandLineOptionsInitializer { get; set; }
+
+        internal CommandLineSource? CommandLineSource { get; private set; }
+
+        internal Action<IConfiguration, J4JLoggerConfiguration>? LoggerInitializer { get; set; }
         internal Func<Type?, string, int, string, string>? FilePathTrimmer { get; set; }
         internal NetEventConfiguration? NetEventConfiguration { get; set; }
 
@@ -92,11 +96,6 @@ namespace J4JSoftware.DependencyInjection
         internal List<Action<IConfigurationBuilder>> ConfigurationInitializers { get; } = new();
         internal List<Action<HostBuilderContext, ContainerBuilder>> DependencyInjectionInitializers { get; } = new();
         internal List<Action<HostBuilderContext, IServiceCollection>> ServicesInitializers { get; } = new();
-
-        internal Action<IConfiguration, J4JLoggerConfiguration>? LoggerInitializer { get; set; }
-        internal Action<IOptionCollection>? OptionsInitializer { get; set; }
-
-        internal CommandLineSource? CommandLineSource { get; private set; }
 
         public string ApplicationConfigurationFolder =>
             _inDesignMode() ? AppContext.BaseDirectory : Environment.CurrentDirectory;
@@ -116,14 +115,31 @@ namespace J4JSoftware.DependencyInjection
             {
                 var retVal = J4JHostRequirements.AllMet;
 
-                if( !OSNames.Supported.Any( x => x.Equals( OperatingSystem, StringComparison.OrdinalIgnoreCase ) ) )
-                    retVal |= J4JHostRequirements.OperatingSystem;
-
                 if (string.IsNullOrEmpty(Publisher))
                     retVal |= J4JHostRequirements.Publisher;
 
                 if (string.IsNullOrEmpty(ApplicationName))
                     retVal |= J4JHostRequirements.ApplicationName;
+
+                // if we're not utilize the command line subsystem there's nothing
+                // else to check
+                if( CommandLineOptionsInitializer == null )
+                    return retVal;
+
+                // if default command line parameters were selected we don't need to
+                // check the individual command line requirements because we'll just
+                // create defaults as needed
+                if( OperatingSystem != CommandLineOperatingSystems.Undefined )
+                    return retVal;
+
+                if( CommandLineAvailableTokens == null )
+                    retVal |= J4JHostRequirements.AvailableTokens;
+
+                if( CommandLineBindabilityValidator == null )
+                    retVal |= J4JHostRequirements.BindabilityValidators;
+
+                if( CommandLineOptionsGenerator == null )
+                    retVal |= J4JHostRequirements.OptionsGenerator;
 
                 return retVal;
             }
@@ -154,16 +170,32 @@ namespace J4JSoftware.DependencyInjection
 
         internal void SetupCommandLineParsing(IConfigurationBuilder builder)
         {
-            var cmdLineFactory = new J4JCommandLineFactory(CommandLineAssemblies.Distinct(), Logger);
+            // we create default values for missing required parameters, sometimes based on the 
+            // type of operating system specified
+            CommandLineBindabilityValidator ??= new BindabilityValidator( CommandLineTextToValueConverters, Logger );
 
-            var parser = cmdLineFactory!.GetParser(OperatingSystem);
-            if (parser == null)
+            var optionsCollection = new OptionCollection(
+                FileSystemTextComparison,
+                CommandLineBindabilityValidator!,
+                Logger);
+
+            CommandLineOptionsGenerator ??= new OptionsGenerator( optionsCollection, FileSystemTextComparison, Logger );
+
+            CommandLineAvailableTokens ??= OperatingSystem switch
             {
-                BuildStatus = J4JHostBuildStatus.Aborted;
-                Logger.Fatal("Could not create IParser");
+                CommandLineOperatingSystems.Windows => new WindowsTokens(Logger),
+                CommandLineOperatingSystems.Linux => new LinuxTokens(Logger),
+                _ => throw new ArgumentException("Operating system is undefined")
+            };
 
-                return;
-            }
+            var parsingTable = new ParsingTable( CommandLineOptionsGenerator!, Logger );
+
+            var tokenizer = new Tokenizer( CommandLineAvailableTokens!,
+                Logger,
+                CommandLineCleanupProcessors.ToArray()
+            );
+
+            var parser = new Parser( optionsCollection, parsingTable, tokenizer, Logger );
 
             builder.AddJ4JCommandLine(parser, Logger, out var options, out var cmdLineSrc);
 
@@ -177,7 +209,7 @@ namespace J4JSoftware.DependencyInjection
 
             _options = options;
 
-            OptionsInitializer!( _options );
+            CommandLineOptionsInitializer!( _options );
 
             CommandLineSource = cmdLineSrc;
 
@@ -202,7 +234,7 @@ namespace J4JSoftware.DependencyInjection
                     var retVal = new J4JHostInfo(
                         Publisher,
                         ApplicationName,
-                        OperatingSystem,
+                        CommandLineAvailableTokens,
                         _inDesignMode,
                         CommandLineSource
                     );

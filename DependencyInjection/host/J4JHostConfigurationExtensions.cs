@@ -40,9 +40,6 @@ namespace J4JSoftware.DependencyInjection
             if( (requirements & J4JHostRequirements.ApplicationName) == J4JHostRequirements.ApplicationName )
                 sb.Append( "Application Name, " );
 
-            if ((requirements & J4JHostRequirements.OperatingSystem) == J4JHostRequirements.OperatingSystem)
-                sb.Append("Operating System, ");
-
             if ((requirements & J4JHostRequirements.Publisher) == J4JHostRequirements.Publisher)
                 sb.Append("Publisher");
 
@@ -69,9 +66,12 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
-        public static J4JHostConfiguration OperatingSystem(this J4JHostConfiguration config, string osName)
+        public static J4JHostConfiguration CommandLineOperatingSystem(
+            this J4JHostConfiguration config,
+            CommandLineOperatingSystems os
+        )
         {
-            config.OperatingSystem = osName;
+            config.OperatingSystem = os;
             return config;
         }
 
@@ -84,18 +84,6 @@ namespace J4JSoftware.DependencyInjection
         public static J4JHostConfiguration CaseInsensitiveFileSystem(this J4JHostConfiguration config)
         {
             config.CaseSensitiveFileSystem = false;
-            return config;
-        }
-
-        public static J4JHostConfiguration AddCommandLineAssemblies(this J4JHostConfiguration config, params Assembly[] cmdLineAssemblies )
-        {
-            config.CommandLineAssemblies.AddRange( cmdLineAssemblies );
-            return config;
-        }
-
-        public static J4JHostConfiguration FilePathTrimmer(this J4JHostConfiguration config, Func<Type?, string, int, string, string> filePathTrimmer)
-        {
-            config.FilePathTrimmer = filePathTrimmer;
             return config;
         }
 
@@ -171,11 +159,49 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
-        public static J4JHostConfiguration OptionsInitializer(
+        public static J4JHostConfiguration FilePathTrimmer(this J4JHostConfiguration config, Func<Type?, string, int, string, string> filePathTrimmer)
+        {
+            config.FilePathTrimmer = filePathTrimmer;
+            return config;
+        }
+
+        public static J4JHostConfiguration CommandLineAvailableTokens(
+            this J4JHostConfiguration config,
+            IAvailableTokens tokens )
+        {
+            config.CommandLineAvailableTokens = tokens;
+            return config;
+        }
+
+        public static J4JHostConfiguration CommandLineBindabilityValidator(
+            this J4JHostConfiguration config,
+            IBindabilityValidator bindabilityValidator )
+        {
+            config.CommandLineBindabilityValidator = bindabilityValidator;
+            return config;
+        }
+
+        public static J4JHostConfiguration CommandLineOptionsGenerator(
+            this J4JHostConfiguration config,
+            IOptionsGenerator generator )
+        {
+            config.CommandLineOptionsGenerator = generator;
+            return config;
+        }
+
+        public static J4JHostConfiguration CommandLineTokenCleaners(
+            this J4JHostConfiguration config,
+            params ICleanupTokens[] tokenCleaners )
+        {
+            config.CommandLineCleanupProcessors.AddRange( tokenCleaners );
+            return config;
+        }
+
+        public static J4JHostConfiguration CommandLineOptionsInitializer(
             this J4JHostConfiguration config,
             Action<IOptionCollection> initializer)
         {
-            config.OptionsInitializer = initializer;
+            config.CommandLineOptionsInitializer = initializer;
             config.ConfigurationInitializers.Add( config.SetupCommandLineParsing );
 
             return config;

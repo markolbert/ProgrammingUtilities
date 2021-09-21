@@ -26,9 +26,11 @@ namespace J4JSoftware.DependencyInjection
     {
         Publisher = 1 << 0,
         ApplicationName = 1 << 1,
-        OperatingSystem = 1 << 2,
+        AvailableTokens = 1 << 2,
+        BindabilityValidators = 1 << 3,
+        OptionsGenerator = 1 << 4,
+        OptionsInitializer = 1 << 5,
 
-        AllMet = 0,
-        AllMissing = Publisher | ApplicationName | OperatingSystem
+        AllMet = 0
     }
 }

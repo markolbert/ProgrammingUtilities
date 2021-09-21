@@ -22,7 +22,7 @@ namespace J4JSoftware.DependencyInjection
             string appName,
             Func<bool> inDesignMode,
             string? dataProtectionPurpose = null,
-            string osName = OSNames.Windows,
+            string osName = "Windows",
             Func<Type?, string, int, string, string>? filePathTrimmer = null
         )
             : base( publisher, appName, dataProtectionPurpose, osName, filePathTrimmer )

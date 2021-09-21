@@ -26,7 +26,6 @@ using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Configuration.CommandLine;
-using J4JSoftware.Configuration.CommandLine.support;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,13 +40,11 @@ namespace J4JSoftware.DependencyInjection
         private readonly string _dataProtectionPurpose;
         private readonly Func<Type?, string, int, string, string>? _filePathTrimmer;
 
-        private J4JCommandLineFactory? _cmdLineFactory;
-
         protected CompositionRoot(
             string publisher,
             string appName,
             string? dataProtectionPurpose = null,
-            string osName = OSNames.Windows,
+            string osName = "Windows",
             Func<Type?, string, int, string, string>? filePathTrimmer = null
         )
         {
@@ -78,8 +75,6 @@ namespace J4JSoftware.DependencyInjection
         // doing so should be rare
         protected virtual void ConfigureHostBuilder()
         {
-            _cmdLineFactory = new J4JCommandLineFactory( CommandLineAssemblies, CachedLogger );
-
             HostBuilder = new HostBuilder()
                 .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
 
@@ -134,10 +129,9 @@ namespace J4JSoftware.DependencyInjection
 
         protected virtual void SetupConfigurationEnvironment( IConfigurationBuilder builder )
         {
-            Parser = _cmdLineFactory!.GetParser( OperatingSystem );
-
-            if( Parser == null )
-                return;
+            Parser = OperatingSystem.Equals("windows", StringComparison.OrdinalIgnoreCase)
+                ? J4JSoftware.Configuration.CommandLine.Parser.GetWindowsDefault(CachedLogger)
+                : J4JSoftware.Configuration.CommandLine.Parser.GetLinuxDefault(CachedLogger);
 
             builder.AddJ4JCommandLine( Parser, CachedLogger, out var options, out var cmdLineSrc );
             CommandLineOptions = options;
