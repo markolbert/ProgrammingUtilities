@@ -29,7 +29,7 @@ namespace Test.DependencyInjection
         public void FailNotConfigured()
         {
             var config = new J4JHostConfiguration();
-            config.MissingRequirements.Should().Be( J4JHostRequirements.AllMissing );
+            config.MissingRequirements.Should().Be( J4JHostRequirements.ApplicationName | J4JHostRequirements.Publisher );
 
             var builder = config.CreateHostBuilder();
             builder.Should().BeNull();
@@ -40,8 +40,7 @@ namespace Test.DependencyInjection
         {
             var config = new J4JHostConfiguration()
                 .ApplicationName( "Test" )
-                .Publisher( "J4JSoftware" )
-                .OperatingSystem( OSNames.Windows );
+                .Publisher( "J4JSoftware" );
 
             config.MissingRequirements.Should().Be(J4JHostRequirements.AllMet);
 
@@ -54,7 +53,6 @@ namespace Test.DependencyInjection
             var config = new J4JHostConfiguration()
                 .ApplicationName( "Test" )
                 .Publisher( "J4JSoftware" )
-                .OperatingSystem( OSNames.Windows )
                 .LoggerInitializer( config_logger );
 
             config.MissingRequirements.Should().Be(J4JHostRequirements.AllMet);
@@ -79,7 +77,6 @@ namespace Test.DependencyInjection
             var config = new J4JHostConfiguration()
                 .ApplicationName( "Test" )
                 .Publisher( "J4JSoftware" )
-                .OperatingSystem( OSNames.Windows )
                 .AddConfigurationInitializers( config_config );
 
             config.LoggerInitializer( config_logger );
@@ -109,9 +106,9 @@ namespace Test.DependencyInjection
             var config = new J4JHostConfiguration()
                 .ApplicationName( "Test" )
                 .Publisher( "J4JSoftware" )
-                .OperatingSystem( OSNames.Windows );
+                .CommandLineOperatingSystem( CommandLineOperatingSystems.Windows );
 
-            config.OptionsInitializer( define_options );
+            config.CommandLineOptionsInitializer( define_options );
 
             var host = BuildHost( config );
 
@@ -142,8 +139,7 @@ namespace Test.DependencyInjection
         {
             var config = new J4JHostConfiguration()
                 .ApplicationName("Test")
-                .Publisher("J4JSoftware")
-                .OperatingSystem(OSNames.Windows);
+                .Publisher("J4JSoftware");
 
             var host = BuildHost(config);
 

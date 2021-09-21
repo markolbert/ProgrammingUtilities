@@ -1,7 +1,6 @@
 using System;
 using FluentAssertions;
 using J4JSoftware.Configuration.CommandLine;
-using J4JSoftware.Configuration.CommandLine.support;
 using J4JSoftware.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Xunit;
@@ -16,19 +15,12 @@ namespace Test.DependencyInjection
             public string? Text { get; set; }
         }
 
-        private readonly J4JCommandLineFactory _factory;
-
-        public CommandLineParsing()
-        {
-            _factory = new J4JCommandLineFactory();
-        }
-
         [Theory]
-        [InlineData(OSNames.Linux, "-x -y abc", true, true, "abc")]
-        [InlineData(OSNames.Linux, "-y def", false, false, "def")]
-        public void SimpleParsing(string osName, string cmdLine, bool hasFlag, bool flag, string text )
+        [InlineData("-x -y abc", true, true, "abc")]
+        [InlineData("-y def", false, false, "def")]
+        public void SimpleLinuxParsing(string cmdLine, bool hasFlag, bool flag, string text )
         {
-            var parser = _factory.GetParser( osName );
+            var parser = Parser.GetLinuxDefault( null );
             parser.Should().NotBeNull();
 
             var flagOption = parser!.Options.Bind<SimpleObject, bool>(x => x.Switch, "x");
@@ -50,11 +42,11 @@ namespace Test.DependencyInjection
         }
 
         [Theory]
-        [InlineData(OSNames.Linux, "-x -y abc", true, "abc")]
-        [InlineData(OSNames.Linux, "-y def", false, "def")]
-        public void CompositionRootParsing( string osName, string cmdLine, bool flag, string text )
+        [InlineData("-x -y abc", true, "abc")]
+        [InlineData("-y def", false, "def")]
+        public void LinuxCompositionRootParsing( string cmdLine, bool flag, string text )
         {
-            var root = new CompositionRoot( ConfigureOptions, osName );
+            var root = new CompositionRoot( ConfigureOptions, "Linux" );
             root.CommandLineSource.Should().NotBeNull();
             root.CommandLineSource!.SetCommandLine( cmdLine );
 
