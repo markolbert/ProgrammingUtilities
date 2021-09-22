@@ -168,12 +168,12 @@ namespace J4JSoftware.DependencyInjection
                 CommandLineConfiguration.TextToValueConverters, 
                 Logger );
 
-            var optionsCollection = new OptionCollection(
+            _options = new OptionCollection(
                 FileSystemTextComparison,
                 CommandLineConfiguration.BindabilityValidator!,
                 Logger);
 
-            CommandLineConfiguration.OptionsGenerator ??= new OptionsGenerator( optionsCollection, FileSystemTextComparison, Logger );
+            CommandLineConfiguration.OptionsGenerator ??= new OptionsGenerator( _options, FileSystemTextComparison, Logger );
 
             CommandLineConfiguration.LexicalElements ??= CommandLineConfiguration.OperatingSystem switch
             {
@@ -189,25 +189,15 @@ namespace J4JSoftware.DependencyInjection
                 CommandLineConfiguration.CleanupProcessors.ToArray()
             );
 
-            var parser = new Parser( optionsCollection, parsingTable, tokenizer, Logger );
+            var parser = new Parser( _options, parsingTable, tokenizer, Logger );
 
-            builder.AddJ4JCommandLine(parser, out var options, out var cmdLineSrc, Logger);
-
-            if (options == null)
-            {
-                BuildStatus = J4JHostBuildStatus.Aborted;
-                Logger.Fatal("Could not add J4JCommandLine functionality");
-
-                return;
-            }
-
-            _options = options;
+            builder.AddJ4JCommandLine(parser, out var cmdLineSrc, Logger);
 
             CommandLineConfiguration.OptionsInitializer!( _options );
 
             CommandLineSource = cmdLineSrc;
 
-            options.FinishConfiguration();
+            _options.FinishConfiguration();
         }
 
         private void SetupDependencyInjection(HostBuilderContext hbc, ContainerBuilder builder)
