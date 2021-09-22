@@ -105,10 +105,10 @@ namespace Test.DependencyInjection
         {
             var config = new J4JHostConfiguration()
                 .ApplicationName( "Test" )
-                .Publisher( "J4JSoftware" )
-                .CommandLineOperatingSystem( CommandLineOperatingSystems.Windows );
+                .Publisher( "J4JSoftware" );
 
-            config.CommandLineOptionsInitializer( define_options );
+            config.AddCommandLineProcessing( CommandLineOperatingSystems.Windows )
+                .OptionsInitializer( define_options );
 
             var host = BuildHost( config );
 

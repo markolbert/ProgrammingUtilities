@@ -133,7 +133,7 @@ namespace J4JSoftware.DependencyInjection
                 ? J4JSoftware.Configuration.CommandLine.Parser.GetWindowsDefault(CachedLogger)
                 : J4JSoftware.Configuration.CommandLine.Parser.GetLinuxDefault(CachedLogger);
 
-            builder.AddJ4JCommandLine( Parser, CachedLogger, out var options, out var cmdLineSrc );
+            builder.AddJ4JCommandLine( Parser, out var options, out var cmdLineSrc, CachedLogger );
             CommandLineOptions = options;
             CommandLineSource = cmdLineSrc;
 
