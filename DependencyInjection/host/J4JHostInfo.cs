@@ -27,7 +27,7 @@ namespace J4JSoftware.DependencyInjection
     public record J4JHostInfo(
         string Publisher,
         string ApplicationName,
-        IAvailableTokens? CommandLineTokens,
+        ILexicalElements? CommandLineLexicalElements,
         Func<bool>? InDesignMode,
         CommandLineSource? CommandLineSource ) 
         : ConfigurationFolders( Publisher, ApplicationName, InDesignMode );

@@ -66,15 +66,6 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
-        public static J4JHostConfiguration CommandLineOperatingSystem(
-            this J4JHostConfiguration config,
-            CommandLineOperatingSystems os
-        )
-        {
-            config.OperatingSystem = os;
-            return config;
-        }
-
         public static J4JHostConfiguration CaseSensitiveFileSystem( this J4JHostConfiguration config )
         {
             config.CaseSensitiveFileSystem = true;
@@ -165,44 +156,52 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
-        public static J4JHostConfiguration CommandLineAvailableTokens(
+        public static J4JCommandLineConfiguration AddCommandLineProcessing( 
             this J4JHostConfiguration config,
-            IAvailableTokens tokens )
+            CommandLineOperatingSystems operatingSystem )
         {
-            config.CommandLineAvailableTokens = tokens;
+            config.CommandLineConfiguration = new J4JCommandLineConfiguration( config, operatingSystem );
+            return config.CommandLineConfiguration;
+        }
+
+        public static J4JCommandLineConfiguration LexicalElements(
+            this J4JCommandLineConfiguration config,
+            ILexicalElements tokens )
+        {
+            config.LexicalElements = tokens;
             return config;
         }
 
-        public static J4JHostConfiguration CommandLineBindabilityValidator(
-            this J4JHostConfiguration config,
+        public static J4JCommandLineConfiguration BindabilityValidator(
+            this J4JCommandLineConfiguration config,
             IBindabilityValidator bindabilityValidator )
         {
-            config.CommandLineBindabilityValidator = bindabilityValidator;
+            config.BindabilityValidator = bindabilityValidator;
             return config;
         }
 
-        public static J4JHostConfiguration CommandLineOptionsGenerator(
-            this J4JHostConfiguration config,
+        public static J4JCommandLineConfiguration OptionsGenerator(
+            this J4JCommandLineConfiguration config,
             IOptionsGenerator generator )
         {
-            config.CommandLineOptionsGenerator = generator;
+            config.OptionsGenerator = generator;
             return config;
         }
 
-        public static J4JHostConfiguration CommandLineTokenCleaners(
-            this J4JHostConfiguration config,
+        public static J4JCommandLineConfiguration TokenCleaners(
+            this J4JCommandLineConfiguration config,
             params ICleanupTokens[] tokenCleaners )
         {
-            config.CommandLineCleanupProcessors.AddRange( tokenCleaners );
+            config.CleanupProcessors.AddRange( tokenCleaners );
             return config;
         }
 
-        public static J4JHostConfiguration CommandLineOptionsInitializer(
-            this J4JHostConfiguration config,
+        public static J4JCommandLineConfiguration OptionsInitializer(
+            this J4JCommandLineConfiguration config,
             Action<IOptionCollection> initializer)
         {
-            config.CommandLineOptionsInitializer = initializer;
-            config.ConfigurationInitializers.Add( config.SetupCommandLineParsing );
+            config.OptionsInitializer = initializer;
+            config.HostConfiguration.ConfigurationInitializers.Add( config.HostConfiguration.SetupCommandLineParsing );
 
             return config;
         }

@@ -58,8 +58,6 @@ namespace J4JSoftware.DependencyInjection
             DependencyInjectionInitializers.Add( SetupLogging );
 
             ServicesInitializers.Add( SetupServices );
-
-            CommandLineTextToValueConverters.AddRange( BindabilityValidator.GetBuiltInConverters( Logger ) );
         }
 
         // used to capture log events during the host building process,
@@ -70,7 +68,6 @@ namespace J4JSoftware.DependencyInjection
         internal string ApplicationName { get; set; } = string.Empty;
         internal string DataProtectionPurpose { get; set; } = string.Empty;
 
-        internal CommandLineOperatingSystems OperatingSystem { get; set; } = CommandLineOperatingSystems.Undefined;
         internal bool CaseSensitiveFileSystem { get; set; } = false;
 
         internal StringComparison FileSystemTextComparison =>
@@ -79,12 +76,7 @@ namespace J4JSoftware.DependencyInjection
         internal List<ConfigurationFile> ApplicationConfigurationFiles { get; } = new();
         internal List<ConfigurationFile> UserConfigurationFiles { get; } = new();
 
-        internal IAvailableTokens? CommandLineAvailableTokens { get; set; }
-        internal IBindabilityValidator? CommandLineBindabilityValidator { get; set; }
-        internal List<ITextToValue> CommandLineTextToValueConverters { get; } = new();
-        internal IOptionsGenerator? CommandLineOptionsGenerator { get; set; }
-        internal List<ICleanupTokens> CommandLineCleanupProcessors { get; } = new();
-        internal Action<IOptionCollection>? CommandLineOptionsInitializer { get; set; }
+        internal J4JCommandLineConfiguration? CommandLineConfiguration { get; set; }
 
         internal CommandLineSource? CommandLineSource { get; private set; }
 
@@ -123,22 +115,22 @@ namespace J4JSoftware.DependencyInjection
 
                 // if we're not utilize the command line subsystem there's nothing
                 // else to check
-                if( CommandLineOptionsInitializer == null )
+                if( CommandLineConfiguration == null )
                     return retVal;
 
                 // if default command line parameters were selected we don't need to
                 // check the individual command line requirements because we'll just
                 // create defaults as needed
-                if( OperatingSystem != CommandLineOperatingSystems.Undefined )
+                if( CommandLineConfiguration.OperatingSystem != CommandLineOperatingSystems.Customized )
                     return retVal;
 
-                if( CommandLineAvailableTokens == null )
+                if( CommandLineConfiguration.LexicalElements == null )
                     retVal |= J4JHostRequirements.AvailableTokens;
 
-                if( CommandLineBindabilityValidator == null )
+                if( CommandLineConfiguration.BindabilityValidator == null )
                     retVal |= J4JHostRequirements.BindabilityValidators;
 
-                if( CommandLineOptionsGenerator == null )
+                if( CommandLineConfiguration.OptionsGenerator == null )
                     retVal |= J4JHostRequirements.OptionsGenerator;
 
                 return retVal;
@@ -172,32 +164,34 @@ namespace J4JSoftware.DependencyInjection
         {
             // we create default values for missing required parameters, sometimes based on the 
             // type of operating system specified
-            CommandLineBindabilityValidator ??= new BindabilityValidator( CommandLineTextToValueConverters, Logger );
+            CommandLineConfiguration!.BindabilityValidator ??= new BindabilityValidator( 
+                CommandLineConfiguration.TextToValueConverters, 
+                Logger );
 
             var optionsCollection = new OptionCollection(
                 FileSystemTextComparison,
-                CommandLineBindabilityValidator!,
+                CommandLineConfiguration.BindabilityValidator!,
                 Logger);
 
-            CommandLineOptionsGenerator ??= new OptionsGenerator( optionsCollection, FileSystemTextComparison, Logger );
+            CommandLineConfiguration.OptionsGenerator ??= new OptionsGenerator( optionsCollection, FileSystemTextComparison, Logger );
 
-            CommandLineAvailableTokens ??= OperatingSystem switch
+            CommandLineConfiguration.LexicalElements ??= CommandLineConfiguration.OperatingSystem switch
             {
-                CommandLineOperatingSystems.Windows => new WindowsTokens(Logger),
-                CommandLineOperatingSystems.Linux => new LinuxTokens(Logger),
+                CommandLineOperatingSystems.Windows => new WindowsLexicalElements(Logger),
+                CommandLineOperatingSystems.Linux => new LinuxLexicalElements(Logger),
                 _ => throw new ArgumentException("Operating system is undefined")
             };
 
-            var parsingTable = new ParsingTable( CommandLineOptionsGenerator!, Logger );
+            var parsingTable = new ParsingTable(CommandLineConfiguration.OptionsGenerator!, Logger );
 
-            var tokenizer = new Tokenizer( CommandLineAvailableTokens!,
+            var tokenizer = new Tokenizer(CommandLineConfiguration.LexicalElements!,
                 Logger,
-                CommandLineCleanupProcessors.ToArray()
+                CommandLineConfiguration.CleanupProcessors.ToArray()
             );
 
             var parser = new Parser( optionsCollection, parsingTable, tokenizer, Logger );
 
-            builder.AddJ4JCommandLine(parser, Logger, out var options, out var cmdLineSrc);
+            builder.AddJ4JCommandLine(parser, out var options, out var cmdLineSrc, Logger);
 
             if (options == null)
             {
@@ -209,7 +203,7 @@ namespace J4JSoftware.DependencyInjection
 
             _options = options;
 
-            CommandLineOptionsInitializer!( _options );
+            CommandLineConfiguration.OptionsInitializer!( _options );
 
             CommandLineSource = cmdLineSrc;
 
@@ -234,7 +228,7 @@ namespace J4JSoftware.DependencyInjection
                     var retVal = new J4JHostInfo(
                         Publisher,
                         ApplicationName,
-                        CommandLineAvailableTokens,
+                        CommandLineConfiguration?.LexicalElements,
                         _inDesignMode,
                         CommandLineSource
                     );
