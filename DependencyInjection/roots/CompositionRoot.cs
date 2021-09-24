@@ -129,9 +129,9 @@ namespace J4JSoftware.DependencyInjection
 
         protected virtual void SetupConfigurationEnvironment( IConfigurationBuilder builder )
         {
-            Parser = OperatingSystem.Equals("windows", StringComparison.OrdinalIgnoreCase)
-                ? J4JSoftware.Configuration.CommandLine.Parser.GetWindowsDefault(CachedLogger)
-                : J4JSoftware.Configuration.CommandLine.Parser.GetLinuxDefault(CachedLogger);
+            Parser = OperatingSystem.Equals( "windows", StringComparison.OrdinalIgnoreCase )
+                ? J4JSoftware.Configuration.CommandLine.Parser.GetWindowsDefault( logger: CachedLogger )
+                : J4JSoftware.Configuration.CommandLine.Parser.GetLinuxDefault( logger: CachedLogger );
 
             builder.AddJ4JCommandLine( Parser, out var cmdLineSrc, CachedLogger );
             CommandLineOptions = Parser.Options;

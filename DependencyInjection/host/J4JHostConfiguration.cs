@@ -164,13 +164,16 @@ namespace J4JSoftware.DependencyInjection
         {
             // we create default values for missing required parameters, sometimes based on the 
             // type of operating system specified
+            CommandLineConfiguration!.TextConverters ??= new TextConverters();
+
             CommandLineConfiguration!.BindabilityValidator ??= new BindabilityValidator( 
-                CommandLineConfiguration.TextToValueConverters, 
+                CommandLineConfiguration.TextConverters,
                 Logger );
 
             _options = new OptionCollection(
                 FileSystemTextComparison,
                 CommandLineConfiguration.BindabilityValidator!,
+                CommandLineConfiguration.TextConverters,
                 Logger);
 
             CommandLineConfiguration.OptionsGenerator ??= new OptionsGenerator( _options, FileSystemTextComparison, Logger );

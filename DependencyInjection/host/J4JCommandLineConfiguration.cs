@@ -32,9 +32,6 @@ namespace J4JSoftware.DependencyInjection
         {
             HostConfiguration = hostConfig;
             OperatingSystem = operatingSystem;
-
-            TextToValueConverters.AddRange(
-                J4JSoftware.Configuration.CommandLine.BindabilityValidator.GetBuiltInConverters( hostConfig.Logger ) );
         }
 
         public J4JHostConfiguration HostConfiguration { get; }
@@ -42,7 +39,7 @@ namespace J4JSoftware.DependencyInjection
 
         internal ILexicalElements? LexicalElements { get; set; }
         internal IBindabilityValidator? BindabilityValidator { get; set; }
-        internal List<ITextToValue> TextToValueConverters { get; } = new();
+        internal ITextConverters? TextConverters { get; set; }
         internal IOptionsGenerator? OptionsGenerator { get; set; }
         internal List<ICleanupTokens> CleanupProcessors { get; } = new();
         internal Action<IOptionCollection>? OptionsInitializer { get; set; }
