@@ -39,7 +39,7 @@ namespace J4JSoftware.DependencyInjection
         private readonly Func<bool> _inDesignMode;
 
         private string _osName = string.Empty;
-        private IOptionCollection? _options;
+        private OptionCollection? _options;
 
         public J4JHostConfiguration()
             : this( () => false )

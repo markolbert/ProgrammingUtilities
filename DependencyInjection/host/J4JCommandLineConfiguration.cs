@@ -41,6 +41,6 @@ namespace J4JSoftware.DependencyInjection
         internal ITextConverters? TextConverters { get; set; }
         internal IOptionsGenerator? OptionsGenerator { get; set; }
         internal List<ICleanupTokens> CleanupProcessors { get; } = new();
-        internal Action<IOptionCollection>? OptionsInitializer { get; set; }
+        internal Action<OptionCollection>? OptionsInitializer { get; set; }
     }
 }

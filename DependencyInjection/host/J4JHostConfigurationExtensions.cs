@@ -198,7 +198,7 @@ namespace J4JSoftware.DependencyInjection
 
         public static J4JCommandLineConfiguration OptionsInitializer(
             this J4JCommandLineConfiguration config,
-            Action<IOptionCollection> initializer)
+            Action<OptionCollection> initializer)
         {
             config.OptionsInitializer = initializer;
             config.HostConfiguration.ConfigurationInitializers.Add( config.HostConfiguration.SetupCommandLineParsing );

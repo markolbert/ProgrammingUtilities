@@ -120,7 +120,7 @@ namespace J4JSoftware.DependencyInjection
 
         public IParser? Parser { get; private set; }
         public CommandLineSource? CommandLineSource { get; private set; }
-        public IOptionCollection? CommandLineOptions { get; private set; }
+        public OptionCollection? CommandLineOptions { get; private set; }
 
         protected virtual void SetupAppEnvironment( HostBuilderContext hbc, IConfigurationBuilder builder )
         {
@@ -134,7 +134,7 @@ namespace J4JSoftware.DependencyInjection
                 : J4JSoftware.Configuration.CommandLine.Parser.GetLinuxDefault( logger: CachedLogger );
 
             builder.AddJ4JCommandLine( Parser, out var cmdLineSrc, CachedLogger );
-            CommandLineOptions = Parser.Options;
+            CommandLineOptions = Parser.Collection;
             CommandLineSource = cmdLineSrc;
 
             if( CommandLineOptions == null )
