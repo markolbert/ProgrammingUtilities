@@ -127,9 +127,6 @@ namespace J4JSoftware.DependencyInjection
                 if( CommandLineConfiguration.LexicalElements == null )
                     retVal |= J4JHostRequirements.AvailableTokens;
 
-                if( CommandLineConfiguration.BindabilityValidator == null )
-                    retVal |= J4JHostRequirements.BindabilityValidators;
-
                 if( CommandLineConfiguration.OptionsGenerator == null )
                     retVal |= J4JHostRequirements.OptionsGenerator;
 
@@ -166,15 +163,7 @@ namespace J4JSoftware.DependencyInjection
             // type of operating system specified
             CommandLineConfiguration!.TextConverters ??= new TextConverters();
 
-            CommandLineConfiguration!.BindabilityValidator ??= new BindabilityValidator( 
-                CommandLineConfiguration.TextConverters,
-                Logger );
-
-            _options = new OptionCollection(
-                FileSystemTextComparison,
-                CommandLineConfiguration.BindabilityValidator!,
-                CommandLineConfiguration.TextConverters,
-                Logger);
+            _options = new OptionCollection( FileSystemTextComparison, CommandLineConfiguration.TextConverters, Logger);
 
             CommandLineConfiguration.OptionsGenerator ??= new OptionsGenerator( _options, FileSystemTextComparison, Logger );
 

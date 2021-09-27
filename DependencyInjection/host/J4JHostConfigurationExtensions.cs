@@ -172,14 +172,6 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
-        public static J4JCommandLineConfiguration BindabilityValidator(
-            this J4JCommandLineConfiguration config,
-            IBindabilityValidator bindabilityValidator )
-        {
-            config.BindabilityValidator = bindabilityValidator;
-            return config;
-        }
-
         public static J4JCommandLineConfiguration TextConverters(
             this J4JCommandLineConfiguration config,
             ITextConverters converters)

@@ -38,7 +38,6 @@ namespace J4JSoftware.DependencyInjection
         internal CommandLineOperatingSystems OperatingSystem { get; }
 
         internal ILexicalElements? LexicalElements { get; set; }
-        internal IBindabilityValidator? BindabilityValidator { get; set; }
         internal ITextConverters? TextConverters { get; set; }
         internal IOptionsGenerator? OptionsGenerator { get; set; }
         internal List<ICleanupTokens> CleanupProcessors { get; } = new();
