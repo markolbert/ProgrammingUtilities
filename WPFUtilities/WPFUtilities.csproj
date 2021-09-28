@@ -39,7 +39,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="J4JSoftware.Logging" Version="4.0.0" />
-		<PackageReference Include="J4JSoftweare.DependencyInjection" Version="2.0.0" />
+		<PackageReference Include="J4JSoftware.DependencyInjection" Version="2.0.0" />
 	</ItemGroup>
 
 </Project>
