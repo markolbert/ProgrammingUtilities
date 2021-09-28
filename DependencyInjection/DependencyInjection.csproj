@@ -1,37 +1,37 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	  <TargetFramework>net5.0</TargetFramework>
-	  <AssemblyName>J4JSoftware.DependencyInjection</AssemblyName>
-	  <RootNamespace>J4JSoftware.DependencyInjection</RootNamespace>
-	  <Nullable>enable</Nullable>
-	  <Authors>Mark A. Olbert</Authors>
-	  <Company>Jump for Joy Software</Company>
-	  <Product>J4JSoftware Dependency Injection Library</Product>
-	  <Description>provides customized HostBuilder and CompositionRoot classes for simplified configuration</Description>
-	  <Copyright>© Mark A. Olbert all rights reserved</Copyright>
-	  <PackageDescription>provides customized HostBuilder and CompositionRoot classes for simplified configuration</PackageDescription>
-	  <RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
-	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	  <PackageIcon>Diego nuspec.png</PackageIcon>
-	  <RepositoryType>git</RepositoryType>
-	  <Version>2.0.0.0</Version>
-	  <AssemblyVersion>2.0.0.0</AssemblyVersion>
-	  <PackageReleaseNotes>added support for XAML-based projects (e.g., WPF); added support for configuring J4JLogger from IConfiguration</PackageReleaseNotes>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<AssemblyName>J4JSoftware.DependencyInjection</AssemblyName>
+		<RootNamespace>J4JSoftware.DependencyInjection</RootNamespace>
+		<Nullable>enable</Nullable>
+		<Authors>Mark A. Olbert</Authors>
+		<Company>Jump for Joy Software</Company>
+		<Product>J4JSoftware Dependency Injection Library</Product>
+		<Description>provides customized HostBuilder and CompositionRoot classes for simplified configuration</Description>
+		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
+		<PackageDescription>provides customized HostBuilder and CompositionRoot classes for simplified configuration</PackageDescription>
+		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
+		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageIcon>Diego nuspec.png</PackageIcon>
+		<RepositoryType>git</RepositoryType>
+		<Version>2.0.0.0</Version>
+		<AssemblyVersion>2.0.0.0</AssemblyVersion>
+		<PackageReleaseNotes>shifted to IHostBuilder-based approach (CompositionRoot approach is deprecated)</PackageReleaseNotes>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Autofac" Version="6.2.0" />
-    <PackageReference Include="Autofac.Configuration" Version="6.0.0" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="5.0.10" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Autofac" Version="6.2.0" />
+		<PackageReference Include="Autofac.Configuration" Version="6.0.0" />
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="5.0.10" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\J4JCommandLine\J4JCommandLine\J4JCommandLine.csproj" />
@@ -39,10 +39,16 @@
 		<ProjectReference Include="..\TypeUtilities\TypeUtilities.csproj" />
 	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="J4JSoftware.Logging" Version="4.0.0" />
+		<PackageReference Include="J4JSoftware.Configuration.CommandLine" Version="4.0.0" />
+		<PackageReference Include="J4JSoftware.TypeUtilities" Version="1.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 </Project>
