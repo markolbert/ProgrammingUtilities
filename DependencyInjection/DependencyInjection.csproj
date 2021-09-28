@@ -22,13 +22,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="roots\CompositionRoot.generic.cs" />
-    <Compile Remove="roots\ConsoleRoot.generic.cs" />
-    <Compile Remove="roots\J4JHostBuilder.cs" />
-    <Compile Remove="roots\XamlRoot.generic.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Autofac" Version="6.2.0" />
     <PackageReference Include="Autofac.Configuration" Version="6.0.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />

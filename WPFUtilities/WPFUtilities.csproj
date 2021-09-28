@@ -22,11 +22,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="AutofacRangeTick.cs" />
-	  <Compile Remove="AutoFacWPFUtilities.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
 		<Pack>True</Pack>
 		<PackagePath></PackagePath>
@@ -40,7 +35,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
 		<ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
-		<ProjectReference Include="..\Test.MiscellaneousUtilities\Test.MiscellaneousUtilities.csproj" />
 	</ItemGroup>
 
 </Project>

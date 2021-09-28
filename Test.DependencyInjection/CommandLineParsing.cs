@@ -23,9 +23,9 @@ namespace Test.DependencyInjection
             var parser = Parser.GetLinuxDefault( null );
             parser.Should().NotBeNull();
 
-            var flagOption = parser!.Options.Bind<SimpleObject, bool>(x => x.Switch, "x");
-            var textOption = parser.Options.Bind<SimpleObject, string?>(x => x.Text, "y");
-            parser.Options.FinishConfiguration();
+            var flagOption = parser!.Collection.Bind<SimpleObject, bool>(x => x.Switch, "x");
+            var textOption = parser.Collection.Bind<SimpleObject, string?>(x => x.Text, "y");
+            parser.Collection.FinishConfiguration();
 
             parser!.Parse( cmdLine ).Should().BeTrue();
 
@@ -57,7 +57,7 @@ namespace Test.DependencyInjection
             result.Text.Should().Be( text );
         }
 
-        private void ConfigureOptions( IOptionCollection options )
+        private void ConfigureOptions( OptionCollection options )
         {
             options.Bind<SimpleObject, bool>(x => x.Switch, "x");
             options.Bind<SimpleObject, string?>(x => x.Text, "y");

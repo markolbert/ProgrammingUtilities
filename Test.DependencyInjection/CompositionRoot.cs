@@ -10,10 +10,10 @@ namespace Test.DependencyInjection
 {
     public sealed class CompositionRoot : ConsoleRoot
     {
-        private readonly Action<IOptionCollection> _configureOptions;
+        private readonly Action<OptionCollection> _configureOptions;
 
         public CompositionRoot(
-            Action<IOptionCollection> configureOptions,
+            Action<OptionCollection> configureOptions,
             string osName
             ) 
             : base( "J4JSoftware", "DITest", true, osName: osName)

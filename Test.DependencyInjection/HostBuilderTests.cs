@@ -127,7 +127,7 @@ namespace Test.DependencyInjection
             cmdOptions.Switch.Should().BeTrue();
             cmdOptions.Text.Should().Be("hello");
 
-            void define_options( IOptionCollection options )
+            void define_options( OptionCollection options )
             {
                 options.Bind<OptionsTest, bool>( x => x.Switch, "s" );
                 options.Bind<OptionsTest, string>( x => x.Text, "t" );
