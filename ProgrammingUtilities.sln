@@ -35,7 +35,39 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TypeUtilities", "TypeUtilit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JCommandLine", "..\J4JCommandLine\J4JCommandLine\J4JCommandLine.csproj", "{69333E18-667C-48FF-B398-5F6A75C66D4A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.DependencyInjection", "Test.DependencyInjection\Test.DependencyInjection.csproj", "{52825A6E-7305-4826-A31C-474565A92BEB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.DependencyInjection", "Test.DependencyInjection\Test.DependencyInjection.csproj", "{52825A6E-7305-4826-A31C-474565A92BEB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}"
+	ProjectSection(SolutionItems) = preProject
+		docs\console-util.md = docs\console-util.md
+		docs\efcore.md = docs\efcore.md
+		docs\excel-export.md = docs\excel-export.md
+		LICENSE.md = LICENSE.md
+		docs\mahappsmatdesign.md = docs\mahappsmatdesign.md
+		docs\miscutils.md = docs\miscutils.md
+		README.md = README.md
+		docs\topo-sort.md = docs\topo-sort.md
+		docs\visual-utils.md = docs\visual-utils.md
+		docs\wpf-utilities.md = docs\wpf-utilities.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{CB3428CE-8706-4D9A-8452-86E578B457B1}"
+	ProjectSection(SolutionItems) = preProject
+		docs\assets\topo-actions.png = docs\assets\topo-actions.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependency", "dependency", "{5237DC45-ECD8-4481-98A1-938EFEECD0CE}"
+	ProjectSection(SolutionItems) = preProject
+		docs\dependency\basic.md = docs\dependency\basic.md
+		docs\dependency\changes.md = docs\dependency\changes.md
+		docs\dependency\console-app-example.md = docs\dependency\console-app-example.md
+		docs\dependency\dependency.md = docs\dependency\dependency.md
+		docs\dependency\iconfiguration.md = docs\dependency\iconfiguration.md
+		docs\dependency\j4jcmdline.md = docs\dependency\j4jcmdline.md
+		docs\dependency\j4jlogging.md = docs\dependency\j4jlogging.md
+		docs\dependency\usage.md = docs\dependency\usage.md
+		docs\dependency\wpf-app-example.md = docs\dependency\wpf-app-example.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +146,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{BF7C19D5-2FB6-4B94-B73C-337880DF5582} = {D8043E93-B428-4A53-A8FD-B5057D43A005}
 		{69333E18-667C-48FF-B398-5F6A75C66D4A} = {D8043E93-B428-4A53-A8FD-B5057D43A005}
+		{CB3428CE-8706-4D9A-8452-86E578B457B1} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
+		{5237DC45-ECD8-4481-98A1-938EFEECD0CE} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4181E7AB-9170-480C-A128-CAB8740DD30B}
