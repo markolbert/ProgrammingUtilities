@@ -10,15 +10,16 @@
 		<Product>J4JSoftware Dependency Injection Library</Product>
 		<Description>provides customized HostBuilder and CompositionRoot classes for simplified configuration</Description>
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
-		<PackageDescription>provides customized HostBuilder and CompositionRoot classes for simplified configuration</PackageDescription>
-		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
-		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
-		<Version>2.0.0.0</Version>
-		<AssemblyVersion>2.0.0.0</AssemblyVersion>
-		<PackageReleaseNotes>shifted to IHostBuilder-based approach (CompositionRoot approach is deprecated)</PackageReleaseNotes>
+		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
+		<Version>2.0.1.0</Version>
+		<AssemblyVersion>2.0.1.0</AssemblyVersion>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageDescription>provides customized HostBuilder and CompositionRoot classes for simplified configuration</PackageDescription>
+		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+		<PackageIcon>Diego nuspec.png</PackageIcon>
+		<PackageReleaseNotes>added nuget readme</PackageReleaseNotes>
+		<PackageReadmeFile>nuget-dependency.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -50,5 +51,6 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
+		<None Include="../docs/nuget-dependency.md" Pack="true" PackagePath="/" />
 	</ItemGroup>
 </Project>

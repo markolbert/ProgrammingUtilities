@@ -10,15 +10,16 @@
 		<Product>J4JSoftware Entity Framework Core Utilities</Product>
 		<Description>a utility framework to simplify working with EF Core databases</Description>
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
-		<PackageDescription>a utility framework to simplify working with EF Core databases</PackageDescription>
-		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
-		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
-		<Version>1.0.0.0</Version>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<PackageReleaseNotes>bumped version to full release status</PackageReleaseNotes>
+		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
+		<Version>1.0.1.0</Version>
+		<AssemblyVersion>1.0.1.0</AssemblyVersion>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageDescription>a utility framework to simplify working with EF Core databases</PackageDescription>
+		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+		<PackageIcon>Diego nuspec.png</PackageIcon>
+		<PackageReleaseNotes>added nuget readme</PackageReleaseNotes>
+		<PackageReadmeFile>nuget-efcore.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -35,6 +36,7 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
+		<None Include="../docs/nuget-efcore.md" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 </Project>

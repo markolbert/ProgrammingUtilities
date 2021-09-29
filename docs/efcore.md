@@ -1,4 +1,4 @@
-# Console Utilities
+# Entity Framework Utilities
 
 This assembly provides two capabilities to simplify using Entity Frameowork Core in projects:
 
