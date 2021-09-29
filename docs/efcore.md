@@ -1,30 +1,20 @@
-## Entity Framework Core
-This assembly provides two utility capabilities to simplify using
-Entity Frameowork Core in projects.
+# Console Utilities
 
-- Simplifies setting up a design-time factory for instances of 
-`DbContext` to use during development.
-- Provides a way of associating entity configuration information with
-the entity being configured when you're using a fluent design approach.
+This assembly provides two capabilities to simplify using Entity Frameowork Core in projects:
+
+- Simplifies setting up a **design-time factory** for instances of `DbContext` to use during development.
+- Provides a way of associating **entity configuration information** with the entity being configured when you're using a fluent design approach.
 
 This assembly targets Net5 and has nullability enabled.
 
-#### Table of Contents
-- [Design time factory](#design-time-factory)
-- [Entity configuration](#entity-configuration)
+## Design-time factory
 
-#### Design time factory
-Debugging a `DbContext` can be complicated if things like the location
-of the database is different at design time. I often find that's
-the case in my projects because a configuration class may be defined
-in its own assembly so it can be shared across multiple projects.
+Debugging a `DbContext` can be complicated if things like the location of the database is different at design time. I often find that's the case in my projects because a configuration class may be defined in its own assembly so it can be shared across multiple projects.
 
-`DesignTimeFactory<TDbContext>` abstracts this process. All
-you need to do is implement an abstract method, `GetDatabaseConfiguration()`,
-which returns an `IDbContextFactoryConfiguration`. You'll also need to
-write a simple class that implements `IDbContextFactoryConfiguration`.
+`DesignTimeFactory<TDbContext>` abstracts this process. All you need to do is implement an abstract method, `GetDatabaseConfiguration()`, which returns an `IDbContextFactoryConfiguration`. You'll also need to write a simple class that implements `IDbContextFactoryConfiguration`.
 
 Here's an example:
+
 ```csharp
 public class SurveyDbDesignTimeFactory : DesignTimeFactory<SurveyDbContext>
 {
@@ -51,9 +41,9 @@ public class DbContextFactoryConfiguration : IDbContextFactoryConfiguration
     public string DatabasePath { get; }
 }
 ```
-In this example `SPConfiguration` is an implementation of 
-`ISPConfiguration`, which, among other things, defines the configuration 
-information for the database:
+
+In this example `SPConfiguration` is an implementation of `ISPConfiguration`, which, among other things, defines the configuration information for the database:
+
 ```csharp
 public interface ISPConfiguration
 {
@@ -68,27 +58,17 @@ public interface ISPConfiguration
 }
 ```
 
-[table of contents](#Table-of-Contents)
+## Entity Configuration Information
 
-#### Entity Configuration
-Database entities almost always require you configure the database
-traits of properties (e.g., is that string nullable or not?),
-relationships, etc. 
+Database entities almost always require you configure the database traits of properties (e.g., is that string nullable or not?), relationships, etc.
 
-EF Core lets you do this in at least two ways, one by decorating 
-entity classes and their properties with attributes and one by calling
-various fluent design configuration methods (you can mix and match, too,
+EF Core lets you do this in at least two ways, one by decorating entity classes and their properties with attributes and one by calling various fluent design configuration methods (you can mix and match, too,
 I think).
 
-For various reasons I strongly prefer exclusively using the
-fluent design approach, rather than the attribute-based approach. But by
-default that would result in a very large `OnModelCreating()` method
-override in my `DbContext`-derived class.
+For various reasons I strongly prefer exclusively using the fluent design approach, rather than the attribute-based approach. But by default that would result in a very large `OnModelCreating()` method override in my `DbContext`-derived class.
 
-That's messy. So I wrote several classes to allow me to put the
-necessary fluent design method calls in a class I associate with an
-entity class. Each entity gets its own configuration class. And a single
-extension method call in `OnModelCreating()` knits it all together:
+That's messy. So I wrote several classes to allow me to put the necessary fluent design method calls in a class I associate with an entity class. Each entity gets its own configuration class. And a single extension method call in `OnModelCreating()` knits it all together:
+
 ```csharp
 protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
@@ -97,7 +77,9 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
     modelBuilder.ConfigureEntities(this.GetType().Assembly);
 }
 ```
+
 Here's an example of how the support classes are used:
+
 ```csharp
 [EntityConfiguration(typeof(QuestionDbConfigurator))]
 public class QuestionDb
@@ -129,12 +111,7 @@ internal class QuestionDbConfigurator : EntityConfigurator<QuestionDb>
     }
 }
 ```
-`QuestionDbConfigurator` holds the fluent-design configuration information
-for the entity class `QuestionDb`. It's internal because only the
-`DbContext`-derived class in the database assembly needs access to it.
 
-The `EntityConfigurationAttribute` attribute decorating `QuestionDb` lets
-the utility code know where to get the configuration information for
-`QuestionDb`.
+`QuestionDbConfigurator` holds the fluent-design configuration information for the entity class `QuestionDb`. It's internal because only the `DbContext`-derived class in the database assembly needs access to it.
 
-[table of contents](#Table-of-Contents)
+The `EntityConfigurationAttribute` attribute decorating `QuestionDb` lets the utility code know where to get the configuration information for `QuestionDb`.

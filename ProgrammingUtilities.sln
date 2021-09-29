@@ -44,7 +44,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{7DFBF69A-5
 		docs\excel-export.md = docs\excel-export.md
 		LICENSE.md = LICENSE.md
 		docs\mahappsmatdesign.md = docs\mahappsmatdesign.md
-		docs\miscutils.md = docs\miscutils.md
 		README.md = README.md
 		docs\topo-sort.md = docs\topo-sort.md
 		docs\visual-utils.md = docs\visual-utils.md
@@ -67,6 +66,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependency", "dependency", 
 		docs\dependency\j4jlogging.md = docs\dependency\j4jlogging.md
 		docs\dependency\usage.md = docs\dependency\usage.md
 		docs\dependency\wpf-app-example.md = docs\dependency\wpf-app-example.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "miscutils", "miscutils", "{7EA3AFA3-3374-4A8E-992C-38864BE6B909}"
+	ProjectSection(SolutionItems) = preProject
+		docs\miscutils\miscutils.md = docs\miscutils\miscutils.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "range-tick", "range-tick", "{3859C037-FE05-4118-A5A0-FBCBD8C77CC6}"
+	ProjectSection(SolutionItems) = preProject
+		docs\miscutils\range-tick\intro.md = docs\miscutils\range-tick\intro.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "selectable", "selectable", "{8E4E12A3-A698-44EB-8F81-94BB72E2EB72}"
+	ProjectSection(SolutionItems) = preProject
+		docs\miscutils\selectable\intro.md = docs\miscutils\selectable\intro.md
 	EndProjectSection
 EndProject
 Global
@@ -148,6 +162,9 @@ Global
 		{69333E18-667C-48FF-B398-5F6A75C66D4A} = {D8043E93-B428-4A53-A8FD-B5057D43A005}
 		{CB3428CE-8706-4D9A-8452-86E578B457B1} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
 		{5237DC45-ECD8-4481-98A1-938EFEECD0CE} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
+		{7EA3AFA3-3374-4A8E-992C-38864BE6B909} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
+		{3859C037-FE05-4118-A5A0-FBCBD8C77CC6} = {7EA3AFA3-3374-4A8E-992C-38864BE6B909}
+		{8E4E12A3-A698-44EB-8F81-94BB72E2EB72} = {7EA3AFA3-3374-4A8E-992C-38864BE6B909}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4181E7AB-9170-480C-A128-CAB8740DD30B}

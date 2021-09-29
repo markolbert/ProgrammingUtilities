@@ -1,17 +1,8 @@
-## Excel Export
-This assembly provides some wrappers around the [NPOI C# port](https://github.com/nissl-lab/npoi)
-which I've found useful.
+# MahApps.Metro Material Design XAML Resources
 
-This assembly targets Net5 and has nullability enabled.
+My recent WPF apps have generally used [MahApps.Metro](https://mahapps.com/) and its [related material design extensions](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit) because the resulting UI looks a bit more modern (to my eyes, at least) than the WPF default.
 
-The starting point for using the library is creating an instance of 
-`ExcelWorkbook`. It takes an optional `Func<IJ4JLogger>` logger
-factory. For more information on `IJ4JLogger` see the 
-[github documentation](https://github.com/markolbert/J4JLogging).
+This assembly provides some XAML resources which I've found helpful:
 
-Worksheets are created by callling the `AddWorksheet()` method on an
-`ExcelWorkbook` instance.
-
-Tables are created by calling the `AddTable()` method on an `ExcelSheet`
-instance.
-
+- **CustomComboBox.xaml** supports displaying error messages more neatly than is the case with the default WPF combobox control.
+- **MaterialDesignDropDownButton.xaml** provides a somewhat nicer looking dropdown button than the one provided by the MahApps material design library.
