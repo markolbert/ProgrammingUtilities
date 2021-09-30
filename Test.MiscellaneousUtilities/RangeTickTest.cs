@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Autofac;
 using FluentAssertions;
+using J4JSoftware.DependencyInjection;
 using J4JSoftware.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 #pragma warning disable 8618
 
@@ -11,6 +15,42 @@ namespace Test.MiscellaneousUtilities
 {
     public class RangeTickTest
     {
+        private readonly IHost _host;
+
+        public RangeTickTest()
+        {
+            _host = CreateHost();
+        }
+
+        private IHost CreateHost()
+        {
+            var hostConfig = new J4JHostConfiguration()
+                .Publisher("J4JSoftware")
+                .ApplicationName("Tests.MiscellaneousUtilities")
+                .AddDependencyInjectionInitializers( SetupDependencyInjection );
+
+            var hostBuilder = hostConfig.CreateHostBuilder();
+
+            hostBuilder.Should().NotBeNull();
+
+            return hostBuilder!.Build();
+        }
+
+        private void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
+        {
+            builder.RegisterType<RangeCalculator>()
+                .As<IRangeCalculator>();
+
+            builder.RegisterType<TickManagers>()
+                .As<ITickManagers>();
+
+            builder.RegisterAssemblyTypes(typeof(ITickManager).Assembly)
+                .Where(t => !t.IsAbstract
+                            && typeof(ITickManager).IsAssignableFrom(t)
+                            && t.GetConstructors().Where(x => !x.GetParameters().Any()).Any())
+                .AsImplementedInterfaces();
+        }
+
         private class ValueHolder<T>
         {
             public T Value { get; set; }
@@ -21,7 +61,7 @@ namespace Test.MiscellaneousUtilities
         {
             var values = new List<ValueHolder<double>>();
 
-            var calculator = CompositionRoot.Default.GetRangeCalculator();
+            var calculator = _host.Services.GetRequiredService<IRangeCalculator>();
 
             Thread.Sleep(1);
             var random = new Random();
@@ -56,7 +96,7 @@ namespace Test.MiscellaneousUtilities
         {
             var values = new List<ValueHolder<DateTime>>();
 
-            var calculator = CompositionRoot.Default.GetRangeCalculator();
+            var calculator = _host.Services.GetRequiredService<IRangeCalculator>();
 
             Thread.Sleep(1);
             var random = new Random();
@@ -87,7 +127,7 @@ namespace Test.MiscellaneousUtilities
         [ InlineData( -5.5, -5.5, -5.5, -5.5 ) ]
         public void TestDouble( double minValue, double maxValue, double rangeStart, double rangeEnd )
         {
-            var calculator = CompositionRoot.Default.GetRangeCalculator();
+            var calculator = _host.Services.GetRequiredService<IRangeCalculator>();
 
             calculator.Evaluate(minValue, maxValue);
 
@@ -109,7 +149,7 @@ namespace Test.MiscellaneousUtilities
         [InlineData("6/26/2001", "6/26/2001", "6/1/2001", "6/1/2001")]
         public void TestMonth(string minValue, string maxValue, string rangeStart, string rangeEnd)
         {
-            var calculator = CompositionRoot.Default.GetRangeCalculator();
+            var calculator = _host.Services.GetRequiredService<IRangeCalculator>();
 
             calculator.Evaluate( DateTime.Parse( minValue), DateTime.Parse(maxValue) );
 
