@@ -25,4 +25,13 @@
   <ProjectReference Include="..\MiscellaneousUtilities\MiscellaneousUtilities.csproj" />
 </ItemGroup>
 
+<ItemGroup>
+  <None Update="test-data\range-size.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="test-data\single-size.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+
 </Project>

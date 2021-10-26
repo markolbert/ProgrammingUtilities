@@ -1,0 +1,38 @@
+[
+  {
+    "ControlSize": 200,
+    "TickSize": 2,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value":  0.01 
+    },
+    "MajorTick": {
+      "Value":  0.1 
+    },
+    "RangeStart": {
+      "Value":  -0.5 
+    },
+    "RangeEnd": {
+      "Value":  0.5 
+    }
+  },
+  {
+    "ControlSize": 200,
+    "TickSize": 5,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value": 0.025
+    },
+    "MajorTick": {
+      "Value": 0.1
+    },
+    "RangeStart": {
+      "Value": -0.5
+    },
+    "RangeEnd": {
+      "Value": 0.5
+    }
+  }
+]
