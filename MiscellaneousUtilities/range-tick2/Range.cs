@@ -20,6 +20,7 @@
 namespace J4JSoftware.Utilities
 {
     public record Range( 
+        uint TickSize,
         decimal MinorValue, 
         decimal MajorValue, 
         decimal RangeStart, 

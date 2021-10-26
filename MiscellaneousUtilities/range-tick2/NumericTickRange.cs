@@ -8,6 +8,12 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.Utilities
 {
+    public enum TickSizePreference
+    {
+        Smallest,
+        Largest
+    }
+
     public class NumericTickRange
     {
         private readonly List<NumericTick> _numericTicks = new();
@@ -33,23 +39,37 @@ namespace J4JSoftware.Utilities
             uint controlSize,
             decimal minValue,
             decimal maxValue,
-            out Range? result)
+            out Range? result,
+            TickSizePreference sizePref = TickSizePreference.Smallest )
         {
-            result = null;
+            var ranges = GetRanges( controlSize, minValue, maxValue );
 
-            for( uint tickSize = 2; tickSize < 11; tickSize++ )
+            var sorted = ranges.OrderByDescending( x => x.Coverage );
+            result = sizePref switch
+                {
+                    TickSizePreference.Smallest => sorted.ThenBy(x=>x.TickSize).FirstOrDefault(),
+                    _=> sorted.ThenByDescending(x=>x.TickSize).FirstOrDefault()
+                };
+            
+            return result != null;
+        }
+
+        public List<Range> GetRanges(
+            uint controlSize,
+            decimal minValue,
+            decimal maxValue)
+        {
+            var retVal = new List<Range>();
+
+            for (uint tickSize = 2; tickSize < 11; tickSize++)
             {
-                if( !GetRange( controlSize, tickSize, minValue, maxValue, out var temp ) )
+                if (!GetRange(controlSize, tickSize, minValue, maxValue, out var temp))
                     continue;
 
-                if( result == null || temp!.Coverage > result.Coverage )
-                    result = temp;
-
-                if( result!.Coverage == 1.0M )
-                    break;
+                retVal.Add(temp!);
             }
 
-            return result != null;
+            return retVal;
         }
 
         public bool GetRange(
@@ -147,7 +167,8 @@ namespace J4JSoftware.Utilities
                 var prefixTicksToAdd = Math.Floor( surplusTicks / 2 );
                 var suffixTicksToAdd = surplusTicks - prefixTicksToAdd;
 
-                result = new Range( minorValue,
+                result = new Range( tickSize,
+                    minorValue,
                     minorValue * numericTick.TicksPer10,
                     adjMin - minorValue * prefixTicksToAdd,
                     adjMax + minorValue * suffixTicksToAdd,
