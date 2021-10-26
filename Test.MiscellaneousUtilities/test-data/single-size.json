@@ -5,16 +5,16 @@
     "Minimum": -0.5,
     "Maximum": 0.5,
     "MinorTick": {
-      "Value":  0.01 
+      "Value": 0.01
     },
     "MajorTick": {
-      "Value":  0.1 
+      "Value": 0.1
     },
     "RangeStart": {
-      "Value":  -0.5 
+      "Value": -0.5
     },
     "RangeEnd": {
-      "Value":  0.5 
+      "Value": 0.5
     }
   },
   {
@@ -33,6 +33,136 @@
     },
     "RangeEnd": {
       "Value": 0.5
+    }
+  },
+  {
+    "ControlSize": 200,
+    "TickSize": 3,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value": 0.02
+    },
+    "MajorTick": {
+      "Value": 0.1
+    },
+    "RangeStart": {
+      "Value": -0.66
+    },
+    "RangeEnd": {
+      "Value": 0.6733,
+      "SignificantDigits": 4
+    }
+  },
+  {
+    "ControlSize": 200,
+    "TickSize": 4,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value": 0.02
+    },
+    "MajorTick": {
+      "Value": 0.1
+    },
+    "RangeStart": {
+      "Value": -0.5
+    },
+    "RangeEnd": {
+      "Value": 0.5
+    }
+  },
+  {
+    "ControlSize": 200,
+    "TickSize": 5,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value": 0.025
+    },
+    "MajorTick": {
+      "Value": 0.1
+    },
+    "RangeStart": {
+      "Value": -0.5
+    },
+    "RangeEnd": {
+      "Value": 0.5
+    }
+  },
+  {
+    "ControlSize": 200,
+    "TickSize": 6,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value": 0.05
+    },
+    "MajorTick": {
+      "Value": 0.1
+    },
+    "RangeStart": {
+      "Value": -0.8
+    },
+    "RangeEnd": {
+      "Value": 0.8667,
+      "SignificantDigits": 4
+    }
+  },
+  {
+    "ControlSize": 200,
+    "TickSize": 7,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value": 0.05
+    },
+    "MajorTick": {
+      "Value": 0.1
+    },
+    "RangeStart": {
+      "Value": -0.7
+    },
+    "RangeEnd": {
+      "Value": 0.7286,
+      "SignificantDigits": 4
+    }
+  },
+  {
+    "ControlSize": 200,
+    "TickSize": 8,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value": 0.05
+    },
+    "MajorTick": {
+      "Value": 0.1
+    },
+    "RangeStart": {
+      "Value": -0.6
+    },
+    "RangeEnd": {
+      "Value": 0.65
+    }
+  },
+  {
+    "ControlSize": 200,
+    "TickSize": 9,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value": 0.05
+    },
+    "MajorTick": {
+      "Value": 0.1
+    },
+    "RangeStart": {
+      "Value": -0.55
+    },
+    "RangeEnd": {
+      "Value": 0.5611,
+      "SignificantDigits": 4
     }
   }
 ]

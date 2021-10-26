@@ -1,8 +1,6 @@
 [
   {
     "ControlSize": 200,
-    "MinimumTickSize": 2,
-    "MaximumTickSize": 7,
     "Minimum": -0.5,
     "Maximum": 0.5,
     "MinorTick": {
@@ -16,6 +14,40 @@
     },
     "RangeEnd": {
       "Value": 0.5
+    }
+  },
+  {
+    "ControlSize": 300,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value": 0.01
+    },
+    "MajorTick": {
+      "Value": 0.1
+    },
+    "RangeStart": {
+      "Value": -0.5
+    },
+    "RangeEnd": {
+      "Value": 0.5
+    }
+  },
+  {
+    "ControlSize": 278,
+    "Minimum": -0.5,
+    "Maximum": 0.5,
+    "MinorTick": {
+      "Value": 0.02
+    },
+    "MajorTick": {
+      "Value": 0.1
+    },
+    "RangeStart": {
+      "Value": -0.54
+    },
+    "RangeEnd": {
+      "Value": 0.572
     }
   }
 ]
