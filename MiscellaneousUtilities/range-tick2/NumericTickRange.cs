@@ -44,6 +44,9 @@ namespace J4JSoftware.Utilities
 
                 if( result == null || temp!.Coverage > result.Coverage )
                     result = temp;
+
+                if( result!.Coverage == 1.0M )
+                    break;
             }
 
             return result != null;
