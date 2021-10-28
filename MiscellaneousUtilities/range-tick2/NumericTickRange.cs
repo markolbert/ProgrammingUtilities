@@ -21,30 +21,47 @@ namespace J4JSoftware.Utilities
             NumericTicks.Add( new NumericTick( 10 ) );
         }
 
-        private readonly TickSizePreference _tickSizePreference;
         private readonly IJ4JLogger? _logger;
 
         public NumericTickRange(
-            TickSizePreference tickSizePreference = TickSizePreference.Smallest,
             IJ4JLogger? logger = null
         )
         {
-            _tickSizePreference = tickSizePreference;
-
             _logger = logger;
             _logger?.SetLoggedType( GetType() );
         }
 
-        public bool IsSupported( object value )
+        public TickSizePreference TickSizePreference { get; private set; } = TickSizePreference.Smallest;
+
+        public bool IsSupported( Type toCheck )
         {
+            if( !toCheck.IsValueType )
+                return false;
+
             try
             {
+                var value = Activator.CreateInstance( toCheck );
+                if( value == null )
+                    return false;
+
                 var temp = (decimal)Convert.ChangeType(value, typeof(decimal));
             }
             catch
             {
                 return false;
             }
+
+            return true;
+        }
+
+        public bool IsSupported<T>() => IsSupported( typeof(T) );
+
+        public bool Configure( ITickRangeConfig config )
+        {
+            if( config is not INumericTickRangeConfig numericConfig )
+                return false;
+
+            TickSizePreference = numericConfig.TickSizePreference;
 
             return true;
         }
@@ -58,7 +75,8 @@ namespace J4JSoftware.Utilities
             var ranges = GetRanges( controlSize, minValue, maxValue );
 
             var sorted = ranges.OrderByDescending( x => x.Coverage );
-            result = _tickSizePreference switch
+
+            result = TickSizePreference switch
             {
                 TickSizePreference.Smallest => sorted.ThenBy( x => x.TickSize ).FirstOrDefault(),
                 _ => sorted.ThenByDescending( x => x.TickSize ).FirstOrDefault()
@@ -267,11 +285,11 @@ namespace J4JSoftware.Utilities
             if( converted == null )
                 return false;
 
-            if( GetRange( controlSize, 
-                tickSize, 
-                converted.Value.minValue, 
+            if( GetRange( controlSize,
+                tickSize,
+                converted.Value.minValue,
                 converted.Value.maxValue,
-                out var innerResult ) )
+                out var innerResult) )
                 result = innerResult;
 
             return result != null;

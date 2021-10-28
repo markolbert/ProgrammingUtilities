@@ -14,35 +14,30 @@ namespace J4JSoftware.Utilities
     {
         public static int[] TraditionalMonthsPerMinor = new int[] { 2, 3, 6, 12, 18 };
 
-        private readonly bool _traditionalMonthsPerMinorOnly;
-
-        private int _monthsPerMinor;
         private int _traditionalIndex;
         private int _traditionalYears;
 
         private readonly IJ4JLogger? _logger;
 
         public MonthlyTickRange(
-            bool traditionalMonthsPerMinorOnly = false,
             IJ4JLogger? logger = null
         )
         {
-            _traditionalMonthsPerMinorOnly = traditionalMonthsPerMinorOnly;
-
             _logger = logger;
             _logger?.SetLoggedType( GetType() );
         }
 
-        public bool IsSupported(object value)
+        public bool TraditionalMonthsPerMinorOnly { get; private set; } = false;
+
+        public bool IsSupported( Type toCheck ) => toCheck.IsAssignableTo( typeof(DateTime) );
+        public bool IsSupported<T>() => typeof(DateTime).IsAssignableFrom( typeof(T) );
+
+        public bool Configure( ITickRangeConfig config )
         {
-            try
-            {
-                var temp = (DateTime)Convert.ChangeType(value, typeof(DateTime));
-            }
-            catch
-            {
+            if( config is not IDateTimeTickRangeConfig dtConfig )
                 return false;
-            }
+
+            TraditionalMonthsPerMinorOnly = dtConfig.TraditionalMonthsPerMinorOnly;
 
             return true;
         }
@@ -122,22 +117,25 @@ namespace J4JSoftware.Utilities
             var maxMonthNum = maxValue.Year * 12 + maxValue.Month;
             var numMonths = maxMonthNum - minMonthNum;
 
-            _monthsPerMinor = 1;
+            var monthsPerMinor = 1;
 
-            while( result == null && _monthsPerMinor < numMonths )
+            while( result == null && monthsPerMinor < numMonths )
             {
-                var adjMin = ( minMonthNum / _monthsPerMinor ) * _monthsPerMinor;
+                var adjMin = ( minMonthNum / monthsPerMinor ) * monthsPerMinor;
 
-                var adjMax = ( maxMonthNum / _monthsPerMinor ) * _monthsPerMinor;
+                var adjMax = ( maxMonthNum / monthsPerMinor ) * monthsPerMinor;
                 if( adjMax < maxMonthNum )
-                    adjMax += _monthsPerMinor;
+                    adjMax += monthsPerMinor;
 
-                var numTicks = ( adjMax - adjMin ) / _monthsPerMinor;
+                var numTicks = ( adjMax - adjMin ) / monthsPerMinor;
                 var spaceUsed = numTicks * tickSize / Convert.ToDecimal( controlSize );
 
-                if( (spaceUsed - 1M) > 0 )
+                if( ( spaceUsed - 1M ) > 0 )
                 {
-                    NextMonthsPerMinor();
+                    monthsPerMinor = TraditionalMonthsPerMinorOnly
+                        ? NextTraditionalMonthsPerMinor()
+                        : monthsPerMinor + 1;
+
                     continue;
                 }
 
@@ -145,16 +143,16 @@ namespace J4JSoftware.Utilities
                 var prefixTicksToAdd = surplusTicks / 2;
                 var suffixTicksToAdd = surplusTicks - prefixTicksToAdd;
 
-                var startMonthNum = adjMin - prefixTicksToAdd * _monthsPerMinor;
+                var startMonthNum = adjMin - prefixTicksToAdd * monthsPerMinor;
                 var startYear = startMonthNum / 12;
                 var startMonth = startMonthNum - 12 * startYear + 1;
 
-                var endMonthNum = adjMax + suffixTicksToAdd * _monthsPerMinor;
+                var endMonthNum = adjMax + suffixTicksToAdd * monthsPerMinor;
                 var endYear = endMonthNum / 12;
                 var endMonth = endMonthNum - 12 * endYear + 1;
 
                 // months per major tick must be a multiple of 12 and a multiple of months per minor tick
-                var minorFactors = FactorInfo.GetFactors( _monthsPerMinor );
+                var minorFactors = FactorInfo.GetFactors( monthsPerMinor );
 
                 // ensure 2 is a minor factor twice
                 var factorOf2 = minorFactors.FirstOrDefault( x => x.Factor == 2 );
@@ -181,11 +179,11 @@ namespace J4JSoftware.Utilities
                 }
 
                 // if minor and major ticks are the same size, scale major ticks by five
-                if( monthsPerMajor == _monthsPerMinor )
+                if( monthsPerMajor == monthsPerMinor )
                     monthsPerMajor *= 5;
 
                 result = new MonthRange( tickSize,
-                    _monthsPerMinor,
+                    monthsPerMinor,
                     monthsPerMajor,
                     new DateTime( startYear, startMonth, 1 ),
                     new DateTime( endYear, endMonth, 1 ).AddDays(-1),
@@ -198,24 +196,22 @@ namespace J4JSoftware.Utilities
             return result != null;
         }
 
-        private void NextMonthsPerMinor()
+        private int NextTraditionalMonthsPerMinor()
         {
-            if( !_traditionalMonthsPerMinorOnly )
-            {
-                _monthsPerMinor++;
-                return;
-            }
+            var retVal = 0;
 
             if( _traditionalIndex < TraditionalMonthsPerMinor.Length )
             {
-                _monthsPerMinor = TraditionalMonthsPerMinor[ _traditionalIndex ];
+                retVal = TraditionalMonthsPerMinor[ _traditionalIndex ];
                 _traditionalIndex++;
-
-                return;
+            }
+            else
+            {
+                retVal = 12 * _traditionalYears;
+                _traditionalYears++;
             }
 
-            _monthsPerMinor = 12 * _traditionalYears;
-            _traditionalYears++;
+            return retVal;
         }
 
         bool ITickRange.GetRange(

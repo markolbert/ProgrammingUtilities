@@ -24,11 +24,14 @@ namespace J4JSoftware.Utilities
 {
     public interface ITickRange
     {
-        bool IsSupported( object value );
+        bool IsSupported( Type toCheck );
+        bool IsSupported<T>();
 
-        bool GetRange(int controlSize, object minValue, object maxValue, out object? result);
-        List<object> GetRanges(int controlSize, object minValue, object maxValue);
-        bool GetRange(int controlSize, int tickSize, object minValue, object maxValue, out object? result);
+        bool Configure( ITickRangeConfig config );
+
+        bool GetRange( int controlSize, object minValue, object maxValue, out object? result );
+        List<object> GetRanges( int controlSize, object minValue, object maxValue );
+        bool GetRange( int controlSize, int tickSize, object minValue, object maxValue, out object? result );
     }
 
     public interface ITickRange<in TValue, TResult> : ITickRange
