@@ -8,88 +8,101 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.Utilities
 {
-    public enum TickSizePreference
+    public class NumericTickRange : ITickRange<decimal, NumericRange>
     {
-        Smallest,
-        Largest
-    }
+        public static List<NumericTick> NumericTicks { get; } = new List<NumericTick>();
 
-    public class NumericTickRange
-    {
-        private readonly List<NumericTick> _numericTicks = new();
+        static NumericTickRange()
+        {
+            NumericTicks.Add( new NumericTick( 2 ) );
+            NumericTicks.Add( new NumericTick( 4 ) );
+            NumericTicks.Add( new NumericTick( 5 ) );
+            NumericTicks.Add( new NumericTick( 8 ) );
+            NumericTicks.Add( new NumericTick( 10 ) );
+        }
+
+        private readonly TickSizePreference _tickSizePreference;
         private readonly IJ4JLogger? _logger;
 
         public NumericTickRange(
+            TickSizePreference tickSizePreference = TickSizePreference.Smallest,
             IJ4JLogger? logger = null
         )
         {
+            _tickSizePreference = tickSizePreference;
+
             _logger = logger;
             _logger?.SetLoggedType( GetType() );
-
-            _numericTicks.Add(new NumericTick(2));
-            _numericTicks.Add(new NumericTick(4));
-            _numericTicks.Add(new NumericTick(5));
-            _numericTicks.Add(new NumericTick(8));
-            _numericTicks.Add(new NumericTick(10));
         }
 
-        public ReadOnlyCollection<NumericTick> AlternativeTicks => _numericTicks.AsReadOnly();
+        public bool IsSupported( object value )
+        {
+            try
+            {
+                var temp = (decimal)Convert.ChangeType(value, typeof(decimal));
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         public bool GetRange(
-            uint controlSize,
+            int controlSize,
             decimal minValue,
             decimal maxValue,
-            out Range? result,
-            TickSizePreference sizePref = TickSizePreference.Smallest )
+            out NumericRange? result )
         {
             var ranges = GetRanges( controlSize, minValue, maxValue );
 
             var sorted = ranges.OrderByDescending( x => x.Coverage );
-            result = sizePref switch
-                {
-                    TickSizePreference.Smallest => sorted.ThenBy(x=>x.TickSize).FirstOrDefault(),
-                    _=> sorted.ThenByDescending(x=>x.TickSize).FirstOrDefault()
-                };
-            
+            result = _tickSizePreference switch
+            {
+                TickSizePreference.Smallest => sorted.ThenBy( x => x.TickSize ).FirstOrDefault(),
+                _ => sorted.ThenByDescending( x => x.TickSize ).FirstOrDefault()
+            };
+
             return result != null;
         }
 
-        public List<Range> GetRanges(
-            uint controlSize,
+        public List<NumericRange> GetRanges(
+            int controlSize,
             decimal minValue,
-            decimal maxValue)
+            decimal maxValue )
         {
-            var retVal = new List<Range>();
+            var retVal = new List<NumericRange>();
 
-            for (uint tickSize = 2; tickSize < 11; tickSize++)
+            for( var tickSize = 2; tickSize < 11; tickSize++ )
             {
-                if (!GetRange(controlSize, tickSize, minValue, maxValue, out var temp))
+                if( !GetRange( controlSize, tickSize, minValue, maxValue, out var temp ) )
                     continue;
 
-                retVal.Add(temp!);
+                retVal.Add( temp! );
             }
 
             return retVal;
         }
 
         public bool GetRange(
-            uint controlSize,
-            uint tickSize,
+            int controlSize,
+            int tickSize,
             decimal minValue,
             decimal maxValue,
-            out Range? result )
+            out NumericRange? result )
         {
             result = null;
 
-            if( controlSize == 0 )
+            if( controlSize <= 0 )
             {
-                _logger?.Warning( "Control size is 0, adjusting to 100" );
+                _logger?.Warning( "Control size is <= 0, adjusting to 100" );
                 controlSize = 100;
             }
 
-            if( tickSize == 0 )
+            if( tickSize <= 0 )
             {
-                _logger?.Warning( "Minimum tick size is 0, adjusting to 2" );
+                _logger?.Warning( "Minimum tick size is <= 0, adjusting to 2" );
                 tickSize = 2;
             }
 
@@ -142,7 +155,7 @@ namespace J4JSoftware.Utilities
                     break;
             }
 
-            foreach( var numericTick in _numericTicks )
+            foreach( var numericTick in NumericTicks )
             {
                 var minorValue = numericTick.NormalizedSize * PowerOf10( pow10 );
 
@@ -157,7 +170,7 @@ namespace J4JSoftware.Utilities
                 var numTicks = ( adjMax - adjMin ) / minorValue;
                 var spaceUsed = numTicks * tickSize / controlSize;
 
-                if( spaceUsed > 1M || spaceUsed <= prevSpaceUsed )
+                if( ( spaceUsed - 1M ) > 0 || spaceUsed <= prevSpaceUsed )
                     continue;
 
                 foundAnswer = true;
@@ -167,12 +180,12 @@ namespace J4JSoftware.Utilities
                 var prefixTicksToAdd = Math.Floor( surplusTicks / 2 );
                 var suffixTicksToAdd = surplusTicks - prefixTicksToAdd;
 
-                result = new Range( tickSize,
+                result = new NumericRange( tickSize,
                     minorValue,
                     minorValue * numericTick.TicksPer10,
                     adjMin - minorValue * prefixTicksToAdd,
                     adjMax + minorValue * suffixTicksToAdd,
-                    spaceUsed );
+                    Convert.ToDouble( spaceUsed ) );
 
                 if( spaceUsed == 1.0M )
                     break;
@@ -210,6 +223,81 @@ namespace J4JSoftware.Utilities
             }
 
             return retVal;
+        }
+
+        bool ITickRange.GetRange(
+            int controlSize,
+            object minValue,
+            object maxValue,
+            out object? result )
+        {
+            result = null;
+
+            var converted = ConvertRange( minValue, maxValue );
+            if( converted == null )
+                return false;
+
+            if( GetRange( controlSize, converted.Value.minValue, converted.Value.maxValue, out var innerResult ) )
+                result = innerResult;
+
+            return result != null;
+        }
+
+        List<object> ITickRange.GetRanges( int controlSize, object minValue, object maxValue )
+        {
+            var converted = ConvertRange(minValue, maxValue);
+            if (converted == null)
+                return new List<object>();
+
+            return GetRanges( controlSize, converted.Value.minValue, converted.Value.maxValue)
+                .Cast<object>()
+                .ToList();
+        }
+
+        bool ITickRange.GetRange(
+            int controlSize,
+            int tickSize,
+            object minValue,
+            object maxValue,
+            out object? result )
+        {
+            result = null;
+
+            var converted = ConvertRange( minValue, maxValue );
+            if( converted == null )
+                return false;
+
+            if( GetRange( controlSize, 
+                tickSize, 
+                converted.Value.minValue, 
+                converted.Value.maxValue,
+                out var innerResult ) )
+                result = innerResult;
+
+            return result != null;
+        }
+
+        private (decimal minValue, decimal maxValue )? ConvertRange( object minimum, object maximum )
+        {
+            decimal minDecimal;
+            decimal maxDecimal;
+
+            try
+            {
+                minDecimal = (decimal)Convert.ChangeType(minimum, typeof(decimal));
+                maxDecimal = (decimal)Convert.ChangeType(maximum, typeof(decimal));
+            }
+            catch
+            {
+                _logger?.Error<string, string>(
+                    "Minimum ({0}) and/or maximum ({1}) values could not be converted to type decimal",
+                    minimum?.ToString() ?? "** unknown **",
+                    maximum.ToString() ?? "** unknown **");
+
+                return null;
+            }
+
+            return ( minDecimal, maxDecimal );
         }
     }
 }
