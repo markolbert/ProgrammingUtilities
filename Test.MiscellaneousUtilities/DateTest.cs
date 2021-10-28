@@ -13,7 +13,8 @@ namespace Test.MiscellaneousUtilities
         [ ClassData( typeof(SingleSizeDates) ) ]
         public void SingleTickSize( SingleDates info )
         {
-            var ranger = new MonthlyTickRange( info.TraditionalMonthsPerMinorOnly );
+            var ranger = new MonthlyTickRange();
+            ranger.Configure( info );
 
             ranger.GetRange( info.ControlSize,
                     info.TickSize,
@@ -36,7 +37,8 @@ namespace Test.MiscellaneousUtilities
         [ ClassData( typeof(RangeSizeDates) ) ]
         public void RangeOfTickSizes( RangeOfDates info )
         {
-            var ranger = new MonthlyTickRange(info.TraditionalMonthsPerMinorOnly);
+            var ranger = new MonthlyTickRange();
+            ranger.Configure( info );
 
             ranger.GetRange( info.ControlSize,
                     info.Minimum,

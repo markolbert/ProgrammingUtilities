@@ -26,28 +26,4 @@ namespace Test.MiscellaneousUtilities
         {
         }
     }
-
-    public class RangeSizeNumbers : TestDataBase<RangeOfNumbers>
-    {
-        public RangeSizeNumbers()
-            : base( "range-numeric.json" )
-        {
-        }
-    }
-
-    public class SingleSizeDates : TestDataBase<SingleDates>
-    {
-        public SingleSizeDates()
-            : base("single-date.json")
-        {
-        }
-    }
-
-    public class RangeSizeDates : TestDataBase<RangeOfDates>
-    {
-        public RangeSizeDates()
-            : base("range-date.json")
-        {
-        }
-    }
 }

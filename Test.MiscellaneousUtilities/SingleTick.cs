@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using J4JSoftware.Utilities;
 
 namespace Test.MiscellaneousUtilities
 {
@@ -37,7 +38,7 @@ namespace Test.MiscellaneousUtilities
         public int TickSize { get; set; }
     }
 
-    public class RangeOfDates
+    public class RangeOfDates : IDateTimeTickRangeConfig
     {
         public bool TraditionalMonthsPerMinorOnly { get; set; }
         public int ControlSize { get; set; }
