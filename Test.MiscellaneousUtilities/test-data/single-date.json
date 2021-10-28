@@ -1,0 +1,24 @@
+[
+  {
+    "TraditionalMonthsPerMinorOnly" :  false, 
+    "ControlSize": 200,
+    "TickSize": 2,
+    "Minimum": "2010-06-18",
+    "Maximum": "2043-10-14",
+    "MinorTick": 5,
+    "MajorTick": 60,
+    "RangeStart": "2006-09-01",
+    "RangeEnd": "2048-04-30"
+  },
+  {
+    "TraditionalMonthsPerMinorOnly": true,
+    "ControlSize": 200,
+    "TickSize": 2,
+    "Minimum": "2010-06-18",
+    "Maximum": "2043-10-14",
+    "MinorTick": 6,
+    "MajorTick": 12,
+    "RangeStart": "2002-07-01",
+    "RangeEnd": "2052-06-30"
+  }
+]

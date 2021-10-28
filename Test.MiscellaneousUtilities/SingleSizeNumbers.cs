@@ -19,18 +19,34 @@
 
 namespace Test.MiscellaneousUtilities
 {
-    public class SingleSizeData : TestDataBase<SingleTick>
+    public class SingleSizeNumbers : TestDataBase<SingleNumbers>
     {
-        public SingleSizeData()
-            :base("single-size.json")
+        public SingleSizeNumbers()
+            :base("single-numeric.json")
         {
         }
     }
 
-    public class RangeSizeData : TestDataBase<RangeOfTick>
+    public class RangeSizeNumbers : TestDataBase<RangeOfNumbers>
     {
-        public RangeSizeData()
-            : base( "range-size.json" )
+        public RangeSizeNumbers()
+            : base( "range-numeric.json" )
+        {
+        }
+    }
+
+    public class SingleSizeDates : TestDataBase<SingleDates>
+    {
+        public SingleSizeDates()
+            : base("single-date.json")
+        {
+        }
+    }
+
+    public class RangeSizeDates : TestDataBase<RangeOfDates>
+    {
+        public RangeSizeDates()
+            : base("range-date.json")
         {
         }
     }

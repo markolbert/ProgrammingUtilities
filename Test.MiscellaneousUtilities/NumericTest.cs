@@ -4,15 +4,14 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using J4JSoftware.Utilities;
 using Xunit;
-using Range = J4JSoftware.Utilities.Range;
 
 namespace Test.MiscellaneousUtilities
 {
     public class NumericTest
     {
         [ Theory ]
-        [ ClassData( typeof(SingleSizeData) ) ]
-        public void SingleTickSize( SingleTick info )
+        [ ClassData( typeof(SingleSizeNumbers) ) ]
+        public void SingleTickSize( SingleNumbers info )
         {
             var ranger = new NumericTickRange();
 
@@ -34,8 +33,8 @@ namespace Test.MiscellaneousUtilities
         }
 
         [Theory]
-        [ClassData(typeof(RangeSizeData))]
-        public void RangeOfTickSizes(RangeOfTick info)
+        [ClassData(typeof(RangeSizeNumbers))]
+        public void RangeOfTickSizes(RangeOfNumbers info)
         {
             var ranger = new NumericTickRange();
 

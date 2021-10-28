@@ -17,11 +17,13 @@
 
 #endregion
 
+using System;
+
 namespace Test.MiscellaneousUtilities
 {
-    public class RangeOfTick
+    public class RangeOfNumbers
     {
-        public uint ControlSize { get; set; }
+        public int ControlSize { get; set; }
         public decimal Minimum { get; set; }
         public decimal Maximum { get; set; }
         public RoundedDecimal MinorTick { get; set; } = new(0);
@@ -30,8 +32,25 @@ namespace Test.MiscellaneousUtilities
         public RoundedDecimal RangeEnd { get; set; } = new(0);
     }
 
-    public class SingleTick : RangeOfTick
+    public class SingleNumbers : RangeOfNumbers
     {
-        public uint TickSize { get; set; }
+        public int TickSize { get; set; }
+    }
+
+    public class RangeOfDates
+    {
+        public bool TraditionalMonthsPerMinorOnly { get; set; }
+        public int ControlSize { get; set; }
+        public DateTime Minimum { get; set; }
+        public DateTime Maximum { get; set; }
+        public int MinorTick { get; set; }
+        public int MajorTick { get; set; }
+        public DateTime RangeStart { get; set; }
+        public DateTime RangeEnd { get; set; }
+    }
+
+    public class SingleDates : RangeOfDates
+    {
+        public int TickSize { get; set; }
     }
 }

@@ -1,0 +1,42 @@
+[
+  {
+    "TraditionalMonthsPerMinorOnly": false,
+    "ControlSize": 200,
+    "Minimum": "2010-06-18",
+    "Maximum": "2043-10-14",
+    "MinorTick": 21,
+    "MajorTick": 84,
+    "RangeStart": "2009-01-01",
+    "RangeEnd": "2043-12-31"
+  },
+  {
+    "TraditionalMonthsPerMinorOnly": true,
+    "ControlSize": 200,
+    "Minimum": "2010-06-18",
+    "Maximum": "2043-10-14",
+    "MinorTick": 18,
+    "MajorTick": 36,
+    "RangeStart": "2008-07-01",
+    "RangeEnd": "2045-12-31"
+  },
+  {
+    "TraditionalMonthsPerMinorOnly": false,
+    "ControlSize": 200,
+    "Minimum": "2010-06-18",
+    "Maximum": "2022-10-14",
+    "MinorTick": 3,
+    "MajorTick": 12,
+    "RangeStart": "2010-07-01",
+    "RangeEnd": "2022-12-31"
+  },
+  {
+    "TraditionalMonthsPerMinorOnly": true,
+    "ControlSize": 200,
+    "Minimum": "2010-06-18",
+    "Maximum": "2022-10-14",
+    "MinorTick": 3,
+    "MajorTick": 12,
+    "RangeStart": "2010-07-01",
+    "RangeEnd": "2022-12-31"
+  }
+]

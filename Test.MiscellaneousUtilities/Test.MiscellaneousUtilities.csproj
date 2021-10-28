@@ -26,10 +26,16 @@
 </ItemGroup>
 
 <ItemGroup>
-  <None Update="test-data\range-size.json">
+  <None Update="test-data\range-numeric.json">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </None>
-  <None Update="test-data\single-size.json">
+  <None Update="test-data\range-date.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="test-data\single-date.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+  <None Update="test-data\single-numeric.json">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </None>
 </ItemGroup>
