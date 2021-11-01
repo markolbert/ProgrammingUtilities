@@ -29,17 +29,17 @@ namespace J4JSoftware.Utilities
 
         bool Configure( ITickRangeConfig config );
 
-        bool GetRange( int controlSize, object minValue, object maxValue, out object? result );
-        List<object> GetRanges( int controlSize, object minValue, object maxValue );
-        bool GetRange( int controlSize, int tickSize, object minValue, object maxValue, out object? result );
+        bool GetRange( double controlSize, object minValue, object maxValue, out object? result );
+        List<object> GetRanges( double controlSize, object minValue, object maxValue );
+        bool GetRange( double controlSize, int tickSize, object minValue, object maxValue, out object? result );
     }
 
     public interface ITickRange<in TValue, TResult> : ITickRange
-        where TValue : IComparable
-        where TResult : class
+        where TValue: IComparable
+        where TResult: class
     {
-        bool GetRange( int controlSize, TValue minValue, TValue maxValue, out TResult? result );
-        List<TResult> GetRanges( int controlSize, TValue minValue, TValue maxValue );
-        bool GetRange( int controlSize, int tickSize, TValue minValue, TValue maxValue, out TResult? result );
+        bool GetRange( double controlSize, TValue minValue, TValue maxValue, out TResult? result );
+        List<TResult> GetRanges( double controlSize, TValue minValue, TValue maxValue );
+        bool GetRange( double controlSize, int tickSize, TValue minValue, TValue maxValue, out TResult? result );
     }
 }

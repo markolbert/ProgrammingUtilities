@@ -27,5 +27,8 @@ namespace J4JSoftware.Utilities
         int MajorValue,
         DateTime RangeStart,
         DateTime RangeEnd,
-        double Coverage);
+        double Coverage )
+    {
+        public double MinorFrequency => Convert.ToDouble( MajorValue ) / MinorValue;
+    }
 }

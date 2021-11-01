@@ -17,6 +17,8 @@
 
 #endregion
 
+using System;
+
 namespace J4JSoftware.Utilities
 {
     public record NumericRange( 
@@ -25,5 +27,8 @@ namespace J4JSoftware.Utilities
         decimal MajorValue, 
         decimal RangeStart, 
         decimal RangeEnd,
-        double Coverage );
+        double Coverage )
+    {
+        public double MinorFrequency => Convert.ToDouble(MajorValue) / Convert.ToDouble(MinorValue);
+    }
 }
