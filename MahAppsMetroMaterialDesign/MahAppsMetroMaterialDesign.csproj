@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net5.0-windows</TargetFramework>
+		<TargetFramework>net6.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<AssemblyName>J4JSoftware.WPFUtilities.MaterialDesign</AssemblyName>
 		<RootNamespace>J4JSoftware.WPFUtilities</RootNamespace>
@@ -22,10 +22,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MahApps.Metro" Version="2.4.7" />
-		<PackageReference Include="MaterialDesignColors" Version="2.0.1" />
-		<PackageReference Include="MaterialDesignThemes" Version="4.1.0" />
-		<PackageReference Include="MaterialDesignThemes.MahApps" Version="0.1.7" />
+		<PackageReference Include="MahApps.Metro" Version="2.4.9" />
+		<PackageReference Include="MaterialDesignColors" Version="2.0.3" />
+		<PackageReference Include="MaterialDesignThemes" Version="4.2.1" />
+		<PackageReference Include="MaterialDesignThemes.MahApps" Version="0.1.9" />
 		<PackageReference Include="MaterialDesignThemes.Wpf" Version="1.0.1" />
 	</ItemGroup>
 

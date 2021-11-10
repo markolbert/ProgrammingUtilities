@@ -38,7 +38,6 @@ namespace J4JSoftware.DependencyInjection
         // environment (e.g., in a WPF designer)
         private readonly Func<bool> _inDesignMode;
 
-        private string _osName = string.Empty;
         private OptionCollection? _options;
 
         public J4JHostConfiguration()
