@@ -31,7 +31,7 @@ namespace J4JSoftware.Utilities
             _logger?.SetLoggedType( GetType() );
         }
 
-        public TickSizePreference TickSizePreference { get; private set; } = TickSizePreference.Smallest;
+        public TickSizePreference TickSizePreference { get; set; } = TickSizePreference.Smallest;
 
         public bool IsSupported( Type toCheck )
         {
@@ -113,31 +113,18 @@ namespace J4JSoftware.Utilities
             result = null;
 
             if( controlSize <= 0 )
-            {
-                _logger?.Warning( "Control size is <= 0, adjusting to 100" );
                 controlSize = 100;
-            }
 
             if( tickSize <= 0 )
-            {
-                _logger?.Warning( "Minimum tick size is <= 0, adjusting to 2" );
                 tickSize = 2;
-            }
 
             // normalize the range
             if( maxValue < minValue )
-            {
-                _logger?.Warning( "Swapping minimum ({0}) and maximum ({1}) values", minValue, maxValue );
                 ( maxValue, minValue ) = ( minValue, maxValue );
-            }
 
             // expand when no range
             if( maxValue == minValue )
-            {
                 minValue -= 1M;
-                _logger?.Warning( "Minimum and maximum ({0}) values are the same, adjusting minimum to {1}", maxValue,
-                    minValue );
-            }
 
             var range = maxValue - minValue;
 

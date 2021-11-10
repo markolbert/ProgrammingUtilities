@@ -21,9 +21,10 @@ using System;
 
 namespace J4JSoftware.Utilities
 {
-    public abstract class SelectableNodeFactory<TKey, TEntity> : ISelectableNodeFactory<TKey, TEntity>
+    public abstract class SelectableNodeFactory<TEntity, TKey> : ISelectableNodeFactory<TEntity, TKey>
+        where TEntity : ISelectableEntity<TEntity, TKey>
         where TKey : IComparable<TKey>
     {
-        public abstract SelectableNode<TKey, TEntity> Create(TEntity entity, ISelectableNode<TKey, TEntity>? parentNode);
+        public abstract SelectableNode<TEntity, TKey> Create(TEntity entity, ISelectableNode<TEntity, TKey>? parentNode);
     }
 }

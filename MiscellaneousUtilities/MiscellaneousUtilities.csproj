@@ -24,6 +24,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="selectable-node\CollectionChangedHandler.cs" />
+	  <Compile Remove="selectable-node\ISelectableNodeFactory.cs" />
+	  <Compile Remove="selectable-node\SelectableNodeFactory.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>

@@ -11,17 +11,16 @@ namespace J4JSoftware.Utilities
         void AddOrGetNodes( IEnumerable<object> entities );
     }
 
-    public interface ISelectableTree<TKey, TEntity> : ISelectableTree
+    public interface ISelectableTree<TEntity, TKey> : ISelectableTree
+        where TEntity : ISelectableEntity<TEntity, TKey>
     {
-        ObservableCollection<ISelectableNode<TKey, TEntity>> Nodes { get; }
+        ObservableCollection<ISelectableNode<TEntity, TKey>> Nodes { get; }
         IEnumerable<TEntity> GetSelectedNodes(bool getUnselected = false);
 
-        void UpdateDisplayNames( IEnumerable<TKey> nodeKeys, bool inclUnselected = true );
-
-        ISelectableNode<TKey, TEntity> AddOrGetNode( TEntity entity );
+        ISelectableNode<TEntity, TKey> AddOrGetNode( TEntity entity );
         void AddOrGetNodes( IEnumerable<TEntity> entities );
 
-        bool FindNode(TKey key, out ISelectableNode<TKey, TEntity>? result);
-        void SortNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null );
+        bool FindNode(TKey key, out ISelectableNode<TEntity, TKey>? result);
+        void SortNodes( IComparer<ISelectableNode<TEntity, TKey>>? sortComparer = null );
     }
 }

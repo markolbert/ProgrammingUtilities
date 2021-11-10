@@ -2,7 +2,7 @@
 
 // Copyright 2021 Mark A. Olbert
 // 
-// This library or program 'WPFUtilities' is free software: you can redistribute it
+// This library or program 'MiscellaneousUtilities' is free software: you can redistribute it
 // and/or modify it under the terms of the GNU General Public License as
 // published by the Free Software Foundation, either version 3 of the License,
 // or (at your option) any later version.
@@ -19,9 +19,10 @@
 
 namespace J4JSoftware.Utilities
 {
-    public interface ISelectableNodeFactory<TEntity, TKey>
-        where TEntity : ISelectableEntity<TEntity, TKey>
+    public interface ISelectableEntity<out TEntity, out TKey>
     {
-        SelectableNode<TEntity, TKey> Create(TEntity entity, ISelectableNode<TEntity, TKey>? parentNode);
+        TEntity Entity { get; }
+        TEntity? Parent { get; }
+        TKey Key { get; }
     }
 }

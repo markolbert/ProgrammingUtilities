@@ -25,16 +25,19 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.Utilities
 {
-    public abstract class SelectableTree<TKey, TEntity> : ISelectableTree<TKey, TEntity>
+    public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, TKey>
         where TKey: notnull
+        where TEntity : ISelectableEntity<TEntity, TKey>
     {
         private static readonly TKey _intKey = (TKey) Convert.ChangeType( 5, typeof(TKey) );
 
-        private readonly ISelectableNodeFactory<TKey, TEntity> _nodeFactory;
-        private readonly Dictionary<TKey, ISelectableNode<TKey, TEntity>> _masterNodeDict;
+        public event EventHandler? SelectionChanged;
+
+        private readonly Func<ISelectableEntity<TEntity, TKey>, ISelectableNode<TEntity, TKey>> _nodeFactory;
+        private readonly Dictionary<TKey, ISelectableNode<TEntity, TKey>> _masterNodeDict;
 
         protected SelectableTree(
-            ISelectableNodeFactory<TKey, TEntity> nodeFactory,
+            Func<ISelectableEntity<TEntity, TKey>, ISelectableNode<TEntity, TKey>> nodeFactory,
             IJ4JLogger? logger,
             IEqualityComparer<TKey>? keyComparer = null
         )
@@ -42,7 +45,7 @@ namespace J4JSoftware.Utilities
             _nodeFactory = nodeFactory;
 
             keyComparer ??= EqualityComparer<TKey>.Default;
-            _masterNodeDict = new Dictionary<TKey, ISelectableNode<TKey, TEntity>>( keyComparer );
+            _masterNodeDict = new Dictionary<TKey, ISelectableNode<TEntity, TKey>>( keyComparer );
 
             Logger = logger;
             Logger?.SetLoggedType(GetType());
@@ -62,11 +65,15 @@ namespace J4JSoftware.Utilities
             {
                 node.IsSelected = isSelected;
             }
+
+            OnSelectionChanged();
         }
 
-        public ObservableCollection<ISelectableNode<TKey, TEntity>> Nodes { get; } = new();
+        protected internal virtual void OnSelectionChanged() => SelectionChanged?.Invoke( this, EventArgs.Empty );
 
-        public bool FindNode( TKey key, out ISelectableNode<TKey, TEntity>? result )
+        public ObservableCollection<ISelectableNode<TEntity, TKey>> Nodes { get; } = new();
+
+        public bool FindNode( TKey key, out ISelectableNode<TEntity, TKey>? result )
         {
             result = null;
 
@@ -85,7 +92,7 @@ namespace J4JSoftware.Utilities
                     .Select( x => x.Value.Entity );
 
         ///TODO tracing and reversing the path through the selected nodes may not be necessary
-        public ISelectableNode<TKey, TEntity> AddOrGetNode( TEntity entity )
+        public ISelectableNode<TEntity, TKey> AddOrGetNode( TEntity entity )
         {
             if( FindNode( GetKey( entity ), out var node ) )
                 return node!;
@@ -95,8 +102,8 @@ namespace J4JSoftware.Utilities
             var pathEntities = GetEntitiesPath( entity );
             pathEntities.Reverse();
 
-            ISelectableNode<TKey, TEntity>? parentNode = null;
-            ISelectableNode<TKey, TEntity>? retVal = null;
+            ISelectableNode<TEntity, TKey>? parentNode = null;
+            ISelectableNode<TEntity, TKey>? retVal = null;
 
             foreach( var pathEntity in pathEntities )
             {
@@ -104,7 +111,7 @@ namespace J4JSoftware.Utilities
                 var match = EqualityComparer<TKey>.Default.Equals( pathEntityKey, _intKey );
 
                 bool nodeExists = FindNode( GetKey( pathEntity ), out retVal );
-                retVal ??= _nodeFactory.Create( pathEntity, parentNode );
+                retVal ??= _nodeFactory( pathEntity );
 
                 if( !nodeExists )
                 {
@@ -129,9 +136,9 @@ namespace J4JSoftware.Utilities
             }
         }
 
-        public void SortNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null )
+        public void SortNodes( IComparer<ISelectableNode<TEntity, TKey>>? sortComparer = null )
         {
-            sortComparer ??= new DefaultSelectableNodeComparer<TKey, TEntity>();
+            sortComparer ??= new DefaultSelectableNodeComparer<TEntity, TKey>();
 
             var tempRoot = Nodes
                 .OrderBy( x => x, sortComparer )
@@ -153,16 +160,6 @@ namespace J4JSoftware.Utilities
         protected abstract List<TEntity> GetEntitiesPath( TEntity entity );
         
         protected abstract TKey GetKey( TEntity entity );
-
-        public void UpdateDisplayNames( IEnumerable<TKey> nodeKeys, bool inclUnselected = true )
-        {
-            foreach( var node in Nodes
-                .Where( x => nodeKeys.Any( y => EqualityComparer<TKey>.Default.Equals(x.Key, y) )
-                             && ( x.IsSelected || inclUnselected ) ) )
-            {
-                node.UpdateDisplayName();
-            }
-        }
 
         object? ISelectableTree.AddOrGetNode( object entity )
         {

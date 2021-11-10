@@ -7,7 +7,8 @@ using J4JSoftware.Logging;
 namespace J4JSoftware.Utilities
 {
     ///TODO may not be needed
-    public class CollectionChangedHandler<TKey, TEntity>
+    public class CollectionChangedHandler<TEntity, TKey>
+        where TEntity : ISelectableEntity<TEntity, TKey>
         where TKey: notnull
     {
         private readonly ObservableCollection<ISelectableNode<TKey, TEntity>> _obsColl;

@@ -25,35 +25,30 @@ using System.Runtime.CompilerServices;
 
 namespace J4JSoftware.Utilities
 {
-    public abstract class SelectableNode<TKey, TEntity> : ISelectableNode<TKey, TEntity>
+    public class SelectableNode<TEntity, TKey> : ISelectableNode<TEntity, TKey>
+    where TEntity : ISelectableEntity<TEntity, TKey>
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private bool _isSelected;
 
         protected SelectableNode(
-            TEntity entity,
-            ISelectableNode<TKey, TEntity>? parentNode
+            ISelectableEntity<TEntity, TKey> value
         )
         {
-            Entity = entity;
-            ParentNode = parentNode;
-        }
-
-        protected virtual void Initialize()
-        {
-            UpdateDisplayName();
+            Entity = value.Entity;
+            ParentNode = (ISelectableNode<TEntity, TKey>?)value.Parent;
         }
 
         public TEntity Entity { get; }
-        public abstract TKey Key { get; }
-        public ISelectableNode<TKey, TEntity>? ParentNode { get; }
-        public ObservableCollection<ISelectableNode<TKey, TEntity>> ChildNodes { get; } = new();
+        public TKey Key => Entity.Key;
+        public ISelectableNode<TEntity, TKey>? ParentNode { get; }
+        public ObservableCollection<ISelectableNode<TEntity, TKey>> ChildNodes { get; } = new();
         public bool IsLeafNode => !ChildNodes.Any();
 
-        public void SortChildNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null )
+        public void SortChildNodes( IComparer<ISelectableNode<TEntity, TKey>>? sortComparer = null )
         {
-            sortComparer ??= new DefaultSelectableNodeComparer<TKey, TEntity>();
+            sortComparer ??= new DefaultSelectableNodeComparer<TEntity, TKey>();
 
             var tempRoot = ChildNodes
                 .OrderBy(x => x, sortComparer)
@@ -69,7 +64,7 @@ namespace J4JSoftware.Utilities
             }
         }
 
-        public string DisplayName { get; set; } = "** undefined **";
+        public virtual string DisplayName { get; } = "** undefined **";
 
         public bool IsSelected
         {
@@ -79,12 +74,12 @@ namespace J4JSoftware.Utilities
             {
                 SetProperty( ref _isSelected, value );
 
-                SelectableNode<TKey, TEntity>? curNode = (SelectableNode<TKey, TEntity>)this;
+                SelectableNode<TEntity, TKey>? curNode = (SelectableNode<TEntity, TKey>)this;
 
                 do
                 {
                     curNode.OnPropertyChanged(nameof(SubtreeHasSelectedItems));
-                    curNode = (SelectableNode<TKey, TEntity>?)curNode.ParentNode;
+                    curNode = (SelectableNode<TEntity, TKey>?)curNode.ParentNode;
                 } while (curNode != null);
             }
         }
@@ -94,11 +89,11 @@ namespace J4JSoftware.Utilities
             get => DescendantsAndSelf.Any( x => x.IsSelected );
         }
 
-        public List<ISelectableNode<TKey, TEntity>> Descendants
+        public List<ISelectableNode<TEntity, TKey>> Descendants
         {
             get
             {
-                var retVal = new List<ISelectableNode<TKey, TEntity>>();
+                var retVal = new List<ISelectableNode<TEntity, TKey>>();
 
                 foreach (var childNode in ChildNodes)
                 {
@@ -109,7 +104,7 @@ namespace J4JSoftware.Utilities
             }
         }
 
-        public List<ISelectableNode<TKey, TEntity>> DescendantsAndSelf
+        public List<ISelectableNode<TEntity, TKey>> DescendantsAndSelf
         {
             get
             {
@@ -120,7 +115,7 @@ namespace J4JSoftware.Utilities
             }
         }
 
-        private void AddDescendantsAndSelf( ISelectableNode<TKey, TEntity> curNode, List<ISelectableNode<TKey, TEntity>> descAndSelf )
+        private void AddDescendantsAndSelf( ISelectableNode<TEntity, TKey> curNode, List<ISelectableNode<TEntity, TKey>> descAndSelf )
         {
             descAndSelf.Add( curNode );
 
@@ -129,13 +124,6 @@ namespace J4JSoftware.Utilities
                 AddDescendantsAndSelf( childNode, descAndSelf );
             }
         }
-
-        public virtual void UpdateDisplayName()
-        {
-            DisplayName = GetDisplayName();
-        }
-
-        protected abstract string GetDisplayName();
 
         private bool SetProperty<T>( ref T field, T value, [ CallerMemberName ] string callerName = "" )
         {

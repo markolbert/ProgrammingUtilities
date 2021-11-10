@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using J4JSoftware.Logging;
 using Serilog;
@@ -27,7 +28,7 @@ namespace J4JSoftware.Utilities
             _logger?.SetLoggedType( GetType() );
         }
 
-        public bool TraditionalMonthsPerMinorOnly { get; private set; } = false;
+        public bool TraditionalMonthsPerMinorOnly { get; set; } = false;
 
         public bool IsSupported( Type toCheck ) => toCheck.IsAssignableTo( typeof( DateTime ) );
         public bool IsSupported<T>() => typeof( DateTime ).IsAssignableFrom( typeof( T ) );
@@ -87,31 +88,18 @@ namespace J4JSoftware.Utilities
             result = null;
 
             if( controlSize <= 0 )
-            {
-                _logger?.Warning( "Control size <= 0, adjusting to 100" );
                 controlSize = 100;
-            }
 
             if( tickSize <= 0 )
-            {
-                _logger?.Warning( "Minimum tick size is 0, adjusting to 2" );
                 tickSize = 2;
-            }
 
             // normalize the range
             if( maxValue < minValue )
-            {
-                _logger?.Warning( "Swapping minimum ({0}) and maximum ({1}) values", minValue, maxValue );
                 ( maxValue, minValue ) = ( minValue, maxValue );
-            }
 
             // expand when no range
             if( maxValue == minValue )
-            {
                 minValue = maxValue.AddMonths( -1 );
-                _logger?.Warning( "Minimum and maximum ({0}) values are the same, adjusting minimum to {1}", maxValue,
-                    minValue );
-            }
 
             var minMonthNum = minValue.Year * 12 + minValue.Month;
             var maxMonthNum = maxValue.Year * 12 + maxValue.Month;
@@ -139,21 +127,17 @@ namespace J4JSoftware.Utilities
                     continue;
                 }
 
-                var surplusTicksRaw = ( controlSize - numTicks * tickSize ) / tickSize;
-                var surplusTicks = Convert.ToInt32( Math.Floor( surplusTicksRaw ) );
-                if( surplusTicksRaw > surplusTicks )
-                    surplusTicks++;
+                var surplusTicks = ( controlSize - numTicks * tickSize ) / tickSize;
 
-                var prefixTicksToAdd = surplusTicks / 2;
-                var suffixTicksToAdd = surplusTicks - prefixTicksToAdd;
-
+                var prefixTicksToAdd = IntegerFloor(surplusTicks / 2);
                 var startMonthNum = adjMin - prefixTicksToAdd * monthsPerMinor;
                 var startYear = startMonthNum / 12;
                 var startMonth = startMonthNum - 12 * startYear + 1;
 
+                var suffixTicksToAdd = surplusTicks - prefixTicksToAdd;
                 var endMonthNum = adjMax + suffixTicksToAdd * monthsPerMinor;
-                var endYear = endMonthNum / 12;
-                var endMonth = endMonthNum - 12 * endYear + 1;
+                var endYear = IntegerFloor( endMonthNum / 12 );
+                var endMonth = IntegerFloor( endMonthNum - 12.0 * endYear + 1 );
 
                 // months per major tick must be a multiple of 12 and a multiple of months per minor tick
                 var minorFactors = FactorInfo.GetFactors( monthsPerMinor );
@@ -217,6 +201,8 @@ namespace J4JSoftware.Utilities
 
             return retVal;
         }
+
+        private int IntegerFloor( double value ) => Convert.ToInt32( Math.Floor( value ) );
 
         bool ITickRange.GetRange(
             double controlSize,

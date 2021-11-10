@@ -6,23 +6,22 @@ namespace J4JSoftware.Utilities
 {
     public interface ISelectableNode : INotifyPropertyChanged
     {
-        string DisplayName { get; set; }
+        string DisplayName { get; }
         bool IsSelected { get; set; }
         bool SubtreeHasSelectedItems { get; }
         bool IsLeafNode { get; }
-
-        void UpdateDisplayName();
     }
 
-    public interface ISelectableNode<TKey, TEntity> : ISelectableNode
+    public interface ISelectableNode<TEntity, TKey> : ISelectableNode
+        where TEntity : ISelectableEntity<TEntity, TKey>
     {
         TEntity Entity { get; }
         TKey Key { get; }
-        List<ISelectableNode<TKey, TEntity>> DescendantsAndSelf { get; }
+        List<ISelectableNode<TEntity, TKey>> DescendantsAndSelf { get; }
 
-        ISelectableNode<TKey, TEntity>? ParentNode { get; }
-        ObservableCollection<ISelectableNode<TKey, TEntity>> ChildNodes { get; }
+        ISelectableNode<TEntity, TKey>? ParentNode { get; }
+        ObservableCollection<ISelectableNode<TEntity, TKey>> ChildNodes { get; }
 
-        void SortChildNodes( IComparer<ISelectableNode<TKey, TEntity>>? sortComparer = null );
+        void SortChildNodes( IComparer<ISelectableNode<TEntity, TKey>>? sortComparer = null );
     }
 }
