@@ -32,9 +32,8 @@ namespace J4JSoftware.Excel
         private readonly Func<IJ4JLogger>? _loggerFactory;
         private readonly List<IRow> _rows = new();
 
-        internal ExcelSheet(
-            ISheet xssfSheet,
-            Func<IJ4JLogger>? loggerFactory = null )
+        internal ExcelSheet( ISheet xssfSheet,
+                             Func<IJ4JLogger>? loggerFactory = null )
         {
             _loggerFactory = loggerFactory;
 
@@ -198,9 +197,9 @@ namespace J4JSoftware.Excel
         }
 
         public bool AddTable( int upperLeftRow,
-            int upperLeftColumn,
-            TableOrientation orientation,
-            out ExcelTable? result )
+                              int upperLeftColumn,
+                              TableOrientation orientation,
+                              out ExcelTable? result )
         {
             result = null;
 

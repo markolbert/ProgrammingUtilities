@@ -31,11 +31,11 @@ namespace J4JSoftware.Utilities
                 number = -number;
 
             return number switch
-            {
-                0 => new List<FactorInfo>(),
-                1 => new List<FactorInfo>() { new FactorInfo( 1 ) },
-                _ => GetFactorsInternal( number )
-            };
+                   {
+                       0 => new List<FactorInfo>(),
+                       1 => new List<FactorInfo>() { new FactorInfo( 1 ) },
+                       _ => GetFactorsInternal( number )
+                   };
         }
 
         private static List<FactorInfo> GetFactorsInternal( int number )
@@ -60,13 +60,13 @@ namespace J4JSoftware.Utilities
             return retVal.OrderBy( x => x.Factor ).ToList();
         }
 
-        private static int GetLargestFactor(int value)
+        private static int GetLargestFactor( int value )
         {
-            var maxFactor = Convert.ToInt32(Math.Ceiling(Math.Sqrt(Convert.ToDouble(value))));
+            var maxFactor = Convert.ToInt32( Math.Ceiling( Math.Sqrt( Convert.ToDouble( value ) ) ) );
 
-            for (var factor = maxFactor; factor > 1; factor--)
+            for ( var factor = maxFactor; factor > 1; factor-- )
             {
-                if (value % factor == 0)
+                if ( value % factor == 0 )
                     return factor;
             }
 
@@ -74,17 +74,15 @@ namespace J4JSoftware.Utilities
         }
 
         private int _frequency;
-        
-        public FactorInfo(
-            int factor,
-            int frequency = 1
-        )
+
+        public FactorInfo( int factor,
+                           int frequency = 1 )
         {
             if( factor <= 0 )
-                throw new ArgumentException( $"{nameof(factor)} cannot be <= 0" );
+                throw new ArgumentException( $"{nameof( factor )} cannot be <= 0" );
 
-            if (frequency<= 0)
-                throw new ArgumentException($"{nameof(frequency)} cannot be <= 0");
+            if ( frequency <= 0 )
+                throw new ArgumentException( $"{nameof( frequency )} cannot be <= 0" );
 
             Factor = factor;
             _frequency = frequency;
@@ -99,7 +97,7 @@ namespace J4JSoftware.Utilities
             set
             {
                 if( value == 0 )
-                    throw new ArgumentException( $"{nameof(value)} cannot be <= 0" );
+                    throw new ArgumentException( $"{nameof( value )} cannot be <= 0" );
 
                 _frequency = value;
             }

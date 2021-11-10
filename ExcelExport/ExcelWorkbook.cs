@@ -39,10 +39,8 @@ namespace J4JSoftware.Excel
 
         private string? _filePath;
 
-        public ExcelWorkbook(
-            string? filePath = null,
-            Func<IJ4JLogger>? loggerFactory = null
-        )
+        public ExcelWorkbook( string? filePath = null,
+                              Func<IJ4JLogger>? loggerFactory = null )
         {
             _loggerFactory = loggerFactory;
 
@@ -54,9 +52,7 @@ namespace J4JSoftware.Excel
             FilePath = filePath;
         }
 
-        public ExcelWorkbook(
-            Func<J4JLogger>? loggerFactory = null
-        )
+        public ExcelWorkbook( Func<J4JLogger>? loggerFactory = null )
             : this( null, loggerFactory )
         {
         }
@@ -86,8 +82,8 @@ namespace J4JSoftware.Excel
                 try
                 {
                     _excelStream = File.Exists( value )
-                        ? File.Open( value, FileMode.OpenOrCreate, FileAccess.ReadWrite )
-                        : File.Create( value );
+                                       ? File.Open( value, FileMode.OpenOrCreate, FileAccess.ReadWrite )
+                                       : File.Create( value );
 
                     _filePath = value;
                 }
@@ -126,7 +122,8 @@ namespace J4JSoftware.Excel
             {
                 var retVal =
                     Worksheets.FirstOrDefault( w =>
-                        w.Sheet?.SheetName.Equals( name, StringComparison.OrdinalIgnoreCase ) ?? false );
+                                                   w.Sheet?.SheetName.Equals( name, StringComparison.OrdinalIgnoreCase )
+                                                   ?? false );
 
                 if( retVal == null )
                     _logger?.Error<string>( "Could not find worksheet '{0}'", name );
@@ -148,7 +145,8 @@ namespace J4JSoftware.Excel
         public bool ActivateWorksheet( string name )
         {
             var idx = _worksheets.FindIndex( x =>
-                x.Sheet?.SheetName.Equals( name, StringComparison.OrdinalIgnoreCase ) ?? false );
+                                                 x.Sheet?.SheetName.Equals( name, StringComparison.OrdinalIgnoreCase )
+                                                 ?? false );
 
             if( idx < 0 )
             {

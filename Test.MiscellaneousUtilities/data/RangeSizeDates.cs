@@ -22,7 +22,7 @@ namespace Test.MiscellaneousUtilities
     public class RangeSizeDates : TestDataBase<RangeOfDates>
     {
         public RangeSizeDates()
-            : base("range-date.json")
+            : base( "range-date.json" )
         {
         }
     }

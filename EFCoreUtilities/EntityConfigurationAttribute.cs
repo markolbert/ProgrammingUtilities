@@ -28,11 +28,11 @@ namespace J4JSoftware.EFCoreUtilities
 
         public EntityConfigurationAttribute( Type configType )
         {
-            _configType = configType ?? throw new NullReferenceException( nameof(configType) );
+            _configType = configType ?? throw new NullReferenceException( nameof( configType ) );
 
-            if( !typeof(IEntityConfiguration).IsAssignableFrom( configType ) )
-                throw new ArgumentException(
-                    $"Database entity configuration type is not {nameof(IEntityConfiguration)}" );
+            if( !typeof( IEntityConfiguration ).IsAssignableFrom( configType ) )
+                throw new
+                    ArgumentException( $"Database entity configuration type is not {nameof( IEntityConfiguration )}" );
         }
 
         public IEntityConfiguration GetConfigurator()

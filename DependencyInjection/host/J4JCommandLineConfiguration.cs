@@ -25,10 +25,8 @@ namespace J4JSoftware.DependencyInjection
 {
     public class J4JCommandLineConfiguration
     {
-        public J4JCommandLineConfiguration(
-            J4JHostConfiguration hostConfig,
-            CommandLineOperatingSystems operatingSystem
-        )
+        public J4JCommandLineConfiguration( J4JHostConfiguration hostConfig,
+                                            CommandLineOperatingSystems operatingSystem )
         {
             HostConfiguration = hostConfig;
             OperatingSystem = operatingSystem;

@@ -12,19 +12,17 @@ using Serilog.Events;
 
 namespace J4JSoftware.DependencyInjection
 {
-    [Obsolete("Use J4JHostConfiguration IHostBuilder instead")]
+    [ Obsolete( "Use J4JHostConfiguration IHostBuilder instead" ) ]
     public abstract class XamlRoot : CompositionRoot
     {
         private readonly Func<bool> _inDesignMode;
 
-        protected XamlRoot(
-            string publisher,
-            string appName,
-            Func<bool> inDesignMode,
-            string? dataProtectionPurpose = null,
-            string osName = "Windows",
-            Func<Type?, string, int, string, string>? filePathTrimmer = null
-        )
+        protected XamlRoot( string publisher,
+                            string appName,
+                            Func<bool> inDesignMode,
+                            string? dataProtectionPurpose = null,
+                            string osName = "Windows",
+                            Func<Type?, string, int, string, string>? filePathTrimmer = null )
             : base( publisher, appName, dataProtectionPurpose, osName, filePathTrimmer )
         {
             _inDesignMode = inDesignMode;

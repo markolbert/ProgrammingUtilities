@@ -23,9 +23,7 @@ namespace J4JSoftware.Utilities
 
         private readonly IJ4JLogger? _logger;
 
-        public NumericTickRange(
-            IJ4JLogger? logger = null
-        )
+        public NumericTickRange( IJ4JLogger? logger = null )
         {
             _logger = logger;
             _logger?.SetLoggedType( GetType() );
@@ -44,7 +42,7 @@ namespace J4JSoftware.Utilities
                 if( value == null )
                     return false;
 
-                var temp = (decimal)Convert.ChangeType( value, typeof( decimal ) );
+                var temp = (decimal) Convert.ChangeType( value, typeof( decimal ) );
             }
             catch
             {
@@ -66,29 +64,27 @@ namespace J4JSoftware.Utilities
             return true;
         }
 
-        public bool GetRange(
-            double controlSize,
-            decimal minValue,
-            decimal maxValue,
-            out NumericRange? result )
+        public bool GetRange( double controlSize,
+                              decimal minValue,
+                              decimal maxValue,
+                              out NumericRange? result )
         {
             var ranges = GetRanges( controlSize, minValue, maxValue );
 
             var sorted = ranges.OrderByDescending( x => x.Coverage );
 
             result = TickSizePreference switch
-            {
-                TickSizePreference.Smallest => sorted.ThenBy( x => x.TickSize ).FirstOrDefault(),
-                _ => sorted.ThenByDescending( x => x.TickSize ).FirstOrDefault()
-            };
+                     {
+                         TickSizePreference.Smallest => sorted.ThenBy( x => x.TickSize ).FirstOrDefault(),
+                         _                           => sorted.ThenByDescending( x => x.TickSize ).FirstOrDefault()
+                     };
 
             return result != null;
         }
 
-        public List<NumericRange> GetRanges(
-            double controlSize,
-            decimal minValue,
-            decimal maxValue )
+        public List<NumericRange> GetRanges( double controlSize,
+                                             decimal minValue,
+                                             decimal maxValue )
         {
             var retVal = new List<NumericRange>();
 
@@ -103,12 +99,11 @@ namespace J4JSoftware.Utilities
             return retVal;
         }
 
-        public bool GetRange(
-            double controlSize,
-            int tickSize,
-            decimal minValue,
-            decimal maxValue,
-            out NumericRange? result )
+        public bool GetRange( double controlSize,
+                              int tickSize,
+                              decimal minValue,
+                              decimal maxValue,
+                              out NumericRange? result )
         {
             result = null;
 
@@ -165,15 +160,15 @@ namespace J4JSoftware.Utilities
                 var minorValue = numericTick.NormalizedSize * PowerOf10( pow10 );
 
                 var adjMin = minValue < 0
-                    ? Math.Ceiling( minValue / minorValue ) * minorValue
-                    : Math.Floor( minValue / minorValue ) * minorValue;
+                                 ? Math.Ceiling( minValue / minorValue ) * minorValue
+                                 : Math.Floor( minValue / minorValue ) * minorValue;
 
                 var adjMax = maxValue < 0
-                    ? Math.Floor( maxValue / minorValue ) * minorValue
-                    : Math.Ceiling( maxValue / minorValue ) * minorValue;
+                                 ? Math.Floor( maxValue / minorValue ) * minorValue
+                                 : Math.Ceiling( maxValue / minorValue ) * minorValue;
 
                 var numTicks = ( adjMax - adjMin ) / minorValue;
-                var spaceUsed = numTicks * tickSize / (decimal)controlSize;
+                var spaceUsed = numTicks * tickSize / (decimal) controlSize;
 
                 if( ( spaceUsed - 1M ) > 0 || spaceUsed <= prevSpaceUsed )
                     continue;
@@ -181,16 +176,16 @@ namespace J4JSoftware.Utilities
                 foundAnswer = true;
                 prevSpaceUsed = spaceUsed;
 
-                var surplusTicks = ( ( (decimal)controlSize ) - numTicks * tickSize ) / tickSize;
+                var surplusTicks = ( ( (decimal) controlSize ) - numTicks * tickSize ) / tickSize;
                 var prefixTicksToAdd = Math.Floor( surplusTicks / 2 );
                 var suffixTicksToAdd = surplusTicks - prefixTicksToAdd;
 
                 result = new NumericRange( tickSize,
-                    minorValue,
-                    minorValue * numericTick.TicksPer10,
-                    adjMin - minorValue * prefixTicksToAdd,
-                    adjMax + minorValue * suffixTicksToAdd,
-                    Convert.ToDouble( spaceUsed ) );
+                                          minorValue,
+                                          minorValue * numericTick.TicksPer10,
+                                          adjMin - minorValue * prefixTicksToAdd,
+                                          adjMax + minorValue * suffixTicksToAdd,
+                                          Convert.ToDouble( spaceUsed ) );
 
                 if( spaceUsed == 1.0M )
                     break;
@@ -230,11 +225,10 @@ namespace J4JSoftware.Utilities
             return retVal;
         }
 
-        bool ITickRange.GetRange(
-            double controlSize,
-            object minValue,
-            object maxValue,
-            out object? result )
+        bool ITickRange.GetRange( double controlSize,
+                                  object minValue,
+                                  object maxValue,
+                                  out object? result )
         {
             result = null;
 
@@ -255,16 +249,15 @@ namespace J4JSoftware.Utilities
                 return new List<object>();
 
             return GetRanges( controlSize, converted.Value.minValue, converted.Value.maxValue )
-                .Cast<object>()
-                .ToList();
+                   .Cast<object>()
+                   .ToList();
         }
 
-        bool ITickRange.GetRange(
-            double controlSize,
-            int tickSize,
-            object minValue,
-            object maxValue,
-            out object? result )
+        bool ITickRange.GetRange( double controlSize,
+                                  int tickSize,
+                                  object minValue,
+                                  object maxValue,
+                                  out object? result )
         {
             result = null;
 
@@ -273,10 +266,10 @@ namespace J4JSoftware.Utilities
                 return false;
 
             if( GetRange( controlSize,
-                tickSize,
-                converted.Value.minValue,
-                converted.Value.maxValue,
-                out var innerResult ) )
+                         tickSize,
+                         converted.Value.minValue,
+                         converted.Value.maxValue,
+                         out var innerResult ) )
                 result = innerResult;
 
             return result != null;
@@ -289,15 +282,14 @@ namespace J4JSoftware.Utilities
 
             try
             {
-                minDecimal = (decimal)Convert.ChangeType( minimum, typeof( decimal ) );
-                maxDecimal = (decimal)Convert.ChangeType( maximum, typeof( decimal ) );
+                minDecimal = (decimal) Convert.ChangeType( minimum, typeof( decimal ) );
+                maxDecimal = (decimal) Convert.ChangeType( maximum, typeof( decimal ) );
             }
             catch
             {
-                _logger?.Error<string, string>(
-                    "Minimum ({0}) and/or maximum ({1}) values could not be converted to type decimal",
-                    minimum?.ToString() ?? "** unknown **",
-                    maximum.ToString() ?? "** unknown **" );
+                _logger?.Error<string, string>( "Minimum ({0}) and/or maximum ({1}) values could not be converted to type decimal",
+                                               minimum?.ToString() ?? "** unknown **",
+                                               maximum.ToString() ?? "** unknown **" );
 
                 return null;
             }

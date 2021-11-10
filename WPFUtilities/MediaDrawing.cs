@@ -40,8 +40,10 @@ namespace J4JSoftware.WPFUtilities
         [ MethodImpl( MethodImplOptions.AggressiveInlining ) ]
         public static System.Windows.Media.Color ToMediaColor( this Color drawingColor )
         {
-            return System.Windows.Media.Color.FromArgb( drawingColor.A, drawingColor.R, drawingColor.G,
-                drawingColor.B );
+            return System.Windows.Media.Color.FromArgb( drawingColor.A,
+                                                       drawingColor.R,
+                                                       drawingColor.G,
+                                                       drawingColor.B );
         }
     }
 }

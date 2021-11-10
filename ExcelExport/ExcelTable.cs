@@ -28,16 +28,15 @@ namespace J4JSoftware.Excel
     {
         private readonly IJ4JLogger? _logger;
 
-        internal ExcelTable(
-            ExcelSheet sheet,
-            int upperLeftRow,
-            int upperLeftColumn,
-            TableOrientation orientation,
-            IJ4JLogger? logger = null )
+        internal ExcelTable( ExcelSheet sheet,
+                             int upperLeftRow,
+                             int upperLeftColumn,
+                             TableOrientation orientation,
+                             IJ4JLogger? logger = null )
         {
             ExcelSheet = sheet;
 
-            _logger = logger ?? throw new NullReferenceException( nameof(logger) );
+            _logger = logger ?? throw new NullReferenceException( nameof( logger ) );
             _logger?.SetLoggedType( GetType() );
 
             if( upperLeftRow < 0 )
@@ -79,10 +78,8 @@ namespace J4JSoftware.Excel
             if( !ValidateTable() )
                 return false;
 
-            ExcelSheet!.MoveTo(
-                UpperLeftRow + ( Orientation == TableOrientation.ColumnHeaders ? 0 : NumHeaders ),
-                UpperLeftColumn + ( Orientation == TableOrientation.RowHeaders ? 0 : NumHeaders )
-            );
+            ExcelSheet!.MoveTo( UpperLeftRow + ( Orientation == TableOrientation.ColumnHeaders ? 0 : NumHeaders ),
+                               UpperLeftColumn + ( Orientation == TableOrientation.RowHeaders ? 0 : NumHeaders ) );
 
             ExcelSheet.ActiveCell!.SetCellValue( header );
 
@@ -108,13 +105,14 @@ namespace J4JSoftware.Excel
             if( !ValidateTable() )
                 return false;
 
-            var values = typeof(TEntity).GetProperties()
-                .Select( p => p.GetValue( entity ) )
-                .ToList();
+            var values = typeof( TEntity ).GetProperties()
+                                          .Select( p => p.GetValue( entity ) )
+                                          .ToList();
 
             if( values.Count == 0 )
             {
-                _logger?.Error( "To properties found on instance of type '{0}' to add to the table", typeof(TEntity) );
+                _logger?.Error( "To properties found on instance of type '{0}' to add to the table",
+                               typeof( TEntity ) );
                 return false;
             }
 
@@ -133,28 +131,23 @@ namespace J4JSoftware.Excel
             if( !ValidateTable() )
                 return false;
 
-            ExcelSheet!.MoveTo(
-                UpperLeftRow + ( Orientation == TableOrientation.RowHeaders ? 0 : NumEntries + 1 ),
-                UpperLeftColumn + ( Orientation == TableOrientation.ColumnHeaders ? 0 : NumEntries + 1 )
-            );
+            ExcelSheet!.MoveTo( UpperLeftRow + ( Orientation == TableOrientation.RowHeaders ? 0 : NumEntries + 1 ),
+                               UpperLeftColumn
+                               + ( Orientation == TableOrientation.ColumnHeaders ? 0 : NumEntries + 1 ) );
 
             for( var idx = 0; idx < ( values.Count > NumHeaders ? values.Count : NumHeaders ); idx++ )
             {
                 if( idx < values.Count && values[ idx ] != null )
                     ExcelSheet.ActiveCell!.SetValue( values[ idx ]! );
 
-                ExcelSheet.Move(
-                    Orientation == TableOrientation.RowHeaders ? 1 : 0,
-                    Orientation == TableOrientation.ColumnHeaders ? 1 : 0
-                );
+                ExcelSheet.Move( Orientation == TableOrientation.RowHeaders ? 1 : 0,
+                                Orientation == TableOrientation.ColumnHeaders ? 1 : 0 );
             }
 
             NumEntries++;
 
-            ExcelSheet.Move(
-                Orientation == TableOrientation.RowHeaders ? -values.Count : 0,
-                Orientation == TableOrientation.ColumnHeaders ? -values.Count : 0
-            );
+            ExcelSheet.Move( Orientation == TableOrientation.RowHeaders ? -values.Count : 0,
+                            Orientation == TableOrientation.ColumnHeaders ? -values.Count : 0 );
 
             return true;
         }

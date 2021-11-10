@@ -16,15 +16,15 @@ namespace Test.MiscellaneousUtilities
         {
             var builder = new ContainerBuilder();
 
-            builder.RegisterAssemblyTypes( typeof(TickRanges).Assembly )
-                .Where( t => !t.IsAbstract
-                             && typeof(ITickRange).IsAssignableFrom( t ) )
-                .SingleInstance()
-                .AsImplementedInterfaces();
+            builder.RegisterAssemblyTypes( typeof( TickRanges ).Assembly )
+                   .Where( t => !t.IsAbstract
+                                && typeof( ITickRange ).IsAssignableFrom( t ) )
+                   .SingleInstance()
+                   .AsImplementedInterfaces();
 
             builder.RegisterType<TickRanges>()
-                .SingleInstance()
-                .AsSelf();
+                   .SingleInstance()
+                   .AsSelf();
 
             Default = builder.Build();
         }

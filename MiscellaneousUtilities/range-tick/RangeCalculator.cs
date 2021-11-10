@@ -10,10 +10,8 @@ namespace J4JSoftware.Utilities
         private readonly ITickManagers _managers;
         private readonly IJ4JLogger? _logger;
 
-        public RangeCalculator(
-            ITickManagers managers,
-            IJ4JLogger? logger
-        )
+        public RangeCalculator( ITickManagers managers,
+                                IJ4JLogger? logger )
         {
             _managers = managers;
 
@@ -24,53 +22,55 @@ namespace J4JSoftware.Utilities
         public bool IsValid => Alternatives.Any();
         public List<RangeParameters> Alternatives { get; } = new();
 
-        public void Evaluate<TSource>( [DisallowNull] TSource min, [DisallowNull] TSource max, ITickManager? manager = null )
+        public void Evaluate<TSource>( [ DisallowNull ] TSource min,
+                                       [ DisallowNull ] TSource max,
+                                       ITickManager? manager = null )
         {
-            if( !ValidateManager<TSource>( ref manager ) ) 
+            if( !ValidateManager<TSource>( ref manager ) )
                 return;
 
             if( !manager!.ExtractDouble( min, out var minValue ) )
             {
                 _logger?.Error<string>( "Could not extract a double value from min value '{0}'",
-                    min.ToString() ?? "**undefined Type**" );
+                                       min.ToString() ?? "**undefined Type**" );
                 return;
             }
 
-            if (!manager.ExtractDouble(max, out var maxValue))
+            if ( !manager.ExtractDouble( max, out var maxValue ) )
             {
-                _logger?.Error<string>("Could not extract a double value from min value '{0}'",
-                    min.ToString() ?? "**undefined Type**");
+                _logger?.Error<string>( "Could not extract a double value from min value '{0}'",
+                                       min.ToString() ?? "**undefined Type**" );
                 return;
             }
 
-            if (minValue > maxValue)
+            if ( minValue > maxValue )
             {
-                _logger?.Warning("Minimum ({0}) and maximum ({1}) values were reversed, correcting",
-                    minValue,
-                    maxValue);
+                _logger?.Warning( "Minimum ({0}) and maximum ({1}) values were reversed, correcting",
+                                 minValue,
+                                 maxValue );
 
                 var temp = minValue;
                 minValue = maxValue;
                 maxValue = temp;
             }
 
-            EvaluateInternal(manager, minValue!.Value, maxValue!.Value);
+            EvaluateInternal( manager, minValue!.Value, maxValue!.Value );
         }
 
-        public void Evaluate<TSource>( IEnumerable<TSource> source, ITickManager? manager = null)
+        public void Evaluate<TSource>( IEnumerable<TSource> source, ITickManager? manager = null )
         {
-            if (!ValidateManager<TSource>(ref manager))
+            if ( !ValidateManager<TSource>( ref manager ) )
                 return;
 
             if ( !manager!.ExtractDoubles( source.Cast<object>(), out var sourceList ) )
             {
-                _logger?.Error("Could not convert source objects into list of doubles");
+                _logger?.Error( "Could not convert source objects into list of doubles" );
                 return;
             }
 
             if ( !sourceList!.Any() )
             {
-                _logger?.Error("source list was empty");
+                _logger?.Error( "source list was empty" );
                 return;
             }
 
@@ -80,13 +80,13 @@ namespace J4JSoftware.Utilities
             EvaluateInternal( manager, minValue, maxValue );
         }
 
-        private bool ValidateManager<TSource>(ref ITickManager? manager)
+        private bool ValidateManager<TSource>( ref ITickManager? manager )
         {
-            manager ??= _managers[typeof(TSource)];
+            manager ??= _managers[ typeof( TSource ) ];
 
-            if (manager == null)
+            if ( manager == null )
             {
-                _logger?.Error("No ITickManager defined for type '{0}'", typeof(TSource));
+                _logger?.Error( "No ITickManager defined for type '{0}'", typeof( TSource ) );
                 return false;
             }
 
@@ -102,13 +102,11 @@ namespace J4JSoftware.Utilities
                 var roundedMin = minorTick.RoundDown( minValue );
                 var roundedMax = minorTick.RoundUp( maxValue );
 
-                Alternatives.Add( new RangeParameters(
-                    minorTick,
-                    minValue,
-                    maxValue,
-                    roundedMin,
-                    roundedMax )
-                );
+                Alternatives.Add( new RangeParameters( minorTick,
+                                                      minValue,
+                                                      maxValue,
+                                                      roundedMin,
+                                                      roundedMax ) );
             }
 
             if( !Alternatives.Any() )

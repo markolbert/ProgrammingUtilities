@@ -35,8 +35,8 @@ namespace J4JSoftware.Utilities
     }
 
     public interface ITickRange<in TValue, TResult> : ITickRange
-        where TValue: IComparable
-        where TResult: class
+        where TValue : IComparable
+        where TResult : class
     {
         bool GetRange( double controlSize, TValue minValue, TValue maxValue, out TResult? result );
         List<TResult> GetRanges( double controlSize, TValue minValue, TValue maxValue );

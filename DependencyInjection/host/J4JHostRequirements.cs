@@ -21,7 +21,7 @@ using System;
 
 namespace J4JSoftware.DependencyInjection
 {
-    [Flags]
+    [ Flags ]
     public enum J4JHostRequirements
     {
         Publisher = 1 << 0,

@@ -24,10 +24,8 @@ namespace J4JSoftware.Utilities
     public record SimpleTickManager<TSource, TTick> : TickManager<TSource, TTick>
         where TTick : ScaledTick, new()
     {
-        protected SimpleTickManager(
-            Func<TSource, double> extractor,
-            MinorTickCollection<TTick> minorTickCollection
-        )
+        protected SimpleTickManager( Func<TSource, double> extractor,
+                                     MinorTickCollection<TTick> minorTickCollection )
             : base( true, extractor, minorTickCollection )
         {
         }

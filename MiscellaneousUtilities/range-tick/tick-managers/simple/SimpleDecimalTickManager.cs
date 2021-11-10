@@ -22,7 +22,7 @@ namespace J4JSoftware.Utilities
     public record SimpleDecimalTickManager : SimpleTickManager<decimal, ScaledTick>
     {
         public SimpleDecimalTickManager()
-            : base(x => (double) x, new DoubleTickCollection())
+            : base( x => (double) x, new DoubleTickCollection() )
         {
         }
     }

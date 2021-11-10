@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Xunit;
+
 #pragma warning disable 8618
 
 namespace Test.DependencyInjection
@@ -25,37 +26,38 @@ namespace Test.DependencyInjection
             public string Text { get; set; }
         }
 
-        [Fact]
+        [ Fact ]
         public void FailNotConfigured()
         {
             var config = new J4JHostConfiguration();
-            config.MissingRequirements.Should().Be( J4JHostRequirements.ApplicationName | J4JHostRequirements.Publisher );
+            config.MissingRequirements.Should()
+                  .Be( J4JHostRequirements.ApplicationName | J4JHostRequirements.Publisher );
 
             var builder = config.CreateHostBuilder();
             builder.Should().BeNull();
         }
 
-        [Fact]
+        [ Fact ]
         public void SucceedConfigured()
         {
             var config = new J4JHostConfiguration()
-                .ApplicationName( "Test" )
-                .Publisher( "J4JSoftware" );
+                         .ApplicationName( "Test" )
+                         .Publisher( "J4JSoftware" );
 
-            config.MissingRequirements.Should().Be(J4JHostRequirements.AllMet);
+            config.MissingRequirements.Should().Be( J4JHostRequirements.AllMet );
 
             var host = BuildHost( config );
         }
 
-        [Fact]
+        [ Fact ]
         public void LoggerTest()
         {
             var config = new J4JHostConfiguration()
-                .ApplicationName( "Test" )
-                .Publisher( "J4JSoftware" )
-                .LoggerInitializer( config_logger );
+                         .ApplicationName( "Test" )
+                         .Publisher( "J4JSoftware" )
+                         .LoggerInitializer( config_logger );
 
-            config.MissingRequirements.Should().Be(J4JHostRequirements.AllMet);
+            config.MissingRequirements.Should().Be( J4JHostRequirements.AllMet );
 
             var host = BuildHost( config );
 
@@ -66,26 +68,26 @@ namespace Test.DependencyInjection
             void config_logger( IConfiguration buildConfig, J4JLoggerConfiguration loggerConfig )
             {
                 loggerConfig.SerilogConfiguration
-                    .WriteTo
-                    .Debug(outputTemplate: loggerConfig.GetOutputTemplate(true));
+                            .WriteTo
+                            .Debug( outputTemplate: loggerConfig.GetOutputTemplate( true ) );
             }
         }
 
-        [Fact]
+        [ Fact ]
         public void LoggerJSONTest()
         {
             var config = new J4JHostConfiguration()
-                .ApplicationName( "Test" )
-                .Publisher( "J4JSoftware" )
-                .AddConfigurationInitializers( config_config );
+                         .ApplicationName( "Test" )
+                         .Publisher( "J4JSoftware" )
+                         .AddConfigurationInitializers( config_config );
 
             config.LoggerInitializer( config_logger );
 
-            var host = BuildHost(config);
+            var host = BuildHost( config );
 
             var logger = host.Services.GetRequiredService<IJ4JLogger>();
-            logger.SetLoggedType(GetType());
-            logger.Fatal("This is a test fatal event");
+            logger.SetLoggedType( GetType() );
+            logger.Fatal( "This is a test fatal event" );
 
             void config_config( IConfigurationBuilder configBuilder )
             {
@@ -95,20 +97,20 @@ namespace Test.DependencyInjection
             void config_logger( IConfiguration buildConfig, J4JLoggerConfiguration loggerConfig )
             {
                 loggerConfig.SerilogConfiguration
-                    .ReadFrom
-                    .Configuration( buildConfig );
+                            .ReadFrom
+                            .Configuration( buildConfig );
             }
         }
 
-        [Fact]
+        [ Fact ]
         public void CommandLineParsing()
         {
             var config = new J4JHostConfiguration()
-                .ApplicationName( "Test" )
-                .Publisher( "J4JSoftware" );
+                         .ApplicationName( "Test" )
+                         .Publisher( "J4JSoftware" );
 
             config.AddCommandLineProcessing( CommandLineOperatingSystems.Windows )
-                .OptionsInitializer( define_options );
+                  .OptionsInitializer( define_options );
 
             var host = BuildHost( config );
 
@@ -125,7 +127,7 @@ namespace Test.DependencyInjection
             cmdOptions.Should().NotBeNull();
 
             cmdOptions.Switch.Should().BeTrue();
-            cmdOptions.Text.Should().Be("hello");
+            cmdOptions.Text.Should().Be( "hello" );
 
             void define_options( OptionCollection options )
             {
@@ -134,25 +136,25 @@ namespace Test.DependencyInjection
             }
         }
 
-        [Fact]
+        [ Fact ]
         public void Protection()
         {
             var config = new J4JHostConfiguration()
-                .ApplicationName("Test")
-                .Publisher("J4JSoftware");
+                         .ApplicationName( "Test" )
+                         .Publisher( "J4JSoftware" );
 
-            var host = BuildHost(config);
+            var host = BuildHost( config );
 
             var protector = host!.Services.GetRequiredService<IJ4JProtection>();
             protector.Should().NotBeNull();
 
             protector.Protect( "test text", out var encrypted )
-                .Should()
-                .BeTrue();
+                     .Should()
+                     .BeTrue();
 
             protector.Unprotect( encrypted!, out var decrypted )
-                .Should()
-                .BeTrue();
+                     .Should()
+                     .BeTrue();
 
             decrypted.Should().Be( "test text" );
         }

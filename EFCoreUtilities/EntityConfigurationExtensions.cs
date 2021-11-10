@@ -32,7 +32,8 @@ namespace J4JSoftware.EFCoreUtilities
 
             // scan current assembly for types decorated with EntityConfigurationAttribute
             foreach( var entityType in assemblyToScan.DefinedTypes
-                .Where( t => t.GetCustomAttribute<EntityConfigurationAttribute>() != null ) )
+                                                     .Where( t => t.GetCustomAttribute<EntityConfigurationAttribute>()
+                                                                  != null ) )
             {
                 var attr = entityType.GetCustomAttribute<EntityConfigurationAttribute>();
 

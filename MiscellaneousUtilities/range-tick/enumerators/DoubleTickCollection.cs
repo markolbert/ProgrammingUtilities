@@ -20,47 +20,41 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 #pragma warning disable 8618
 
 namespace J4JSoftware.Utilities
 {
     public class DoubleTickCollection : MinorTickCollection<ScaledTick>
     {
-        public DoubleTickCollection(
-            IEnumerable<ScaledTick>? baseMultiples = null
-        )
+        public DoubleTickCollection( IEnumerable<ScaledTick>? baseMultiples = null )
         {
-            NormalizedRangeTicks = baseMultiples?.ToList() ?? new List<ScaledTick>
-            {
-                new ScaledTick { NormalizedSize = 1, NumberPerMajor = 10 },
-                new ScaledTick { NormalizedSize = 2, NumberPerMajor = 5 },
-                new ScaledTick { NormalizedSize = 5, NumberPerMajor = 2 },
-                new ScaledTick { NormalizedSize = 25, NumberPerMajor = 4 },
-            };
+            NormalizedRangeTicks = baseMultiples?.ToList()
+                                   ?? new List<ScaledTick>
+                                      {
+                                          new ScaledTick { NormalizedSize = 1, NumberPerMajor = 10 },
+                                          new ScaledTick { NormalizedSize = 2, NumberPerMajor = 5 },
+                                          new ScaledTick { NormalizedSize = 5, NumberPerMajor = 2 },
+                                          new ScaledTick { NormalizedSize = 25, NumberPerMajor = 4 },
+                                      };
 
             Default = NormalizedRangeTicks[ 0 ];
         }
 
         public override RangeParameters GetDefaultRangeParameters( double minValue, double maxValue )
         {
-            var range = Math.Abs(maxValue - minValue);
-            var exponent = Math.Log10(range);
-            var minorTick = new ScaledTick
-            {
-                NormalizedSize = 1,
-                PowerOfTen = (int)exponent - 1,
-                NumberPerMajor = 10
-            };
+            var range = Math.Abs( maxValue - minValue );
+            var exponent = Math.Log10( range );
+            var minorTick = new ScaledTick { NormalizedSize = 1, PowerOfTen = (int) exponent - 1, NumberPerMajor = 10 };
 
-            var rangeStart = minorTick.RoundDown(minValue);
-            var rangeEnd = minorTick.RoundUp(maxValue);
+            var rangeStart = minorTick.RoundDown( minValue );
+            var rangeEnd = minorTick.RoundUp( maxValue );
 
-            return new RangeParameters(
-                minorTick,
-                rangeStart,
-                rangeEnd,
-                Math.Abs(rangeStart - minValue),
-                Math.Abs(rangeEnd - maxValue));
+            return new RangeParameters( minorTick,
+                                       rangeStart,
+                                       rangeEnd,
+                                       Math.Abs( rangeStart - minValue ),
+                                       Math.Abs( rangeEnd - maxValue ) );
         }
     }
 }

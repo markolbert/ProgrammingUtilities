@@ -34,9 +34,7 @@ namespace J4JSoftware.EFCoreUtilities
         protected override IDatabaseConfig GetDatabaseConfig( string dbPath ) =>
             new SqliteConfig()
             {
-                CollationType = SqliteCollationType.CaseInsensitiveAtoZ,
-                CreateNew = true,
-                Path = dbPath
+                CollationType = SqliteCollationType.CaseInsensitiveAtoZ, CreateNew = true, Path = dbPath
             };
 
         protected override DbContextOptionsBuilder<TDbContext> GetOptionsBuilder( string dbPath )

@@ -45,7 +45,11 @@ namespace J4JSoftware.Utilities
     {
         bool IsValid { get; }
         List<RangeParameters> Alternatives { get; }
-        void Evaluate<TSource>( [DisallowNull] TSource min, [DisallowNull] TSource max, ITickManager? manager = null );
+
+        void Evaluate<TSource>( [ DisallowNull ] TSource min,
+                                [ DisallowNull ] TSource max,
+                                ITickManager? manager = null );
+
         void Evaluate<TSource>( IEnumerable<TSource> source, ITickManager? manager = null );
     }
 }

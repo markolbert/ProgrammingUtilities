@@ -10,49 +10,43 @@ namespace J4JSoftware.DependencyInjection
 {
     public static class TUExtensions
     {
-        public static IEnumerable<Type> MeetRequirements<T>(
-            this IEnumerable<Type> types,
-            params ITypeTester[] tests
-        )
+        public static IEnumerable<Type> MeetRequirements<T>( this IEnumerable<Type> types,
+                                                             params ITypeTester[] tests )
             where T : class =>
-            types.Where(t => typeof(T).IsAssignableFrom(t)
-                             && tests.All(x => x.MeetsRequirements(t)));
-
-        public static IEnumerable<Type> MeetRequirements<T>(
-            this IEnumerable<Type> types,
-            IEnumerable<ITypeTester> tests
-        )
-            where T: class =>
             types.Where( t => typeof( T ).IsAssignableFrom( t )
                               && tests.All( x => x.MeetsRequirements( t ) ) );
 
-        public static IEnumerable<Type> MeetRequirements<T>(
-            this IEnumerable<Type> types,
-            params PredefinedTypeTests[] predefinedTests )
-            where T: class
-            => types.MeetRequirements<T>( predefinedTests.ToTypeTesters<T>() );
+        public static IEnumerable<Type> MeetRequirements<T>( this IEnumerable<Type> types,
+                                                             IEnumerable<ITypeTester> tests )
+            where T : class =>
+            types.Where( t => typeof( T ).IsAssignableFrom( t )
+                              && tests.All( x => x.MeetsRequirements( t ) ) );
 
-        public static IEnumerable<Type> MeetRequirements<T>(
-            this IEnumerable<Type> types,
-            IEnumerable<PredefinedTypeTests> predefinedTests)
-            where T : class
-            => types.MeetRequirements<T>(predefinedTests.ToTypeTesters<T>());
+        public static IEnumerable<Type> MeetRequirements<T>( this IEnumerable<Type> types,
+                                                             params PredefinedTypeTests[] predefinedTests )
+            where T : class =>
+            types.MeetRequirements<T>( predefinedTests.ToTypeTesters<T>() );
+
+        public static IEnumerable<Type> MeetRequirements<T>( this IEnumerable<Type> types,
+                                                             IEnumerable<PredefinedTypeTests> predefinedTests )
+            where T : class =>
+            types.MeetRequirements<T>( predefinedTests.ToTypeTesters<T>() );
 
         private static List<ITypeTester> ToTypeTesters<T>( this IEnumerable<PredefinedTypeTests> predefinedTests )
-        where T: class
+            where T : class
         {
             var retVal = new List<ITypeTester>();
 
-            foreach (var test in predefinedTests.Distinct())
+            foreach ( var test in predefinedTests.Distinct() )
             {
-                switch (test)
+                switch ( test )
                 {
                     case PredefinedTypeTests.ParameterlessConstructor:
-                        retVal.Add(new ConstructorTester<T>());
+                        retVal.Add( new ConstructorTester<T>() );
                         break;
 
                     case PredefinedTypeTests.OnlyJ4JLoggerRequired:
-                        retVal.Add(new ConstructorTester<T>(typeof(IJ4JLogger)));
+                        retVal.Add( new ConstructorTester<T>( typeof( IJ4JLogger ) ) );
                         break;
 
                     //case PredefinedTypeTests.OnlyJ4JLoggerFactoryRequired:
@@ -60,7 +54,7 @@ namespace J4JSoftware.DependencyInjection
                     //    break;
 
                     case PredefinedTypeTests.NonAbstract:
-                        retVal.Add(TypeTester.NonAbstract);
+                        retVal.Add( TypeTester.NonAbstract );
                         break;
 
                     case PredefinedTypeTests.NonGeneric:
@@ -68,8 +62,8 @@ namespace J4JSoftware.DependencyInjection
                         break;
 
                     default:
-                        throw new InvalidEnumArgumentException(
-                            $"Unsupported {nameof(PredefinedTypeTests)} value '{test}'");
+                        throw new
+                            InvalidEnumArgumentException( $"Unsupported {nameof( PredefinedTypeTests )} value '{test}'" );
                 }
             }
 

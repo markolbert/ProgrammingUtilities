@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+
 #pragma warning disable 8618
 
 namespace J4JSoftware.Utilities
@@ -41,22 +42,24 @@ namespace J4JSoftware.Utilities
             maxValue = Math.Abs( minValue > maxValue ? minValue : maxValue );
 
             var retVal = new List<TTick>();
-            
+
             for( var exponent = expRange.MinimumExponent; exponent <= expRange.MaximumExponent; exponent++ )
             {
                 foreach( var minorTick in NormalizedRangeTicks )
                 {
                     var minorTickSize = exponent < 0
-                        ? minorTick.NormalizedSize / (double) ExponentRange.GetNormalizedValue( exponent )
-                        : minorTick.NormalizedSize * (double) ExponentRange.GetNormalizedValue( exponent );
+                                            ? minorTick.NormalizedSize
+                                              / (double) ExponentRange.GetNormalizedValue( exponent )
+                                            : minorTick.NormalizedSize
+                                              * (double) ExponentRange.GetNormalizedValue( exponent );
 
                     if( minorTickSize < maxValue )
                         retVal.Add( new TTick
-                        {
-                            NormalizedSize = minorTick.NormalizedSize,
-                            NumberPerMajor = minorTick.NumberPerMajor,
-                            PowerOfTen = exponent
-                        } );
+                                    {
+                                        NormalizedSize = minorTick.NormalizedSize,
+                                        NumberPerMajor = minorTick.NumberPerMajor,
+                                        PowerOfTen = exponent
+                                    } );
                 }
             }
 

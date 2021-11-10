@@ -54,7 +54,7 @@ namespace J4JSoftware.DependencyInjection
             new FilePathEqualityComparer( StringComparison.Ordinal );
 
         public static IEqualityComparer<ConfigurationFile> CaseInsensitiveComparer { get; } =
-            new FilePathEqualityComparer(StringComparison.OrdinalIgnoreCase);
+            new FilePathEqualityComparer( StringComparison.OrdinalIgnoreCase );
 
         public bool FilePathIsRooted => Path.IsPathRooted( FilePath );
     }

@@ -31,9 +31,7 @@ namespace J4JSoftware.ConsoleUtilities
     {
         private readonly Dictionary<string, PropertyValidation> _updaters = new();
 
-        public ConfigurationUpdater(
-            Func<IJ4JLogger>? loggerFactory
-        )
+        public ConfigurationUpdater( Func<IJ4JLogger>? loggerFactory )
         {
             Logger = loggerFactory?.Invoke();
             Logger?.SetLoggedType( GetType() );
@@ -46,7 +44,7 @@ namespace J4JSoftware.ConsoleUtilities
             var retVal = true;
 
             foreach( var propVal in _updaters
-                .Select( kvp => kvp.Value ) )
+                        .Select( kvp => kvp.Value ) )
             {
                 var result =
                     propVal.Updater.Update( propVal.PropertyInfo.GetValue( config ), out var newValue );
@@ -73,14 +71,13 @@ namespace J4JSoftware.ConsoleUtilities
             if( config is TConfig castConfig )
                 return Update( castConfig );
 
-            Logger?.Error( "Got a {0} but required a {1}", config.GetType(), typeof(TConfig) );
+            Logger?.Error( "Got a {0} but required a {1}", config.GetType(), typeof( TConfig ) );
 
             return false;
         }
 
-        public IConfigurationUpdater<TConfig> Property<TProp>(
-            Expression<Func<TConfig, TProp>> propertySelector,
-            IPropertyUpdater<TProp> updater )
+        public IConfigurationUpdater<TConfig> Property<TProp>( Expression<Func<TConfig, TProp>> propertySelector,
+                                                               IPropertyUpdater<TProp> updater )
         {
             var curExpr = propertySelector.Body;
             PropertyInfo? propInfo = null;

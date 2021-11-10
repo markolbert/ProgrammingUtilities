@@ -28,12 +28,11 @@ namespace J4JSoftware.Utilities
         private readonly Dictionary<Type, ITickManager> _extractors = new();
         private readonly IJ4JLogger? _logger;
 
-        public TickManagers(
-            IEnumerable<ITickManager> extractors,
-            IJ4JLogger? logger )
+        public TickManagers( IEnumerable<ITickManager> extractors,
+                             IJ4JLogger? logger )
         {
             _logger = logger;
-            _logger?.SetLoggedType(GetType());
+            _logger?.SetLoggedType( GetType() );
 
             foreach( var extractor in extractors )
             {
@@ -41,7 +40,7 @@ namespace J4JSoftware.Utilities
                 {
                     var existing = _extractors[ extractor.SourceType ];
 
-                    if( existing.IsSimpleExtractor == extractor.IsSimpleExtractor)
+                    if( existing.IsSimpleExtractor == extractor.IsSimpleExtractor )
                         _logger?.Error( "Ignoring duplicate extractor for type '{0}'", extractor.SourceType );
                     else
                     {
@@ -49,8 +48,8 @@ namespace J4JSoftware.Utilities
                         if( existing.IsSimpleExtractor )
                         {
                             _logger?.Information( "Replacing simple extractor '{0}' with custom extractor '{1}'",
-                                existing.GetType(), 
-                                extractor.GetType() );
+                                                 existing.GetType(),
+                                                 extractor.GetType() );
 
                             _extractors[ extractor.SourceType ] = extractor;
                         }
@@ -67,7 +66,7 @@ namespace J4JSoftware.Utilities
                 if( _extractors.ContainsKey( sourceType ) )
                     return _extractors[ sourceType ];
 
-                _logger?.Warning("No ITickManager defined for '{0}'", sourceType);
+                _logger?.Warning( "No ITickManager defined for '{0}'", sourceType );
 
                 return null;
             }

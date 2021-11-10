@@ -33,11 +33,11 @@ namespace J4JSoftware.EFCoreUtilities.Deprecated
         public DesignTimeFactory()
         {
             // ensure TDbContext can be created from a IDbContextFactoryConfiguration
-            var ctor = typeof(TDbContext).GetConstructor( new[] { typeof(IDbContextFactoryConfiguration) } );
+            var ctor = typeof( TDbContext ).GetConstructor( new[] { typeof( IDbContextFactoryConfiguration ) } );
 
             if( ctor == null )
-                throw new ArgumentException(
-                    $"{typeof(TDbContext).Name} cannot be constructed from a {nameof(IDbContextFactoryConfiguration)}" );
+                throw new
+                    ArgumentException( $"{typeof( TDbContext ).Name} cannot be constructed from a {nameof( IDbContextFactoryConfiguration )}" );
 
             _ctor = ctor;
         }

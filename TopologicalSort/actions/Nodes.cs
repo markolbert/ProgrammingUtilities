@@ -70,25 +70,25 @@ namespace J4JSoftware.Utilities
         public List<Node<T>> GetDependents( Node<T> ancestor )
         {
             return _dependencies.Where( x => ValuesAreEqual( x.AncestorNode.Value, ancestor.Value ) )
-                .Select( x => x.DependentNode )
-                .Distinct()
-                .ToList();
+                                .Select( x => x.DependentNode )
+                                .Distinct()
+                                .ToList();
         }
 
         public List<Node<T>> GetAncestors( Node<T> dependent )
         {
             return _dependencies.Where( x => ValuesAreEqual( x.DependentNode.Value, dependent.Value ) )
-                .Select( x => x.AncestorNode )
-                .Distinct()
-                .ToList();
+                                .Select( x => x.AncestorNode )
+                                .Distinct()
+                                .ToList();
         }
 
         public List<Node<T>> GetRoots()
         {
             return _nodes.Where( x => !_dependencies.Any( d => NodesAreEqual( d.AncestorNode, x ) ) )
-                .Select( x => x )
-                .Distinct()
-                .ToList();
+                         .Select( x => x )
+                         .Distinct()
+                         .ToList();
         }
 
         public Node<T> AddIndependentNode( T value )
@@ -164,7 +164,11 @@ namespace J4JSoftware.Utilities
 
             // Set of all nodes with no incoming edges
             var noIncomingEdges = new HashSet<Node<T>>( _nodes.Where( n =>
-                dependencies.All( e => !NodesAreEqual( e.DependentNode, n ) ) ) );
+                                                                          dependencies
+                                                                              .All( e =>
+                                                                                  !NodesAreEqual( e
+                                                                                       .DependentNode,
+                                                                                   n ) ) ) );
 
             // while noIncomingEdges is non-empty do
             while( noIncomingEdges.Any() )
@@ -177,8 +181,8 @@ namespace J4JSoftware.Utilities
                 retVal.Add( nodeToRemove );
 
                 foreach( var edge in dependencies
-                    .Where( e => NodesAreEqual( e.AncestorNode, nodeToRemove ) )
-                    .ToList() )
+                                     .Where( e => NodesAreEqual( e.AncestorNode, nodeToRemove ) )
+                                     .ToList() )
                 {
                     var targetNode = edge.DependentNode;
 
@@ -187,6 +191,7 @@ namespace J4JSoftware.Utilities
 
                     // if targetNode has no other incoming edges then
                     if( dependencies.All( x => !NodesAreEqual( x.DependentNode, targetNode ) ) )
+
                         // insert targetNode into noIncomingEdges
                         noIncomingEdges.Add( targetNode );
                 }
@@ -198,7 +203,7 @@ namespace J4JSoftware.Utilities
                 return false;
 
             sorted = retVal.Select( x => x.Value )
-                .ToList();
+                           .ToList();
 
             return true;
         }

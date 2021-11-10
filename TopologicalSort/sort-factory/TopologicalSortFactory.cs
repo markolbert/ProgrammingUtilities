@@ -25,36 +25,42 @@ namespace J4JSoftware.Utilities
 
             if( tempProcessors.Count == 0 )
             {
-                _logger?.Error( "No {0} objects to topologically sort are defined", typeof(T) );
+                _logger?.Error( "No {0} objects to topologically sort are defined", typeof( T ) );
                 return false;
             }
 
             foreach( var procInfo in tempProcessors
-                .Select( p => new
-                {
-                    PredecessorAttributes = p.GetType()
-                        .GetCustomAttributes( typeof(TopologicalPredecessorAttribute), false )
-                        .Cast<TopologicalPredecessorAttribute>()
-                        .ToList(),
-                    HasRootAttribute = p.GetType()
-                        .GetCustomAttributes(typeof(TopologicalRootAttribute), false)
-                        .FirstOrDefault() != null,
-                    Processor = p
-                } )
-                .Where( x => x.PredecessorAttributes.Any() || x.HasRootAttribute ) )
+                                     .Select( p => new
+                                                   {
+                                                       PredecessorAttributes = p.GetType()
+                                                           .GetCustomAttributes( typeof(
+                                                                                    TopologicalPredecessorAttribute ),
+                                                                                false )
+                                                           .Cast<TopologicalPredecessorAttribute>()
+                                                           .ToList(),
+                                                       HasRootAttribute = p.GetType()
+                                                                           .GetCustomAttributes( typeof(
+                                                                                TopologicalRootAttribute ),
+                                                                            false )
+                                                                           .FirstOrDefault()
+                                                                          != null,
+                                                       Processor = p
+                                                   } )
+                                     .Where( x => x.PredecessorAttributes.Any() || x.HasRootAttribute ) )
             {
                 if( procInfo.HasRootAttribute )
                     topoSort.AddIndependentNode( procInfo.Processor );
                 else
                 {
-                    foreach( var predecessorType in procInfo.PredecessorAttributes.Select(x=>x.PredecessorType) )
+                    foreach( var predecessorType in procInfo.PredecessorAttributes.Select( x => x.PredecessorType ) )
                     {
                         var predecessor = tempProcessors.FirstOrDefault( x => x.GetType() == predecessorType );
 
                         if( predecessor == null )
                         {
-                            _logger?.Error<Type, string>( "Could not find {0} type '{1}'", typeof(T),
-                                predecessorType.Name );
+                            _logger?.Error<Type, string>( "Could not find {0} type '{1}'",
+                                                         typeof( T ),
+                                                         predecessorType.Name );
                             return false;
                         }
 
@@ -64,7 +70,7 @@ namespace J4JSoftware.Utilities
             }
 
             if( !topoSort.Sort( out result, out var remaining ) )
-                _logger?.Error( "Could not topologically sort {0} collection", typeof(T) );
+                _logger?.Error( "Could not topologically sort {0} collection", typeof( T ) );
 
             return true;
         }

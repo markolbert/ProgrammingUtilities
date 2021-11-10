@@ -33,21 +33,22 @@ namespace Test.VisualUtilities
         public ColorConversionTest()
         {
             _colorTable = Enum.GetValues<KnownColor>()
-                .Select( Color.FromKnownColor )
-                .ToLookup( x => x.ToArgb() );
+                              .Select( Color.FromKnownColor )
+                              .ToLookup( x => x.ToArgb() );
         }
 
         [ Theory ]
-        [ ClassData( typeof(ColorSet) ) ]
+        [ ClassData( typeof( ColorSet ) ) ]
         public void RoundTrip( Color color )
         {
             var abgrHex = color.ToAbgrHex();
             var reconverted = WebColors.FromAbgrHex( abgrHex );
 
-            var lookup = _colorTable[ reconverted.ToArgb() ].FirstOrDefault( x => x.A == reconverted.A
-                && x.R == reconverted.R
-                && x.G == reconverted.G
-                && x.B == reconverted.B );
+            var lookup = _colorTable[ reconverted.ToArgb() ]
+                .FirstOrDefault( x => x.A == reconverted.A
+                                      && x.R == reconverted.R
+                                      && x.G == reconverted.G
+                                      && x.B == reconverted.B );
 
             lookup.Should().NotBeNull();
             lookup.Should().Be( color );

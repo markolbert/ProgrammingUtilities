@@ -25,16 +25,14 @@ namespace J4JSoftware.DependencyInjection
     public class ConstructorTesterPermuted<T> : ConstructorTesterBase<T>
         where T : class
     {
-        public ConstructorTesterPermuted(
-            params Type[] reqdParameters
-        )
+        public ConstructorTesterPermuted( params Type[] reqdParameters )
             : base( reqdParameters, true )
         {
         }
 
         protected override IEnumerable<IEnumerable<Type>> EnumerateParameterList()
         {
-            foreach (var ctorParameters in RequiredParameters.Permute())
+            foreach ( var ctorParameters in RequiredParameters.Permute() )
             {
                 yield return ctorParameters;
             }

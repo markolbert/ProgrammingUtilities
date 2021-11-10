@@ -1,6 +1,6 @@
 [
   {
-    "TraditionalMonthsPerMinorOnly" :  false, 
+    "TraditionalMonthsPerMinorOnly": false,
     "ControlSize": 200,
     "TickSize": 2,
     "Minimum": "2010-06-18",

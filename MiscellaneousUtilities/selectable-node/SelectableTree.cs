@@ -26,21 +26,19 @@ using J4JSoftware.Logging;
 namespace J4JSoftware.Utilities
 {
     public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, TKey>
-        where TKey: notnull
+        where TKey : notnull
         where TEntity : ISelectableEntity<TEntity, TKey>
     {
-        private static readonly TKey _intKey = (TKey) Convert.ChangeType( 5, typeof(TKey) );
+        private static readonly TKey _intKey = (TKey) Convert.ChangeType( 5, typeof( TKey ) );
 
         public event EventHandler? SelectionChanged;
 
         private readonly Func<ISelectableEntity<TEntity, TKey>, ISelectableNode<TEntity, TKey>> _nodeFactory;
         private readonly Dictionary<TKey, ISelectableNode<TEntity, TKey>> _masterNodeDict;
 
-        protected SelectableTree(
-            Func<ISelectableEntity<TEntity, TKey>, ISelectableNode<TEntity, TKey>> nodeFactory,
-            IJ4JLogger? logger,
-            IEqualityComparer<TKey>? keyComparer = null
-        )
+        protected SelectableTree( Func<ISelectableEntity<TEntity, TKey>, ISelectableNode<TEntity, TKey>> nodeFactory,
+                                  IJ4JLogger? logger,
+                                  IEqualityComparer<TKey>? keyComparer = null )
         {
             _nodeFactory = nodeFactory;
 
@@ -48,7 +46,7 @@ namespace J4JSoftware.Utilities
             _masterNodeDict = new Dictionary<TKey, ISelectableNode<TEntity, TKey>>( keyComparer );
 
             Logger = logger;
-            Logger?.SetLoggedType(GetType());
+            Logger?.SetLoggedType( GetType() );
         }
 
         protected IJ4JLogger? Logger { get; }
@@ -83,13 +81,14 @@ namespace J4JSoftware.Utilities
             return result != null;
         }
 
-        public IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false ) => getUnselected
+        public IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false ) =>
+            getUnselected
                 ? _masterNodeDict
-                    .Where( x => !x.Value.IsSelected )
-                    .Select( x => x.Value.Entity )
+                  .Where( x => !x.Value.IsSelected )
+                  .Select( x => x.Value.Entity )
                 : _masterNodeDict
-                    .Where( x => x.Value.IsSelected )
-                    .Select( x => x.Value.Entity );
+                  .Where( x => x.Value.IsSelected )
+                  .Select( x => x.Value.Entity );
 
         ///TODO tracing and reversing the path through the selected nodes may not be necessary
         public ISelectableNode<TEntity, TKey> AddOrGetNode( TEntity entity )
@@ -128,11 +127,11 @@ namespace J4JSoftware.Utilities
             return retVal!;
         }
 
-        public void AddOrGetNodes(IEnumerable<TEntity> entities)
+        public void AddOrGetNodes( IEnumerable<TEntity> entities )
         {
-            foreach (var entity in entities)
+            foreach ( var entity in entities )
             {
-                AddOrGetNode(entity);
+                AddOrGetNode( entity );
             }
         }
 
@@ -141,8 +140,8 @@ namespace J4JSoftware.Utilities
             sortComparer ??= new DefaultSelectableNodeComparer<TEntity, TKey>();
 
             var tempRoot = Nodes
-                .OrderBy( x => x, sortComparer )
-                .ToList();
+                           .OrderBy( x => x, sortComparer )
+                           .ToList();
 
             Nodes.Clear();
 
@@ -158,7 +157,7 @@ namespace J4JSoftware.Utilities
 
         // don't reverse the entity path (i.e., the root entity should be the last entity in what's returned)
         protected abstract List<TEntity> GetEntitiesPath( TEntity entity );
-        
+
         protected abstract TKey GetKey( TEntity entity );
 
         object? ISelectableTree.AddOrGetNode( object entity )
@@ -166,7 +165,7 @@ namespace J4JSoftware.Utilities
             if( entity is TEntity castEntity )
                 return AddOrGetNode( castEntity );
 
-            Logger?.Error( "Expected a {0} but got a {1}", typeof(TEntity), entity.GetType() );
+            Logger?.Error( "Expected a {0} but got a {1}", typeof( TEntity ), entity.GetType() );
 
             return null;
         }
@@ -177,7 +176,7 @@ namespace J4JSoftware.Utilities
 
             if( temp.Any( x => x is not TEntity ) )
             {
-                Logger?.Error( "Expected a collection of {0} but did not get it", typeof(TEntity) );
+                Logger?.Error( "Expected a collection of {0} but did not get it", typeof( TEntity ) );
                 return;
             }
 

@@ -28,8 +28,7 @@ namespace J4JSoftware.DependencyInjection
 
         private readonly Func<Type, bool>[] _testers;
 
-        public TypeTester(
-            params Func<Type, bool>[] testers )
+        public TypeTester( params Func<Type, bool>[] testers )
         {
             _testers = testers;
         }

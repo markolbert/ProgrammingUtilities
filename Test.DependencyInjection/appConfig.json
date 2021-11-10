@@ -1,7 +1,7 @@
 {
   "Serilog": {
     "MinimumLevel": "Verbose",
-    "Using": [ "Serilog.Sinks.File", "Serilog.Sinks.Debug" ],
+    "Using": ["Serilog.Sinks.File", "Serilog.Sinks.Debug"],
     "WriteTo": [
       {
         "Name": "Debug",
@@ -14,7 +14,8 @@
         "Args": {
           "path": "log.txt",
           "rollingInterval": "Day",
-          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {CallingContext} {Exception}"
+          "outputTemplate":
+            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {CallingContext} {Exception}"
         }
       }
     ]

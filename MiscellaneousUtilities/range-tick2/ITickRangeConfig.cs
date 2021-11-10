@@ -32,5 +32,4 @@ namespace J4JSoftware.Utilities
     {
         bool TraditionalMonthsPerMinorOnly { get; }
     }
-
 }

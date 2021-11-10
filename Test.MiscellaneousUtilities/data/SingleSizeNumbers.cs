@@ -22,7 +22,7 @@ namespace Test.MiscellaneousUtilities
     public class SingleSizeNumbers : TestDataBase<SingleNumbers>
     {
         public SingleSizeNumbers()
-            :base("single-numeric.json")
+            : base( "single-numeric.json" )
         {
         }
     }

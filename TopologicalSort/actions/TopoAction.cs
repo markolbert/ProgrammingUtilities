@@ -23,9 +23,7 @@ namespace J4JSoftware.Utilities
 {
     public abstract class TopoAction<TSource> : IAction<TSource>
     {
-        protected TopoAction(
-            IJ4JLogger logger
-        )
+        protected TopoAction( IJ4JLogger logger )
         {
             Logger = logger;
             Logger.SetLoggedType( GetType() );
@@ -59,7 +57,7 @@ namespace J4JSoftware.Utilities
             if( src is TSource castSrc )
                 return Process( castSrc );
 
-            Logger?.Error( "Expected a '{0}' but got a '{1}'", typeof(IAction<TSource>), src.GetType() );
+            Logger?.Error( "Expected a '{0}' but got a '{1}'", typeof( IAction<TSource> ), src.GetType() );
 
             return false;
         }

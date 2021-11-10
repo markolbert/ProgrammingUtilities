@@ -37,11 +37,11 @@ namespace J4JSoftware.DependencyInjection
         {
             var sb = new StringBuilder();
 
-            if( (requirements & J4JHostRequirements.ApplicationName) == J4JHostRequirements.ApplicationName )
+            if( ( requirements & J4JHostRequirements.ApplicationName ) == J4JHostRequirements.ApplicationName )
                 sb.Append( "Application Name, " );
 
-            if ((requirements & J4JHostRequirements.Publisher) == J4JHostRequirements.Publisher)
-                sb.Append("Publisher");
+            if ( ( requirements & J4JHostRequirements.Publisher ) == J4JHostRequirements.Publisher )
+                sb.Append( "Publisher" );
 
             var retVal = sb.ToString().Trim();
 
@@ -54,13 +54,13 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
-        public static J4JHostConfiguration ApplicationName(this J4JHostConfiguration config, string name)
+        public static J4JHostConfiguration ApplicationName( this J4JHostConfiguration config, string name )
         {
-            config.ApplicationName= name;
+            config.ApplicationName = name;
             return config;
         }
 
-        public static J4JHostConfiguration DataProtectionPurpose(this J4JHostConfiguration config, string purpose)
+        public static J4JHostConfiguration DataProtectionPurpose( this J4JHostConfiguration config, string purpose )
         {
             config.DataProtectionPurpose = purpose;
             return config;
@@ -72,139 +72,129 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
-        public static J4JHostConfiguration CaseInsensitiveFileSystem(this J4JHostConfiguration config)
+        public static J4JHostConfiguration CaseInsensitiveFileSystem( this J4JHostConfiguration config )
         {
             config.CaseSensitiveFileSystem = false;
             return config;
         }
 
-        public static J4JHostConfiguration AutoDetectFileSystemCaseSensitivity(this J4JHostConfiguration config)
+        public static J4JHostConfiguration AutoDetectFileSystemCaseSensitivity( this J4JHostConfiguration config )
         {
             config.AutoDetectCaseSensitivity();
             return config;
         }
 
-        public static J4JHostConfiguration AddApplicationConfigurationFile( 
-            this J4JHostConfiguration config,
-            string filePath,
-            bool optional = true,
-            bool reloadOnChange = false
-            )
+        public static J4JHostConfiguration AddApplicationConfigurationFile( this J4JHostConfiguration config,
+                                                                            string filePath,
+                                                                            bool optional = true,
+                                                                            bool reloadOnChange = false )
         {
             config.ApplicationConfigurationFiles.Add( new ConfigurationFile( filePath, optional, reloadOnChange ) );
             return config;
         }
 
-        public static J4JHostConfiguration AddUserConfigurationFile(
-            this J4JHostConfiguration config,
-            string filePath,
-            bool optional = true,
-            bool reloadOnChange = false
-                )
+        public static J4JHostConfiguration AddUserConfigurationFile( this J4JHostConfiguration config,
+                                                                     string filePath,
+                                                                     bool optional = true,
+                                                                     bool reloadOnChange = false )
         {
             config.UserConfigurationFiles.Add( new ConfigurationFile( filePath, optional, reloadOnChange ) );
             return config;
         }
 
-        public static J4JHostConfiguration AddEnvironmentInitializers( 
-            this J4JHostConfiguration config,
-            params Action<HostBuilderContext, IConfigurationBuilder>[] initializers )
+        public static J4JHostConfiguration AddEnvironmentInitializers( this J4JHostConfiguration config,
+                                                                       params Action<HostBuilderContext,
+                                                                           IConfigurationBuilder>[] initializers )
         {
             config.EnvironmentInitializers.AddRange( initializers );
             return config;
         }
 
-        public static J4JHostConfiguration AddConfigurationInitializers(
-            this J4JHostConfiguration config,
-            params Action<IConfigurationBuilder>[] initializers)
+        public static J4JHostConfiguration AddConfigurationInitializers( this J4JHostConfiguration config,
+                                                                         params Action<IConfigurationBuilder>[]
+                                                                             initializers )
         {
-            config.ConfigurationInitializers.AddRange(initializers);
+            config.ConfigurationInitializers.AddRange( initializers );
             return config;
         }
 
-        public static J4JHostConfiguration AddDependencyInjectionInitializers(
-            this J4JHostConfiguration config,
-            params Action<HostBuilderContext, ContainerBuilder>[] initializers)
+        public static J4JHostConfiguration AddDependencyInjectionInitializers( this J4JHostConfiguration config,
+                                                                               params Action<HostBuilderContext,
+                                                                                   ContainerBuilder>[] initializers )
         {
-            config.DependencyInjectionInitializers.AddRange(initializers);
+            config.DependencyInjectionInitializers.AddRange( initializers );
             return config;
         }
 
-        public static J4JHostConfiguration AddServicesInitializers(
-            this J4JHostConfiguration config,
-            params Action<HostBuilderContext, IServiceCollection>[] initializers)
+        public static J4JHostConfiguration AddServicesInitializers( this J4JHostConfiguration config,
+                                                                    params Action<HostBuilderContext,
+                                                                        IServiceCollection>[] initializers )
         {
-            config.ServicesInitializers.AddRange(initializers);
+            config.ServicesInitializers.AddRange( initializers );
             return config;
         }
 
-        public static J4JHostConfiguration LoggerInitializer(
-            this J4JHostConfiguration config,
-            Action<IConfiguration, J4JLoggerConfiguration> initializer )
+        public static J4JHostConfiguration LoggerInitializer( this J4JHostConfiguration config,
+                                                              Action<IConfiguration, J4JLoggerConfiguration>
+                                                                  initializer )
         {
             config.LoggerInitializer = initializer;
             return config;
         }
 
-        public static J4JHostConfiguration AddNetEventSinkToLogger(
-            this J4JHostConfiguration config,
-            string? outputTemplate = null,
-            LogEventLevel minimumLevel = LogEventLevel.Verbose
-        )
+        public static J4JHostConfiguration AddNetEventSinkToLogger( this J4JHostConfiguration config,
+                                                                    string? outputTemplate = null,
+                                                                    LogEventLevel minimumLevel = LogEventLevel.Verbose )
         {
             config.NetEventConfiguration = new NetEventConfiguration( outputTemplate, minimumLevel );
             return config;
         }
 
-        public static J4JHostConfiguration FilePathTrimmer(this J4JHostConfiguration config, Func<Type?, string, int, string, string> filePathTrimmer)
+        public static J4JHostConfiguration FilePathTrimmer( this J4JHostConfiguration config,
+                                                            Func<Type?, string, int, string, string> filePathTrimmer )
         {
             config.FilePathTrimmer = filePathTrimmer;
             return config;
         }
 
-        public static J4JCommandLineConfiguration AddCommandLineProcessing( 
-            this J4JHostConfiguration config,
-            CommandLineOperatingSystems operatingSystem )
+        public static J4JCommandLineConfiguration AddCommandLineProcessing( this J4JHostConfiguration config,
+                                                                            CommandLineOperatingSystems
+                                                                                operatingSystem )
         {
             config.CommandLineConfiguration = new J4JCommandLineConfiguration( config, operatingSystem );
             return config.CommandLineConfiguration;
         }
 
-        public static J4JCommandLineConfiguration LexicalElements(
-            this J4JCommandLineConfiguration config,
-            ILexicalElements tokens )
+        public static J4JCommandLineConfiguration LexicalElements( this J4JCommandLineConfiguration config,
+                                                                   ILexicalElements tokens )
         {
             config.LexicalElements = tokens;
             return config;
         }
 
-        public static J4JCommandLineConfiguration TextConverters(
-            this J4JCommandLineConfiguration config,
-            ITextConverters converters)
+        public static J4JCommandLineConfiguration TextConverters( this J4JCommandLineConfiguration config,
+                                                                  ITextConverters converters )
         {
             config.TextConverters = converters;
             return config;
         }
 
-        public static J4JCommandLineConfiguration OptionsGenerator(
-            this J4JCommandLineConfiguration config,
-            IOptionsGenerator generator )
+        public static J4JCommandLineConfiguration OptionsGenerator( this J4JCommandLineConfiguration config,
+                                                                    IOptionsGenerator generator )
         {
             config.OptionsGenerator = generator;
             return config;
         }
 
-        public static J4JCommandLineConfiguration TokenCleaners(
-            this J4JCommandLineConfiguration config,
-            params ICleanupTokens[] tokenCleaners )
+        public static J4JCommandLineConfiguration TokenCleaners( this J4JCommandLineConfiguration config,
+                                                                 params ICleanupTokens[] tokenCleaners )
         {
             config.CleanupProcessors.AddRange( tokenCleaners );
             return config;
         }
 
-        public static J4JCommandLineConfiguration OptionsInitializer(
-            this J4JCommandLineConfiguration config,
-            Action<OptionCollection> initializer)
+        public static J4JCommandLineConfiguration OptionsInitializer( this J4JCommandLineConfiguration config,
+                                                                      Action<OptionCollection> initializer )
         {
             config.OptionsInitializer = initializer;
             config.HostConfiguration.ConfigurationInitializers.Add( config.HostConfiguration.SetupCommandLineParsing );
@@ -218,29 +208,29 @@ namespace J4JSoftware.DependencyInjection
                 return null;
 
             var retVal = new HostBuilder()
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+                .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
 
             if( retVal == null )
                 return null;
 
-            foreach (var configurator in config.EnvironmentInitializers)
+            foreach ( var configurator in config.EnvironmentInitializers )
             {
-                retVal.ConfigureAppConfiguration(configurator);
+                retVal.ConfigureAppConfiguration( configurator );
             }
 
-            foreach (var configurator in config.ConfigurationInitializers)
+            foreach ( var configurator in config.ConfigurationInitializers )
             {
-                retVal.ConfigureHostConfiguration(configurator);
+                retVal.ConfigureHostConfiguration( configurator );
             }
 
-            foreach (var configurator in config.DependencyInjectionInitializers)
+            foreach ( var configurator in config.DependencyInjectionInitializers )
             {
-                retVal.ConfigureContainer(configurator);
+                retVal.ConfigureContainer( configurator );
             }
 
-            foreach (var configurator in config.ServicesInitializers)
+            foreach ( var configurator in config.ServicesInitializers )
             {
-                retVal.ConfigureServices(configurator);
+                retVal.ConfigureServices( configurator );
             }
 
             return retVal;

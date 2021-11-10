@@ -26,11 +26,9 @@ namespace J4JSoftware.Utilities
     public record TickManager<TSource, TTick> : ITickManager<TSource, TTick>
         where TTick : ScaledTick, new()
     {
-        protected TickManager(
-            bool isSimpleExtractor,
-            Func<TSource, double> extractor,
-            MinorTickCollection<TTick> minorTickCollection
-        )
+        protected TickManager( bool isSimpleExtractor,
+                               Func<TSource, double> extractor,
+                               MinorTickCollection<TTick> minorTickCollection )
         {
             IsSimpleExtractor = isSimpleExtractor;
             Extractor = extractor;
@@ -43,12 +41,12 @@ namespace J4JSoftware.Utilities
         protected Func<TSource, double> Extractor { get; init; }
         protected MinorTickCollection<TTick> MinorTickCollection { get; }
 
-        public Type SourceType => typeof(TSource);
-        public Type TickType => typeof(TTick);
+        public Type SourceType => typeof( TSource );
+        public Type TickType => typeof( TTick );
 
-        public bool ExtractDouble(TSource source, out double result)
+        public bool ExtractDouble( TSource source, out double result )
         {
-            result = Extractor(source);
+            result = Extractor( source );
             return true;
         }
 
@@ -58,24 +56,24 @@ namespace J4JSoftware.Utilities
             return true;
         }
 
-        public virtual bool GetTickValues(double minValue, double maxValue, out List<TTick> result)
+        public virtual bool GetTickValues( double minValue, double maxValue, out List<TTick> result )
         {
             result = MinorTickCollection.GetAlternatives( minValue, maxValue );
             return true;
         }
 
-        public RangeParameters GetDefaultRange(double minValue, double maxValue) =>
-            MinorTickCollection.GetDefaultRangeParameters(minValue, maxValue);
+        public RangeParameters GetDefaultRange( double minValue, double maxValue ) =>
+            MinorTickCollection.GetDefaultRangeParameters( minValue, maxValue );
 
-        bool ITickManager.ExtractDouble(object source, out double? result)
+        bool ITickManager.ExtractDouble( object source, out double? result )
         {
             result = null;
 
-            if( source is not TSource castSource ) 
+            if( source is not TSource castSource )
                 return false;
 
-            result = Extractor(castSource);
-            
+            result = Extractor( castSource );
+
             return true;
         }
 

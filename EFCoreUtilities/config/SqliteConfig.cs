@@ -22,8 +22,8 @@ namespace J4JSoftware.EFCoreUtilities
     public class SqliteConfig : DatabaseConfig, ISqliteConfig
     {
         public SqliteCollationType CollationType { get; set; } = OsUtilities.IsFileSystemCaseSensitive()
-            ? SqliteCollationType.CaseSensitive
-            : SqliteCollationType.CaseInsensitiveAtoZ;
+                                                                     ? SqliteCollationType.CaseSensitive
+                                                                     : SqliteCollationType.CaseInsensitiveAtoZ;
 
         public string Collation => CollationType.SqliteCollation();
     }

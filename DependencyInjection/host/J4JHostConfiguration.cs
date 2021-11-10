@@ -45,9 +45,7 @@ namespace J4JSoftware.DependencyInjection
         {
         }
 
-        public J4JHostConfiguration(
-            Func<bool> inDesignMode
-        )
+        public J4JHostConfiguration( Func<bool> inDesignMode )
         {
             _inDesignMode = inDesignMode;
 
@@ -63,7 +61,7 @@ namespace J4JSoftware.DependencyInjection
         // when the ultimate J4JLogger instance is not yet available
         public J4JCachedLogger Logger { get; } = new();
 
-        internal string Publisher { get; set; }= string.Empty;
+        internal string Publisher { get; set; } = string.Empty;
         internal string ApplicationName { get; set; } = string.Empty;
         internal string DataProtectionPurpose { get; set; } = string.Empty;
 
@@ -72,20 +70,20 @@ namespace J4JSoftware.DependencyInjection
         internal void AutoDetectCaseSensitivity()
         {
             CaseSensitiveFileSystem = Environment.OSVersion.Platform switch
-            {
-                PlatformID.MacOSX => true,
-                PlatformID.Unix => true,
-                PlatformID.Win32NT => false,
-                PlatformID.Win32S => false,
-                PlatformID.Win32Windows => false,
-                PlatformID.WinCE => false,
-                PlatformID.Xbox => false,
-                _ => default_sensitivity()
-            };
+                                      {
+                                          PlatformID.MacOSX       => true,
+                                          PlatformID.Unix         => true,
+                                          PlatformID.Win32NT      => false,
+                                          PlatformID.Win32S       => false,
+                                          PlatformID.Win32Windows => false,
+                                          PlatformID.WinCE        => false,
+                                          PlatformID.Xbox         => false,
+                                          _                       => default_sensitivity()
+                                      };
 
             bool default_sensitivity()
             {
-                Logger.Warning("Unsupported operating system, case sensitivity set to false");
+                Logger.Warning( "Unsupported operating system, case sensitivity set to false" );
                 return false;
             }
         }
@@ -112,25 +110,25 @@ namespace J4JSoftware.DependencyInjection
         public string ApplicationConfigurationFolder =>
             _inDesignMode() ? AppContext.BaseDirectory : Environment.CurrentDirectory;
 
-        public string UserConfigurationFolder => Path.Combine(
-            Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
-            Publisher,
-            ApplicationName );
+        public string UserConfigurationFolder =>
+            Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
+                         Publisher,
+                         ApplicationName );
 
         public J4JHostBuildStatus BuildStatus { get; private set; } = J4JHostBuildStatus.NotInitialized;
 
         public void OutputBuildLogger( IJ4JLogger logger ) => logger.OutputCache( Logger );
-        
+
         public J4JHostRequirements MissingRequirements
         {
             get
             {
                 var retVal = J4JHostRequirements.AllMet;
 
-                if (string.IsNullOrEmpty(Publisher))
+                if ( string.IsNullOrEmpty( Publisher ) )
                     retVal |= J4JHostRequirements.Publisher;
 
-                if (string.IsNullOrEmpty(ApplicationName))
+                if ( string.IsNullOrEmpty( ApplicationName ) )
                     retVal |= J4JHostRequirements.ApplicationName;
 
                 // if we're not utilize the command line subsystem there's nothing
@@ -157,53 +155,62 @@ namespace J4JSoftware.DependencyInjection
         private void SetupConfiguration( IConfigurationBuilder builder )
         {
             foreach( var configFile in ApplicationConfigurationFiles
-                .Distinct( CaseSensitiveFileSystem? ConfigurationFile.CaseSensitiveComparer : ConfigurationFile.CaseInsensitiveComparer ))
+                        .Distinct( CaseSensitiveFileSystem
+                                       ? ConfigurationFile.CaseSensitiveComparer
+                                       : ConfigurationFile.CaseInsensitiveComparer ) )
             {
                 var filePath = Path.IsPathRooted( configFile.FilePath )
-                    ? configFile.FilePath
-                    : Path.Combine( ApplicationConfigurationFolder, configFile.FilePath );
+                                   ? configFile.FilePath
+                                   : Path.Combine( ApplicationConfigurationFolder, configFile.FilePath );
 
                 builder.AddJsonFile( filePath, configFile.Optional, configFile.ReloadOnChange );
             }
 
-            foreach (var configFile in UserConfigurationFiles
-                .Distinct(CaseSensitiveFileSystem ? ConfigurationFile.CaseSensitiveComparer : ConfigurationFile.CaseInsensitiveComparer))
+            foreach ( var configFile in UserConfigurationFiles
+                         .Distinct( CaseSensitiveFileSystem
+                                        ? ConfigurationFile.CaseSensitiveComparer
+                                        : ConfigurationFile.CaseInsensitiveComparer ) )
             {
-                var filePath = Path.IsPathRooted(configFile.FilePath)
-                    ? configFile.FilePath
-                    : Path.Combine(UserConfigurationFolder, configFile.FilePath);
+                var filePath = Path.IsPathRooted( configFile.FilePath )
+                                   ? configFile.FilePath
+                                   : Path.Combine( UserConfigurationFolder, configFile.FilePath );
 
-                builder.AddJsonFile(filePath, configFile.Optional, configFile.ReloadOnChange);
+                builder.AddJsonFile( filePath, configFile.Optional, configFile.ReloadOnChange );
             }
         }
 
-        internal void SetupCommandLineParsing(IConfigurationBuilder builder)
+        internal void SetupCommandLineParsing( IConfigurationBuilder builder )
         {
             // we create default values for missing required parameters, sometimes based on the 
             // type of operating system specified
             CommandLineConfiguration!.TextConverters ??= new TextConverters();
 
-            _options = new OptionCollection( FileSystemTextComparison, CommandLineConfiguration.TextConverters, Logger);
+            _options = new OptionCollection( FileSystemTextComparison,
+                                            CommandLineConfiguration.TextConverters,
+                                            Logger );
 
-            CommandLineConfiguration.OptionsGenerator ??= new OptionsGenerator( _options, FileSystemTextComparison, Logger );
+            CommandLineConfiguration.OptionsGenerator ??=
+                new OptionsGenerator( _options, FileSystemTextComparison, Logger );
 
             CommandLineConfiguration.LexicalElements ??= CommandLineConfiguration.OperatingSystem switch
-            {
-                CommandLineOperatingSystems.Windows => new WindowsLexicalElements(Logger),
-                CommandLineOperatingSystems.Linux => new LinuxLexicalElements(Logger),
-                _ => throw new ArgumentException("Operating system is undefined")
-            };
+                                                         {
+                                                             CommandLineOperatingSystems.Windows =>
+                                                                 new WindowsLexicalElements( Logger ),
+                                                             CommandLineOperatingSystems.Linux =>
+                                                                 new LinuxLexicalElements( Logger ),
+                                                             _ => throw new
+                                                                      ArgumentException( "Operating system is undefined" )
+                                                         };
 
-            var parsingTable = new ParsingTable(CommandLineConfiguration.OptionsGenerator!, Logger );
+            var parsingTable = new ParsingTable( CommandLineConfiguration.OptionsGenerator!, Logger );
 
-            var tokenizer = new Tokenizer(CommandLineConfiguration.LexicalElements!,
-                Logger,
-                CommandLineConfiguration.CleanupProcessors.ToArray()
-            );
+            var tokenizer = new Tokenizer( CommandLineConfiguration.LexicalElements!,
+                                          Logger,
+                                          CommandLineConfiguration.CleanupProcessors.ToArray() );
 
             var parser = new Parser( _options, parsingTable, tokenizer, Logger );
 
-            builder.AddJ4JCommandLine(parser, out var cmdLineSrc, Logger);
+            builder.AddJ4JCommandLine( parser, out var cmdLineSrc, Logger );
 
             CommandLineConfiguration.OptionsInitializer!( _options );
 
@@ -212,74 +219,77 @@ namespace J4JSoftware.DependencyInjection
             _options.FinishConfiguration();
         }
 
-        private void SetupDependencyInjection(HostBuilderContext hbc, ContainerBuilder builder)
+        private void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
         {
             builder.RegisterType<DataProtection>()
-                .As<IDataProtection>()
-                .OnActivating(x => x.Instance.Purpose = string.IsNullOrEmpty( DataProtectionPurpose) ? ApplicationName : DataProtectionPurpose)
-                .SingleInstance();
+                   .As<IDataProtection>()
+                   .OnActivating( x => x.Instance.Purpose =
+                                           string.IsNullOrEmpty( DataProtectionPurpose )
+                                               ? ApplicationName
+                                               : DataProtectionPurpose )
+                   .SingleInstance();
 
             builder.RegisterType<J4JProtection>()
-                .As<IJ4JProtection>()
-                .SingleInstance();
+                   .As<IJ4JProtection>()
+                   .SingleInstance();
 
-            builder.Register(c =>
-                {
-                    // the application configuration folder for XAML projects (e.g., WPF) depends upon
-                    // whether or not the app is running in design mode or run-time mode
-                    var retVal = new J4JHostInfo(
-                        Publisher,
-                        ApplicationName,
-                        CaseSensitiveFileSystem,
-                        CommandLineConfiguration?.LexicalElements,
-                        _inDesignMode,
-                        CommandLineSource
-                    );
+            builder.Register( c =>
+                              {
+                                  // the application configuration folder for XAML projects (e.g., WPF) depends upon
+                                  // whether or not the app is running in design mode or run-time mode
+                                  var retVal = new J4JHostInfo( Publisher,
+                                                               ApplicationName,
+                                                               CaseSensitiveFileSystem,
+                                                               CommandLineConfiguration?.LexicalElements,
+                                                               _inDesignMode,
+                                                               CommandLineSource );
 
-                    return retVal;
-                })
-                .AsSelf()
-                .SingleInstance();
+                                  return retVal;
+                              } )
+                   .AsSelf()
+                   .SingleInstance();
 
-            builder.Register(c =>
-                {
-                    var provider = c.Resolve<IDataProtectionProvider>();
+            builder.Register( c =>
+                              {
+                                  var provider = c.Resolve<IDataProtectionProvider>();
 
-                    return new J4JProtection(provider, DataProtectionPurpose);
-                })
-                .As<IJ4JProtection>()
-                .SingleInstance();
+                                  return new J4JProtection( provider, DataProtectionPurpose );
+                              } )
+                   .As<IJ4JProtection>()
+                   .SingleInstance();
 
             // expose IOptionCollection when J4JCommandLine subsystem is being used
             if( _options != null )
                 builder.Register( c => _options )
-                    .AsSelf()
-                    .SingleInstance();
+                       .AsSelf()
+                       .SingleInstance();
         }
 
         private void SetupLogging( HostBuilderContext hbc, ContainerBuilder builder )
         {
-            builder.Register(c =>
-                {
-                    var loggerConfig = new J4JLoggerConfiguration(FilePathTrimmer);
+            builder.Register( c =>
+                              {
+                                  var loggerConfig = new J4JLoggerConfiguration( FilePathTrimmer );
 
-                    if( NetEventConfiguration != null )
-                    {
-                        var outputTemplate = NetEventConfiguration.OutputTemplate ?? "[{Level:u3}] {Message:lj}";
+                                  if( NetEventConfiguration != null )
+                                  {
+                                      var outputTemplate =
+                                          NetEventConfiguration.OutputTemplate ?? "[{Level:u3}] {Message:lj}";
 
-                        loggerConfig.NetEvent( outputTemplate: outputTemplate,
-                            restrictedToMinimumLevel: NetEventConfiguration.MinimumLevel );
-                    }
+                                      loggerConfig.NetEvent( outputTemplate: outputTemplate,
+                                                            restrictedToMinimumLevel:
+                                                            NetEventConfiguration.MinimumLevel );
+                                  }
 
-                    LoggerInitializer?.Invoke(hbc.Configuration, loggerConfig);
+                                  LoggerInitializer?.Invoke( hbc.Configuration, loggerConfig );
 
-                    return loggerConfig.CreateLogger();
-                })
-                .AsImplementedInterfaces()
-                .SingleInstance();
+                                  return loggerConfig.CreateLogger();
+                              } )
+                   .AsImplementedInterfaces()
+                   .SingleInstance();
         }
 
-        private void SetupServices(HostBuilderContext hbc, IServiceCollection services)
+        private void SetupServices( HostBuilderContext hbc, IServiceCollection services )
         {
             services.AddDataProtection();
         }

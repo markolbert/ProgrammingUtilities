@@ -26,14 +26,11 @@ namespace J4JSoftware.DependencyInjection
     public abstract class ConstructorTesterBase<T> : ITypeTester
         where T : class
     {
-        protected ConstructorTesterBase(
-            Type[] reqdParameters,
-            bool permuteParameters
-        )
+        protected ConstructorTesterBase( Type[] reqdParameters,
+                                         bool permuteParameters )
         {
             PermuteParameters = permuteParameters;
             RequiredParameters = reqdParameters;
-
         }
 
         protected Type[] RequiredParameters { get; private set; }
@@ -42,7 +39,7 @@ namespace J4JSoftware.DependencyInjection
 
         public bool MeetsRequirements( Type toCheck )
         {
-            if( !typeof(T).IsAssignableFrom( toCheck ) )
+            if( !typeof( T ).IsAssignableFrom( toCheck ) )
                 return false;
 
             foreach( var ctorParameters in EnumerateParameterList() )

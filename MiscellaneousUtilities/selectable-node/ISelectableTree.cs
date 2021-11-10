@@ -15,12 +15,12 @@ namespace J4JSoftware.Utilities
         where TEntity : ISelectableEntity<TEntity, TKey>
     {
         ObservableCollection<ISelectableNode<TEntity, TKey>> Nodes { get; }
-        IEnumerable<TEntity> GetSelectedNodes(bool getUnselected = false);
+        IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false );
 
         ISelectableNode<TEntity, TKey> AddOrGetNode( TEntity entity );
         void AddOrGetNodes( IEnumerable<TEntity> entities );
 
-        bool FindNode(TKey key, out ISelectableNode<TEntity, TKey>? result);
+        bool FindNode( TKey key, out ISelectableNode<TEntity, TKey>? result );
         void SortNodes( IComparer<ISelectableNode<TEntity, TKey>>? sortComparer = null );
     }
 }

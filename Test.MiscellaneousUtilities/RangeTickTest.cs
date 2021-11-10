@@ -9,6 +9,7 @@ using J4JSoftware.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit;
+
 #pragma warning disable 8618
 
 namespace Test.MiscellaneousUtilities
@@ -25,9 +26,9 @@ namespace Test.MiscellaneousUtilities
         private IHost CreateHost()
         {
             var hostConfig = new J4JHostConfiguration()
-                .Publisher("J4JSoftware")
-                .ApplicationName("Tests.MiscellaneousUtilities")
-                .AddDependencyInjectionInitializers( SetupDependencyInjection );
+                             .Publisher( "J4JSoftware" )
+                             .ApplicationName( "Tests.MiscellaneousUtilities" )
+                             .AddDependencyInjectionInitializers( SetupDependencyInjection );
 
             var hostBuilder = hostConfig.CreateHostBuilder();
 
@@ -39,16 +40,16 @@ namespace Test.MiscellaneousUtilities
         private void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
         {
             builder.RegisterType<RangeCalculator>()
-                .As<IRangeCalculator>();
+                   .As<IRangeCalculator>();
 
             builder.RegisterType<TickManagers>()
-                .As<ITickManagers>();
+                   .As<ITickManagers>();
 
-            builder.RegisterAssemblyTypes(typeof(ITickManager).Assembly)
-                .Where(t => !t.IsAbstract
-                            && typeof(ITickManager).IsAssignableFrom(t)
-                            && t.GetConstructors().Where(x => !x.GetParameters().Any()).Any())
-                .AsImplementedInterfaces();
+            builder.RegisterAssemblyTypes( typeof( ITickManager ).Assembly )
+                   .Where( t => !t.IsAbstract
+                                && typeof( ITickManager ).IsAssignableFrom( t )
+                                && t.GetConstructors().Where( x => !x.GetParameters().Any() ).Any() )
+                   .AsImplementedInterfaces();
         }
 
         private class ValueHolder<T>
@@ -63,7 +64,7 @@ namespace Test.MiscellaneousUtilities
 
             var calculator = _host.Services.GetRequiredService<IRangeCalculator>();
 
-            Thread.Sleep(1);
+            Thread.Sleep( 1 );
             var random = new Random();
 
             for ( var loop = 0; loop < 1000; loop++ )
@@ -91,35 +92,35 @@ namespace Test.MiscellaneousUtilities
             }
         }
 
-        [Fact]
+        [ Fact ]
         public void TestDateTimeList()
         {
             var values = new List<ValueHolder<DateTime>>();
 
             var calculator = _host.Services.GetRequiredService<IRangeCalculator>();
 
-            Thread.Sleep(1);
+            Thread.Sleep( 1 );
             var random = new Random();
 
-            for (var loop = 0; loop < 1000; loop++)
+            for ( var loop = 0; loop < 1000; loop++ )
             {
-                for (var idx = 0; idx < 100; idx++)
+                for ( var idx = 0; idx < 100; idx++ )
                 {
                     values.Add( new ValueHolder<DateTime>
-                    {
-                        Value = DateTime.Today.AddDays( 500 - random.Next( 0, 1001 ) )
-                    } );
+                                {
+                                    Value = DateTime.Today.AddDays( 500 - random.Next( 0, 1001 ) )
+                                } );
                 }
 
-                calculator.Evaluate(values, values.TickExtractor(x => x.Value));
+                calculator.Evaluate( values, values.TickExtractor( x => x.Value ) );
                 calculator.Alternatives.Should().NotBeNullOrEmpty();
 
-                var bestFit = calculator.Alternatives.BestByInactiveRegions(100);
+                var bestFit = calculator.Alternatives.BestByInactiveRegions( 100 );
                 bestFit.Should().NotBeNull();
             }
         }
 
-        [Theory ]
+        [ Theory ]
         [ InlineData( -76, 1307, -80, 1310 ) ]
         [ InlineData( -0.5, 5, -0.5, 5 ) ]
         [ InlineData( 0, 0, 0, 0 ) ]
@@ -129,35 +130,35 @@ namespace Test.MiscellaneousUtilities
         {
             var calculator = _host.Services.GetRequiredService<IRangeCalculator>();
 
-            calculator.Evaluate(minValue, maxValue);
+            calculator.Evaluate( minValue, maxValue );
 
             calculator.Alternatives.Should().NotBeEmpty();
 
             var bestFit = calculator.Alternatives.BestByInactiveRegions();
             bestFit.Should().NotBeNull();
 
-            bestFit!.RangeStart.Should().Be(rangeStart);
-            bestFit!.RangeEnd.Should().Be(rangeEnd);
+            bestFit!.RangeStart.Should().Be( rangeStart );
+            bestFit!.RangeEnd.Should().Be( rangeEnd );
         }
 
-        [Theory]
-        [InlineData("2/15/2020", "8/17/2021", "2/1/2020", "8/1/2021")]
-        [InlineData("6/26/2001", "12/31/2021", "6/1/2001", "12/1/2021")]
-        [InlineData("6/26/2001", "11/30/2021", "6/1/2001", "11/1/2021")]
-        [InlineData("6/26/2001", "11/30/2001", "6/1/2001", "11/1/2001")]
-        [InlineData("6/26/2001", "11/30/2002", "6/1/2001", "11/1/2002")]
-        [InlineData("6/26/2001", "6/26/2001", "6/1/2001", "6/1/2001")]
-        public void TestMonth(string minValue, string maxValue, string rangeStart, string rangeEnd)
+        [ Theory ]
+        [ InlineData( "2/15/2020", "8/17/2021", "2/1/2020", "8/1/2021" ) ]
+        [ InlineData( "6/26/2001", "12/31/2021", "6/1/2001", "12/1/2021" ) ]
+        [ InlineData( "6/26/2001", "11/30/2021", "6/1/2001", "11/1/2021" ) ]
+        [ InlineData( "6/26/2001", "11/30/2001", "6/1/2001", "11/1/2001" ) ]
+        [ InlineData( "6/26/2001", "11/30/2002", "6/1/2001", "11/1/2002" ) ]
+        [ InlineData( "6/26/2001", "6/26/2001", "6/1/2001", "6/1/2001" ) ]
+        public void TestMonth( string minValue, string maxValue, string rangeStart, string rangeEnd )
         {
             var calculator = _host.Services.GetRequiredService<IRangeCalculator>();
 
-            calculator.Evaluate( DateTime.Parse( minValue), DateTime.Parse(maxValue) );
+            calculator.Evaluate( DateTime.Parse( minValue ), DateTime.Parse( maxValue ) );
 
             calculator.Alternatives.Should().NotBeEmpty();
 
             var bestFit = calculator.Alternatives.BestByInactiveRegions();
             bestFit.Should().NotBeNull();
-            
+
             bestFit!.RangeStart.Should().Be( MonthNumber.GetMonthNumber( rangeStart ) );
             bestFit!.RangeEnd.Should().Be( MonthNumber.GetMonthNumber( rangeEnd ) );
         }

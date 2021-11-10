@@ -26,10 +26,8 @@ namespace J4JSoftware.Utilities
     // topological sorting algorithm!!
     public static class TopologicalSorter
     {
-        public static bool Sort<TNode>(
-            IEnumerable<TNode> items,
-            out List<TNode>? result
-        )
+        public static bool Sort<TNode>( IEnumerable<TNode> items,
+                                        out List<TNode>? result )
             where TNode : class, ISortable<TNode>
         {
             var available = items.ToList();
@@ -59,8 +57,8 @@ namespace J4JSoftware.Utilities
                 nodes.Add( item );
 
                 var predecessor = item.Predecessor == null
-                    ? null
-                    : available.FirstOrDefault( x => item.Predecessor.Equals( x ) );
+                                      ? null
+                                      : available.FirstOrDefault( x => item.Predecessor.Equals( x ) );
 
                 if( predecessor != null )
                     edges.Add( ( item, predecessor ) );
@@ -93,6 +91,7 @@ namespace J4JSoftware.Utilities
 
                     // if targetNode has no other incoming edges then
                     if( edges.All( me => me.end.Equals( targetNode ) == false ) )
+
                         // insert targetNode into noIncomingEdges
                         noIncomingEdges.Add( targetNode );
                 }

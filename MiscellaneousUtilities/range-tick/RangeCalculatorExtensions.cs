@@ -25,10 +25,9 @@ namespace J4JSoftware.Utilities
 {
     public static class RangeCalculatorExtensions
     {
-        public static RangeParameters? BestByTickCountAndInactiveRegion( 
-            this List<RangeParameters> alternatives,
-            int targetMajorTicks = 10,
-            int targetMinorTicks = 10)
+        public static RangeParameters? BestByTickCountAndInactiveRegion( this List<RangeParameters> alternatives,
+                                                                         int targetMajorTicks = 10,
+                                                                         int targetMinorTicks = 10 )
         {
             if( !alternatives.Any() )
                 return null;
@@ -40,29 +39,25 @@ namespace J4JSoftware.Utilities
                                               + Math.Abs( targetMinorTicks - (int) x.TickInfo.NumberPerMajor )
                                               + Math.Abs( x.LowerInactiveRegion )
                                               + Math.Abs( x.UpperInactiveRegion ) )
-                .First();
+                               .First();
         }
 
-        public static RangeParameters? BestByInactiveRegions(
-            this List<RangeParameters> alternatives,
-            int maxMajorTicks = int.MaxValue
-        )
+        public static RangeParameters? BestByInactiveRegions( this List<RangeParameters> alternatives,
+                                                              int maxMajorTicks = int.MaxValue )
         {
             maxMajorTicks = maxMajorTicks <= 0 ? int.MaxValue : maxMajorTicks;
 
             return alternatives
-                .Where( x => x.MajorTicks <= maxMajorTicks )
-                .OrderBy( x => Math.Abs( x.LowerInactiveRegion )
-                               + Math.Abs( x.UpperInactiveRegion ) )
-                .FirstOrDefault();
+                   .Where( x => x.MajorTicks <= maxMajorTicks )
+                   .OrderBy( x => Math.Abs( x.LowerInactiveRegion )
+                                  + Math.Abs( x.UpperInactiveRegion ) )
+                   .FirstOrDefault();
         }
 
-        public static RangeParameters BestByRelationToTargetMinorTicks(
-            this List<RangeParameters> alternatives,
-            double targetMinorTicks = 50,
-            double costBelow = 1,
-            double costAbove = 1
-        )
+        public static RangeParameters BestByRelationToTargetMinorTicks( this List<RangeParameters> alternatives,
+                                                                        double targetMinorTicks = 50,
+                                                                        double costBelow = 1,
+                                                                        double costAbove = 1 )
         {
             targetMinorTicks = targetMinorTicks < 0 ? 50 : targetMinorTicks;
 
@@ -70,29 +65,27 @@ namespace J4JSoftware.Utilities
             costAbove = costAbove < 0 ? 1 : costAbove;
 
             var temp = alternatives
-                .Select( x =>
-                {
-                    var delta = x.MinorTicksInRange - targetMinorTicks;
-                    var absDelta = Math.Abs( delta );
+                       .Select( x =>
+                                {
+                                    var delta = x.MinorTicksInRange - targetMinorTicks;
+                                    var absDelta = Math.Abs( delta );
 
-                    return Math.Sign( delta ) switch
-                    {
-                        -1 => new { Alternative = x, Cost = costBelow * absDelta },
-                        1 => new { Alternative = x, Cost = costAbove * absDelta },
-                        _ => new { Alternative = x, Cost = 0.0 }
-                    };
-                } )
-                .OrderBy( x => x.Cost );
+                                    return Math.Sign( delta ) switch
+                                           {
+                                               -1 => new { Alternative = x, Cost = costBelow * absDelta },
+                                               1  => new { Alternative = x, Cost = costAbove * absDelta },
+                                               _  => new { Alternative = x, Cost = 0.0 }
+                                           };
+                                } )
+                       .OrderBy( x => x.Cost );
 
-            return temp.Select(x => x.Alternative).First();
+            return temp.Select( x => x.Alternative ).First();
         }
 
-        public static RangeParameters BestByRelationToTargetMajorTicks(
-            this List<RangeParameters> alternatives,
-            double targetMajorTicks = 10,
-            double costBelow = 1,
-            double costAbove = 1
-        )
+        public static RangeParameters BestByRelationToTargetMajorTicks( this List<RangeParameters> alternatives,
+                                                                        double targetMajorTicks = 10,
+                                                                        double costBelow = 1,
+                                                                        double costAbove = 1 )
         {
             targetMajorTicks = targetMajorTicks < 0 ? 10 : targetMajorTicks;
 
@@ -100,21 +93,21 @@ namespace J4JSoftware.Utilities
             costAbove = costAbove < 0 ? 1 : costAbove;
 
             var temp = alternatives
-                .Select(x =>
-                {
-                    var delta = x.MajorTicks - targetMajorTicks;
-                    var absDelta = Math.Abs(delta);
+                       .Select( x =>
+                                {
+                                    var delta = x.MajorTicks - targetMajorTicks;
+                                    var absDelta = Math.Abs( delta );
 
-                    return Math.Sign(delta) switch
-                    {
-                        -1 => new { Alternative = x, Cost = costBelow * absDelta },
-                        1 => new { Alternative = x, Cost = costAbove * absDelta },
-                        _ => new { Alternative = x, Cost = 0.0 }
-                    };
-                })
-                .OrderBy(x => x.Cost);
+                                    return Math.Sign( delta ) switch
+                                           {
+                                               -1 => new { Alternative = x, Cost = costBelow * absDelta },
+                                               1  => new { Alternative = x, Cost = costAbove * absDelta },
+                                               _  => new { Alternative = x, Cost = 0.0 }
+                                           };
+                                } )
+                       .OrderBy( x => x.Cost );
 
-            return temp.Select(x => x.Alternative).First();
+            return temp.Select( x => x.Alternative ).First();
         }
     }
 }

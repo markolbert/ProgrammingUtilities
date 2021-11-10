@@ -27,7 +27,7 @@ namespace J4JSoftware.VisualUtilities
     {
         public static int ToAbgr( this Color color, byte transparency = 0xFF )
         {
-            var bytes = new byte[4];
+            var bytes = new byte[ 4 ];
             bytes[ 0 ] = color.R;
             bytes[ 1 ] = color.G;
             bytes[ 2 ] = color.B;
@@ -54,8 +54,8 @@ namespace J4JSoftware.VisualUtilities
             var bytes = BitConverter.GetBytes( code );
 
             return bytes.Length != 4
-                ? Color.White
-                : Color.FromArgb( bytes[ 3 ], bytes[ 0 ], bytes[ 1 ], bytes[ 2 ] );
+                       ? Color.White
+                       : Color.FromArgb( bytes[ 3 ], bytes[ 0 ], bytes[ 1 ], bytes[ 2 ] );
         }
 
         public static Color FromAbgrHex( string text )
@@ -63,8 +63,8 @@ namespace J4JSoftware.VisualUtilities
             var bytes = BitConverter.GetBytes( HexTextToAbgr( text ) );
 
             return bytes.Length != 4
-                ? Color.White
-                : Color.FromArgb( bytes[ 3 ], bytes[ 0 ], bytes[ 1 ], bytes[ 2 ] );
+                       ? Color.White
+                       : Color.FromArgb( bytes[ 3 ], bytes[ 0 ], bytes[ 1 ], bytes[ 2 ] );
         }
     }
 }

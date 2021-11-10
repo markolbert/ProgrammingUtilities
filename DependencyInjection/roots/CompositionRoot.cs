@@ -34,26 +34,24 @@ using Serilog.Events;
 
 namespace J4JSoftware.DependencyInjection
 {
-    [Obsolete("Use J4JHostConfiguration IHostBuilder instead")]
+    [ Obsolete( "Use J4JHostConfiguration IHostBuilder instead" ) ]
     public abstract class CompositionRoot
     {
         private readonly string _dataProtectionPurpose;
         private readonly Func<Type?, string, int, string, string>? _filePathTrimmer;
 
-        protected CompositionRoot(
-            string publisher,
-            string appName,
-            string? dataProtectionPurpose = null,
-            string osName = "Windows",
-            Func<Type?, string, int, string, string>? filePathTrimmer = null
-        )
+        protected CompositionRoot( string publisher,
+                                   string appName,
+                                   string? dataProtectionPurpose = null,
+                                   string osName = "Windows",
+                                   Func<Type?, string, int, string, string>? filePathTrimmer = null )
         {
             ApplicationName = appName;
 
-            UserConfigurationFolder = Path.Combine(
-                Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
-                publisher,
-                appName );
+            UserConfigurationFolder =
+                Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
+                             publisher,
+                             appName );
 
             _dataProtectionPurpose = dataProtectionPurpose ?? GetType().Name;
 
@@ -105,7 +103,7 @@ namespace J4JSoftware.DependencyInjection
         // when the ultimate J4JLogger instance is not yet available
         protected J4JCachedLogger CachedLogger { get; } = new();
 
-        protected virtual void ConfigureLogger(J4JLoggerConfiguration loggerConfig)
+        protected virtual void ConfigureLogger( J4JLoggerConfiguration loggerConfig )
         {
         }
 
@@ -130,8 +128,8 @@ namespace J4JSoftware.DependencyInjection
         protected virtual void SetupConfigurationEnvironment( IConfigurationBuilder builder )
         {
             Parser = OperatingSystem.Equals( "windows", StringComparison.OrdinalIgnoreCase )
-                ? J4JSoftware.Configuration.CommandLine.Parser.GetWindowsDefault( logger: CachedLogger )
-                : J4JSoftware.Configuration.CommandLine.Parser.GetLinuxDefault( logger: CachedLogger );
+                         ? J4JSoftware.Configuration.CommandLine.Parser.GetWindowsDefault( logger: CachedLogger )
+                         : J4JSoftware.Configuration.CommandLine.Parser.GetLinuxDefault( logger: CachedLogger );
 
             builder.AddJ4JCommandLine( Parser, out var cmdLineSrc, CachedLogger );
             CommandLineOptions = Parser.Collection;
@@ -151,24 +149,24 @@ namespace J4JSoftware.DependencyInjection
         protected virtual void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
         {
             builder.RegisterType<J4JProtection>()
-                .WithParameter( "purpose", _dataProtectionPurpose )
-                .As<IJ4JProtection>()
-                .SingleInstance();
+                   .WithParameter( "purpose", _dataProtectionPurpose )
+                   .As<IJ4JProtection>()
+                   .SingleInstance();
 
             builder.RegisterType<DataProtection>()
-                .As<IDataProtection>()
-                .OnActivating( x => x.Instance.Purpose = _dataProtectionPurpose )
-                .SingleInstance();
+                   .As<IDataProtection>()
+                   .OnActivating( x => x.Instance.Purpose = _dataProtectionPurpose )
+                   .SingleInstance();
 
             builder.Register( c =>
-                {
-                    var loggerConfig = new J4JLoggerConfiguration( _filePathTrimmer );
-                    ConfigureLogger( loggerConfig );
+                              {
+                                  var loggerConfig = new J4JLoggerConfiguration( _filePathTrimmer );
+                                  ConfigureLogger( loggerConfig );
 
-                    return loggerConfig.CreateLogger();
-                } )
-                .AsImplementedInterfaces()
-                .SingleInstance();
+                                  return loggerConfig.CreateLogger();
+                              } )
+                   .AsImplementedInterfaces()
+                   .SingleInstance();
         }
 
         protected virtual void SetupServices( HostBuilderContext hbc, IServiceCollection services )

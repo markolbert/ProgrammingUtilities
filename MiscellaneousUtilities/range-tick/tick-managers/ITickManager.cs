@@ -37,9 +37,8 @@ namespace J4JSoftware.Utilities
     public interface ITickManager<TSource, TTick> : ITickManager
         where TTick : ScaledTick, new()
     {
-        bool ExtractDouble(TSource source, out double result);
-        bool ExtractDoubles(IEnumerable<TSource> source, out List<double>? result);
-        bool GetTickValues(double minValue, double maxValue, out List<TTick> result);
+        bool ExtractDouble( TSource source, out double result );
+        bool ExtractDoubles( IEnumerable<TSource> source, out List<double>? result );
+        bool GetTickValues( double minValue, double maxValue, out List<TTick> result );
     }
-
 }

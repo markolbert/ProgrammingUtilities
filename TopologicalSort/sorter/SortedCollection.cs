@@ -31,9 +31,7 @@ namespace J4JSoftware.Utilities
 
         private List<T>? _sorted;
 
-        protected SortedCollection(
-            IJ4JLogger? logger = null
-        )
+        protected SortedCollection( IJ4JLogger? logger = null )
         {
             Logger = logger;
             Logger?.SetLoggedType( GetType() );
@@ -86,7 +84,7 @@ namespace J4JSoftware.Utilities
             switch( Available.Count )
             {
                 case 0:
-                    Logger?.Error( "No root {0} defined", typeof(T) );
+                    Logger?.Error( "No root {0} defined", typeof( T ) );
                     break;
 
                 case 1:
@@ -98,12 +96,12 @@ namespace J4JSoftware.Utilities
                     if( TopologicalSorter.Sort( _items, out var result ) )
                         SortedSequence.AddRange( result! );
                     else
-                        Logger?.Error( "Couldn't create execution sequence for {0}", typeof(T) );
+                        Logger?.Error( "Couldn't create execution sequence for {0}", typeof( T ) );
 
                     break;
 
                 default:
-                    Logger?.Error( "Multiple root {0} objects defined", typeof(T) );
+                    Logger?.Error( "Multiple root {0} objects defined", typeof( T ) );
                     break;
             }
 
@@ -114,8 +112,8 @@ namespace J4JSoftware.Utilities
             where TNode : T
             where TPredecessorNode : T
         {
-            var nodeType = typeof(TNode);
-            var predecessorType = typeof(TPredecessorNode);
+            var nodeType = typeof( TNode );
+            var predecessorType = typeof( TPredecessorNode );
 
             var selectedIdx = Available.FindIndex( x => x.GetType() == nodeType );
 

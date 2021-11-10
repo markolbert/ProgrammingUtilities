@@ -25,11 +25,9 @@ namespace J4JSoftware.Utilities
     public record CustomTickManager<TSource, TTick> : TickManager<TSource, TTick>
         where TTick : ScaledTick, new()
     {
-        public CustomTickManager(
-            Func<TSource, double> extractor,
-            MinorTickCollection<TTick> minorTickCollection
-        )
-            : base(false, extractor, minorTickCollection)
+        public CustomTickManager( Func<TSource, double> extractor,
+                                  MinorTickCollection<TTick> minorTickCollection )
+            : base( false, extractor, minorTickCollection )
         {
         }
 

@@ -27,9 +27,8 @@ namespace J4JSoftware.DependencyInjection
     {
         private readonly IDataProtector _protector;
 
-        public J4JProtection(
-            IDataProtectionProvider provider,
-            string purpose )
+        public J4JProtection( IDataProtectionProvider provider,
+                              string purpose )
         {
             _protector = provider.CreateProtector( purpose );
         }

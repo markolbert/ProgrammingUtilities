@@ -13,10 +13,8 @@ namespace J4JSoftware.Utilities
         private readonly List<ITickRange> _rangers;
         private readonly IJ4JLogger? _logger;
 
-        public TickRanges(
-            IEnumerable<ITickRange> rangers,
-            IJ4JLogger? logger = null
-        )
+        public TickRanges( IEnumerable<ITickRange> rangers,
+                           IJ4JLogger? logger = null )
         {
             _rangers = rangers.ToList();
 
@@ -25,32 +23,32 @@ namespace J4JSoftware.Utilities
         }
 
         public bool IsSupported( Type toCheck ) => _rangers.Any( x => x.IsSupported( toCheck ) );
-        public bool IsSupported<T>() => _rangers.Any( x => x.IsSupported( typeof(T) ) );
+        public bool IsSupported<T>() => _rangers.Any( x => x.IsSupported( typeof( T ) ) );
 
         public ITickRange? GetRanger<TValue>( ITickRangeConfig? config )
         {
-            var retVal = _rangers.FirstOrDefault( x => x.IsSupported( typeof(TValue) ) );
-            
+            var retVal = _rangers.FirstOrDefault( x => x.IsSupported( typeof( TValue ) ) );
+
             if( retVal == null )
             {
-                _logger?.Error( "No ITickRange class supporting '{0}' exists", typeof(TValue) );
+                _logger?.Error( "No ITickRange class supporting '{0}' exists", typeof( TValue ) );
                 return null;
             }
 
-            if( config == null ) 
+            if( config == null )
                 return retVal;
-            
+
             if( !retVal!.Configure( config ) )
-                _logger?.Error( "Failed to configure ITickRange supporting '{0}'", typeof(TValue) );
+                _logger?.Error( "Failed to configure ITickRange supporting '{0}'", typeof( TValue ) );
 
             return retVal;
         }
 
-        public bool GetRange<TValue, TResult>( int controlSize, 
-            TValue minValue, 
-            TValue maxValue, 
-            out TResult? result,
-            ITickRangeConfig? config = null )
+        public bool GetRange<TValue, TResult>( int controlSize,
+                                               TValue minValue,
+                                               TValue maxValue,
+                                               out TResult? result,
+                                               ITickRangeConfig? config = null )
             where TResult : class
         {
             result = null;
@@ -73,10 +71,10 @@ namespace J4JSoftware.Utilities
             return result != null;
         }
 
-        public List<TResult> GetRanges<TValue, TResult>( int controlSize, 
-            TValue minValue, 
-            TValue maxValue,
-            ITickRangeConfig? config = null )
+        public List<TResult> GetRanges<TValue, TResult>( int controlSize,
+                                                         TValue minValue,
+                                                         TValue maxValue,
+                                                         ITickRangeConfig? config = null )
             where TResult : class
         {
             if( minValue == null || maxValue == null )
@@ -86,7 +84,7 @@ namespace J4JSoftware.Utilities
             }
 
             var ranger = GetRanger<TValue>( config );
-            if (ranger == null)
+            if ( ranger == null )
                 return new List<TResult>();
 
             try
@@ -95,17 +93,17 @@ namespace J4JSoftware.Utilities
             }
             catch
             {
-                _logger?.Error( "Range values were not '{0}'", typeof(TResult) );
+                _logger?.Error( "Range values were not '{0}'", typeof( TResult ) );
                 return new List<TResult>();
             }
         }
 
-        public bool GetRange<TValue, TResult>( int controlSize, 
-            int tickSize, 
-            TValue minValue, 
-            TValue maxValue,
-            out TResult? result, 
-            ITickRangeConfig? config = null )
+        public bool GetRange<TValue, TResult>( int controlSize,
+                                               int tickSize,
+                                               TValue minValue,
+                                               TValue maxValue,
+                                               out TResult? result,
+                                               ITickRangeConfig? config = null )
             where TResult : class
         {
             result = null;
@@ -117,7 +115,7 @@ namespace J4JSoftware.Utilities
             }
 
             var ranger = GetRanger<TValue>( config );
-            if (ranger == null)
+            if ( ranger == null )
                 return false;
 
             if ( !ranger.GetRange( controlSize, tickSize, minValue, maxValue, out var innerResult ) )

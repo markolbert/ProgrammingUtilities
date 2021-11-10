@@ -20,9 +20,7 @@ namespace J4JSoftware.Utilities
 
         private readonly IJ4JLogger? _logger;
 
-        public MonthlyTickRange(
-            IJ4JLogger? logger = null
-        )
+        public MonthlyTickRange( IJ4JLogger? logger = null )
         {
             _logger = logger;
             _logger?.SetLoggedType( GetType() );
@@ -43,24 +41,22 @@ namespace J4JSoftware.Utilities
             return true;
         }
 
-        public bool GetRange(
-            double controlSize,
-            DateTime minValue,
-            DateTime maxValue,
-            out MonthRange? result )
+        public bool GetRange( double controlSize,
+                              DateTime minValue,
+                              DateTime maxValue,
+                              out MonthRange? result )
         {
             var ranges = GetRanges( controlSize, minValue, maxValue );
 
             result = ranges.OrderByDescending( x => x.Coverage )
-                .FirstOrDefault();
+                           .FirstOrDefault();
 
             return result != null;
         }
 
-        public List<MonthRange> GetRanges(
-            double controlSize,
-            DateTime minValue,
-            DateTime maxValue )
+        public List<MonthRange> GetRanges( double controlSize,
+                                           DateTime minValue,
+                                           DateTime maxValue )
         {
             var retVal = new List<MonthRange>();
 
@@ -75,12 +71,11 @@ namespace J4JSoftware.Utilities
             return retVal;
         }
 
-        public bool GetRange(
-            double controlSize,
-            int tickSize,
-            DateTime minValue,
-            DateTime maxValue,
-            out MonthRange? result )
+        public bool GetRange( double controlSize,
+                              int tickSize,
+                              DateTime minValue,
+                              DateTime maxValue,
+                              out MonthRange? result )
         {
             _traditionalIndex = 0;
             _traditionalYears = 2;
@@ -121,15 +116,15 @@ namespace J4JSoftware.Utilities
                 if( ( spaceUsed - 1M ) > 0 )
                 {
                     monthsPerMinor = TraditionalMonthsPerMinorOnly
-                        ? NextTraditionalMonthsPerMinor()
-                        : monthsPerMinor + 1;
+                                         ? NextTraditionalMonthsPerMinor()
+                                         : monthsPerMinor + 1;
 
                     continue;
                 }
 
                 var surplusTicks = ( controlSize - numTicks * tickSize ) / tickSize;
 
-                var prefixTicksToAdd = IntegerFloor(surplusTicks / 2);
+                var prefixTicksToAdd = IntegerFloor( surplusTicks / 2 );
                 var startMonthNum = adjMin - prefixTicksToAdd * monthsPerMinor;
                 var startYear = startMonthNum / 12;
                 var startMonth = startMonthNum - 12 * startYear + 1;
@@ -171,11 +166,11 @@ namespace J4JSoftware.Utilities
                     monthsPerMajor *= 5;
 
                 result = new MonthRange( tickSize,
-                    monthsPerMinor,
-                    monthsPerMajor,
-                    new DateTime( startYear, startMonth, 1 ),
-                    new DateTime( endYear, endMonth, 1 ).AddDays( -1 ),
-                    Convert.ToDouble( spaceUsed ) );
+                                        monthsPerMinor,
+                                        monthsPerMajor,
+                                        new DateTime( startYear, startMonth, 1 ),
+                                        new DateTime( endYear, endMonth, 1 ).AddDays( -1 ),
+                                        Convert.ToDouble( spaceUsed ) );
             }
 
             if( result == null )
@@ -204,11 +199,10 @@ namespace J4JSoftware.Utilities
 
         private int IntegerFloor( double value ) => Convert.ToInt32( Math.Floor( value ) );
 
-        bool ITickRange.GetRange(
-            double controlSize,
-            object minValue,
-            object maxValue,
-            out object? result )
+        bool ITickRange.GetRange( double controlSize,
+                                  object minValue,
+                                  object maxValue,
+                                  out object? result )
         {
             result = null;
 
@@ -229,16 +223,15 @@ namespace J4JSoftware.Utilities
                 return new List<object>();
 
             return GetRanges( controlSize, converted.Value.minValue, converted.Value.maxValue )
-                .Cast<object>()
-                .ToList();
+                   .Cast<object>()
+                   .ToList();
         }
 
-        bool ITickRange.GetRange(
-            double controlSize,
-            int tickSize,
-            object minValue,
-            object maxValue,
-            out object? result )
+        bool ITickRange.GetRange( double controlSize,
+                                  int tickSize,
+                                  object minValue,
+                                  object maxValue,
+                                  out object? result )
         {
             result = null;
 
@@ -247,10 +240,10 @@ namespace J4JSoftware.Utilities
                 return false;
 
             if( GetRange( controlSize,
-                tickSize,
-                converted.Value.minValue,
-                converted.Value.maxValue,
-                out var innerResult ) )
+                         tickSize,
+                         converted.Value.minValue,
+                         converted.Value.maxValue,
+                         out var innerResult ) )
                 result = innerResult;
 
             return result != null;
@@ -263,15 +256,14 @@ namespace J4JSoftware.Utilities
 
             try
             {
-                minDT = (DateTime)Convert.ChangeType( minimum, typeof( DateTime ) );
-                maxDT = (DateTime)Convert.ChangeType( maximum, typeof( DateTime ) );
+                minDT = (DateTime) Convert.ChangeType( minimum, typeof( DateTime ) );
+                maxDT = (DateTime) Convert.ChangeType( maximum, typeof( DateTime ) );
             }
             catch
             {
-                _logger?.Error<string, string>(
-                    "Minimum ({0}) and/or maximum ({1}) values could not be converted to type DateTime",
-                    minimum?.ToString() ?? "** unknown **",
-                    maximum.ToString() ?? "** unknown **" );
+                _logger?.Error<string, string>( "Minimum ({0}) and/or maximum ({1}) values could not be converted to type DateTime",
+                                               minimum?.ToString() ?? "** unknown **",
+                                               maximum.ToString() ?? "** unknown **" );
 
                 return null;
             }

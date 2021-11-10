@@ -21,8 +21,6 @@ using Serilog.Events;
 
 namespace J4JSoftware.DependencyInjection
 {
-    internal record NetEventConfiguration(
-        string? OutputTemplate = null,
-        LogEventLevel MinimumLevel = LogEventLevel.Verbose
-    );
+    internal record NetEventConfiguration( string? OutputTemplate = null,
+                                           LogEventLevel MinimumLevel = LogEventLevel.Verbose );
 }

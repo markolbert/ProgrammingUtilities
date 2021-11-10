@@ -36,10 +36,10 @@ namespace J4JSoftware.EFCoreUtilities
         {
             _srcCodeFilePath = srcCodeFilePath;
 
-            var genOptionsType = typeof(DbContextOptions<>);
-            var optionsType = genOptionsType.MakeGenericType( typeof(TDbContext) );
+            var genOptionsType = typeof( DbContextOptions<> );
+            var optionsType = genOptionsType.MakeGenericType( typeof( TDbContext ) );
 
-            var ctors = typeof(TDbContext).GetConstructors().ToList();
+            var ctors = typeof( TDbContext ).GetConstructors().ToList();
             if( ctors.Count == 0 )
                 throw new ArgumentException( $"No constructors" );
 
@@ -51,26 +51,26 @@ namespace J4JSoftware.EFCoreUtilities
             if( ctors.Count == 0 )
                 throw new ArgumentException( $"No constructors with 1st parameter assignable from {optionsType}" );
 
-            ctors = ctors.Where( x => x.GetParameters()[ 1 ].ParameterType.IsAssignableTo( typeof(IDatabaseConfig) ) )
-                .ToList();
+            ctors = ctors.Where( x => x.GetParameters()[ 1 ].ParameterType.IsAssignableTo( typeof( IDatabaseConfig ) ) )
+                         .ToList();
             if( ctors.Count == 0 )
-                throw new ArgumentException(
-                    $"No constructors with 2nd parameter assignable to {typeof(IDatabaseConfig)}" );
+                throw new
+                    ArgumentException( $"No constructors with 2nd parameter assignable to {typeof( IDatabaseConfig )}" );
         }
 
         public TDbContext CreateDbContext( string[] args )
         {
             var dbPath = string.IsNullOrEmpty( _srcCodeFilePath )
-                ? args[ 0 ]
-                : Path.Combine( Path.GetDirectoryName( _srcCodeFilePath )!, args[ 0 ] );
+                             ? args[ 0 ]
+                             : Path.Combine( Path.GetDirectoryName( _srcCodeFilePath )!, args[ 0 ] );
 
             var optionsBuilder = GetOptionsBuilder( dbPath );
 
-            return (TDbContext) Activator.CreateInstance( typeof(TDbContext), new object?[]
-            {
-                optionsBuilder.Options,
-                GetDatabaseConfig( dbPath )
-            } )!;
+            return (TDbContext) Activator.CreateInstance( typeof( TDbContext ),
+                                                         new object?[]
+                                                         {
+                                                             optionsBuilder.Options, GetDatabaseConfig( dbPath )
+                                                         } )!;
         }
 
         protected abstract IDatabaseConfig GetDatabaseConfig( string dbPath );

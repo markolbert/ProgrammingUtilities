@@ -23,12 +23,10 @@ namespace J4JSoftware.Utilities
 {
     public record NumericTick
     {
-        public NumericTick(
-            uint ticksPer10
-        )
+        public NumericTick( uint ticksPer10 )
         {
-            if (ticksPer10 == 0 || ticksPer10 > 10 )
-                throw new ArgumentException($"{nameof(ticksPer10)} must be a positive number <= 10");
+            if ( ticksPer10 == 0 || ticksPer10 > 10 )
+                throw new ArgumentException( $"{nameof( ticksPer10 )} must be a positive number <= 10" );
 
             TicksPer10 = ticksPer10;
             NormalizedSize = 1M / ticksPer10;

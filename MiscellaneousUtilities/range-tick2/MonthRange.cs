@@ -21,13 +21,12 @@ using System;
 
 namespace J4JSoftware.Utilities
 {
-    public record MonthRange(
-        int TickSize,
-        int MinorValue,
-        int MajorValue,
-        DateTime RangeStart,
-        DateTime RangeEnd,
-        double Coverage )
+    public record MonthRange( int TickSize,
+                              int MinorValue,
+                              int MajorValue,
+                              DateTime RangeStart,
+                              DateTime RangeEnd,
+                              double Coverage )
     {
         public double MinorFrequency => Convert.ToDouble( MajorValue ) / MinorValue;
     }

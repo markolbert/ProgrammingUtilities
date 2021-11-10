@@ -21,13 +21,11 @@ using System;
 
 namespace J4JSoftware.Utilities
 {
-    public record RangeParameters(
-        ScaledTick TickInfo,
-        double MinimumValue,
-        double MaximumValue,
-        double RangeStart,
-        double RangeEnd
-    )
+    public record RangeParameters( ScaledTick TickInfo,
+                                   double MinimumValue,
+                                   double MaximumValue,
+                                   double RangeStart,
+                                   double RangeEnd )
     {
         public uint MajorTicks
         {
@@ -36,7 +34,7 @@ namespace J4JSoftware.Utilities
                 var retVal = MinorTicksInRange / TickInfo.NumberPerMajor;
 
                 var modulo = MinorTicksInRange % TickInfo.NumberPerMajor;
-                if (modulo != 0) retVal++;
+                if ( modulo != 0 ) retVal++;
 
                 return retVal;
             }

@@ -30,17 +30,15 @@ namespace Test.MiscellaneousUtilities
     {
         private readonly string _filePath;
 
-        protected TestDataBase(
-            string fileName
-        )
+        protected TestDataBase( string fileName )
         {
-            _filePath = Path.Combine(Environment.CurrentDirectory, "test-data", fileName);
-            File.Exists(_filePath).Should().BeTrue();
+            _filePath = Path.Combine( Environment.CurrentDirectory, "test-data", fileName );
+            File.Exists( _filePath ).Should().BeTrue();
         }
 
         public IEnumerator<object[]> GetEnumerator()
         {
-            var parsed = JsonSerializer.Deserialize<List<T>>(File.ReadAllText(_filePath));
+            var parsed = JsonSerializer.Deserialize<List<T>>( File.ReadAllText( _filePath ) );
             parsed.Should().NotBeNull();
 
             foreach( var unitData in parsed! )

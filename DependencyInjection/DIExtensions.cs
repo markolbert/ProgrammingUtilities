@@ -12,56 +12,54 @@ namespace J4JSoftware.DependencyInjection
 {
     public static class DIExtensions
     {
-        public static ContainerBuilder RegisterTypeAssemblies<T>(
-            this ContainerBuilder builder,
-            IEnumerable<Assembly> assemblies,
-            bool registerAsSelf = false,
-            params ITypeTester[] tests)
+        public static ContainerBuilder RegisterTypeAssemblies<T>( this ContainerBuilder builder,
+                                                                  IEnumerable<Assembly> assemblies,
+                                                                  bool registerAsSelf = false,
+                                                                  params ITypeTester[] tests )
             where T : class
         {
             var assemblyList = assemblies.ToList();
 
             // add default
-            assemblyList.Add(typeof(T).Assembly);
+            assemblyList.Add( typeof( T ).Assembly );
 
-            var temp = builder.RegisterAssemblyTypes(assemblyList.Distinct().ToArray())
-                .Where(t => tests.All(x =>
-                {
-                    var retVal = x.MeetsRequirements(t);
-                    return retVal;
-                }))
-                .AsImplementedInterfaces();
+            var temp = builder.RegisterAssemblyTypes( assemblyList.Distinct().ToArray() )
+                              .Where( t => tests.All( x =>
+                                                      {
+                                                          var retVal = x.MeetsRequirements( t );
+                                                          return retVal;
+                                                      } ) )
+                              .AsImplementedInterfaces();
 
-            if (registerAsSelf)
+            if ( registerAsSelf )
                 temp.AsSelf();
 
             return builder;
         }
 
-        public static ContainerBuilder RegisterTypeAssemblies<T>(
-            this ContainerBuilder builder,
-            IEnumerable<Assembly> assemblies,
-            bool registerAsSelf = false,
-            params PredefinedTypeTests[] typeTests)
+        public static ContainerBuilder RegisterTypeAssemblies<T>( this ContainerBuilder builder,
+                                                                  IEnumerable<Assembly> assemblies,
+                                                                  bool registerAsSelf = false,
+                                                                  params PredefinedTypeTests[] typeTests )
             where T : class
         {
             var assemblyList = assemblies.ToList();
 
             // add default
-            assemblyList.Add(typeof(T).Assembly);
+            assemblyList.Add( typeof( T ).Assembly );
 
             var tests = new List<ITypeTester>();
 
-            foreach (var test in typeTests.Distinct())
+            foreach ( var test in typeTests.Distinct() )
             {
-                switch (test)
+                switch ( test )
                 {
                     case PredefinedTypeTests.ParameterlessConstructor:
-                        tests.Add(new ConstructorTester<T>());
+                        tests.Add( new ConstructorTester<T>() );
                         break;
 
                     case PredefinedTypeTests.OnlyJ4JLoggerRequired:
-                        tests.Add(new ConstructorTester<T>(typeof(IJ4JLogger)));
+                        tests.Add( new ConstructorTester<T>( typeof( IJ4JLogger ) ) );
                         break;
 
                     //case PredefinedTypeTests.OnlyJ4JLoggerFactoryRequired:
@@ -69,20 +67,20 @@ namespace J4JSoftware.DependencyInjection
                     //    break;
 
                     case PredefinedTypeTests.NonAbstract:
-                        tests.Add(TypeTester.NonAbstract);
+                        tests.Add( TypeTester.NonAbstract );
                         break;
 
                     default:
-                        throw new InvalidEnumArgumentException(
-                            $"Unsupported {nameof(PredefinedTypeTests)} value '{test}'");
+                        throw new
+                            InvalidEnumArgumentException( $"Unsupported {nameof( PredefinedTypeTests )} value '{test}'" );
                 }
             }
 
-            var temp = builder.RegisterAssemblyTypes(assemblyList.Distinct().ToArray())
-                .Where(t => tests.All(x => x.MeetsRequirements(t)))
-                .AsImplementedInterfaces();
+            var temp = builder.RegisterAssemblyTypes( assemblyList.Distinct().ToArray() )
+                              .Where( t => tests.All( x => x.MeetsRequirements( t ) ) )
+                              .AsImplementedInterfaces();
 
-            if (registerAsSelf)
+            if ( registerAsSelf )
                 temp.AsSelf();
 
             return builder;

@@ -23,10 +23,8 @@ namespace J4JSoftware.Utilities
 {
     public abstract class Actions<TSource> : Nodes<IAction<TSource>>, IAction<TSource>
     {
-        protected Actions(
-            ActionsContext context,
-            IJ4JLogger? logger = null
-        )
+        protected Actions( ActionsContext context,
+                           IJ4JLogger? logger = null )
         {
             Context = context;
 
@@ -78,7 +76,7 @@ namespace J4JSoftware.Utilities
             if( src is TSource castSrc )
                 return Process( castSrc );
 
-            Logger?.Error( "Expected a '{0}' but got a '{1}'", typeof(IAction<TSource>), src.GetType() );
+            Logger?.Error( "Expected a '{0}' but got a '{1}'", typeof( IAction<TSource> ), src.GetType() );
 
             return false;
         }

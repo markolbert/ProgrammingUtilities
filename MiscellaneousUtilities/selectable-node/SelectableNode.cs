@@ -26,18 +26,16 @@ using System.Runtime.CompilerServices;
 namespace J4JSoftware.Utilities
 {
     public class SelectableNode<TEntity, TKey> : ISelectableNode<TEntity, TKey>
-    where TEntity : ISelectableEntity<TEntity, TKey>
+        where TEntity : ISelectableEntity<TEntity, TKey>
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private bool _isSelected;
 
-        protected SelectableNode(
-            ISelectableEntity<TEntity, TKey> value
-        )
+        protected SelectableNode( ISelectableEntity<TEntity, TKey> value )
         {
             Entity = value.Entity;
-            ParentNode = (ISelectableNode<TEntity, TKey>?)value.Parent;
+            ParentNode = (ISelectableNode<TEntity, TKey>?) value.Parent;
         }
 
         public TEntity Entity { get; }
@@ -51,16 +49,16 @@ namespace J4JSoftware.Utilities
             sortComparer ??= new DefaultSelectableNodeComparer<TEntity, TKey>();
 
             var tempRoot = ChildNodes
-                .OrderBy(x => x, sortComparer)
-                .ToList();
+                           .OrderBy( x => x, sortComparer )
+                           .ToList();
 
             ChildNodes.Clear();
 
-            foreach (var node in tempRoot)
+            foreach ( var node in tempRoot )
             {
-                ChildNodes.Add(node);
+                ChildNodes.Add( node );
 
-                node.SortChildNodes(sortComparer);
+                node.SortChildNodes( sortComparer );
             }
         }
 
@@ -74,13 +72,13 @@ namespace J4JSoftware.Utilities
             {
                 SetProperty( ref _isSelected, value );
 
-                SelectableNode<TEntity, TKey>? curNode = (SelectableNode<TEntity, TKey>)this;
+                SelectableNode<TEntity, TKey>? curNode = (SelectableNode<TEntity, TKey>) this;
 
                 do
                 {
-                    curNode.OnPropertyChanged(nameof(SubtreeHasSelectedItems));
-                    curNode = (SelectableNode<TEntity, TKey>?)curNode.ParentNode;
-                } while (curNode != null);
+                    curNode.OnPropertyChanged( nameof( SubtreeHasSelectedItems ) );
+                    curNode = (SelectableNode<TEntity, TKey>?) curNode.ParentNode;
+                } while ( curNode != null );
             }
         }
 
@@ -95,9 +93,9 @@ namespace J4JSoftware.Utilities
             {
                 var retVal = new List<ISelectableNode<TEntity, TKey>>();
 
-                foreach (var childNode in ChildNodes)
+                foreach ( var childNode in ChildNodes )
                 {
-                    AddDescendantsAndSelf(childNode, retVal);
+                    AddDescendantsAndSelf( childNode, retVal );
                 }
 
                 return retVal;
@@ -115,7 +113,8 @@ namespace J4JSoftware.Utilities
             }
         }
 
-        private void AddDescendantsAndSelf( ISelectableNode<TEntity, TKey> curNode, List<ISelectableNode<TEntity, TKey>> descAndSelf )
+        private void AddDescendantsAndSelf( ISelectableNode<TEntity, TKey> curNode,
+                                            List<ISelectableNode<TEntity, TKey>> descAndSelf )
         {
             descAndSelf.Add( curNode );
 
@@ -127,9 +126,9 @@ namespace J4JSoftware.Utilities
 
         private bool SetProperty<T>( ref T field, T value, [ CallerMemberName ] string callerName = "" )
         {
-            if( EqualityComparer<T>.Default.Equals(field, value) ) 
+            if( EqualityComparer<T>.Default.Equals( field, value ) )
                 return false;
-            
+
             field = value;
             OnPropertyChanged( callerName );
 

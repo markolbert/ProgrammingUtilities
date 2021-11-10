@@ -22,7 +22,7 @@ namespace Test.MiscellaneousUtilities
     public class SingleSizeDates : TestDataBase<SingleDates>
     {
         public SingleSizeDates()
-            : base("single-date.json")
+            : base( "single-date.json" )
         {
         }
     }

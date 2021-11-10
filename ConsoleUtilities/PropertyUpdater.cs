@@ -34,7 +34,7 @@ namespace J4JSoftware.ConsoleUtilities
 
         public abstract UpdaterResult Update( TProp? origValue, out TProp? newValue );
 
-        public Type ValidatorType => typeof(TProp);
+        public Type ValidatorType => typeof( TProp );
 
         UpdaterResult IPropertyUpdater.Update( object? origValue, out object? newValue )
         {
@@ -50,7 +50,7 @@ namespace J4JSoftware.ConsoleUtilities
                 return result;
             }
 
-            Logger?.Error( "Expected a {0} but got a {1}", typeof(TProp), origValue?.GetType() );
+            Logger?.Error( "Expected a {0} but got a {1}", typeof( TProp ), origValue?.GetType() );
 
             return UpdaterResult.InvalidValidator;
         }

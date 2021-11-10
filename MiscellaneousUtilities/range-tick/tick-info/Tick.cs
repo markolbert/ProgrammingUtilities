@@ -11,12 +11,12 @@ namespace J4JSoftware.Utilities
         public virtual double Size => NormalizedSize;
         public double MajorSize => Size * NumberPerMajor;
 
-        public virtual double RoundUp(double toRound)
+        public virtual double RoundUp( double toRound )
         {
             var scalingFactor = GetNormalizingFactor( toRound, Size );
 
             var modulo = ( toRound * scalingFactor ) % ( Size * scalingFactor );
-            if (modulo == 0)
+            if ( modulo == 0 )
                 return toRound;
 
             modulo /= scalingFactor;
@@ -24,12 +24,12 @@ namespace J4JSoftware.Utilities
             return toRound < 0 ? toRound - modulo : toRound + Size - modulo;
         }
 
-        public virtual double RoundDown(double toRound)
+        public virtual double RoundDown( double toRound )
         {
-            var scalingFactor = GetNormalizingFactor(toRound, Size);
+            var scalingFactor = GetNormalizingFactor( toRound, Size );
 
-            var modulo = (toRound * scalingFactor) % (Size * scalingFactor);
-            if (modulo == 0)
+            var modulo = ( toRound * scalingFactor ) % ( Size * scalingFactor );
+            if ( modulo == 0 )
                 return toRound;
 
             modulo /= scalingFactor;
@@ -37,11 +37,11 @@ namespace J4JSoftware.Utilities
             return toRound < 0 ? toRound - Size - modulo : toRound - modulo;
         }
 
-        public virtual uint GetMinorTicksInRange(double minValue, double maxValue)
+        public virtual uint GetMinorTicksInRange( double minValue, double maxValue )
         {
             var range = maxValue - minValue;
 
-            if (range == 0)
+            if ( range == 0 )
                 return 1;
 
             return (uint) Math.Round( range / Size );
@@ -50,8 +50,8 @@ namespace J4JSoftware.Utilities
         protected int GetNormalizingFactor( params double[] values )
         {
             var minExponent = values.Min( x => x == 0
-                ? 0
-                : (int) Math.Floor( Math.Log10( Math.Abs( x ) ) ) );
+                                                   ? 0
+                                                   : (int) Math.Floor( Math.Log10( Math.Abs( x ) ) ) );
 
             if( minExponent >= 0 )
                 return 1;

@@ -27,11 +27,9 @@ namespace J4JSoftware.Utilities
     {
         private readonly IEqualityComparer<T>? _comparer;
 
-        public Node(
-            T value,
-            Nodes<T> collection,
-            IEqualityComparer<T>? comparer = null
-        )
+        public Node( T value,
+                     Nodes<T> collection,
+                     IEqualityComparer<T>? comparer = null )
         {
             Value = value;
             Collection = collection;

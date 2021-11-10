@@ -26,37 +26,33 @@ namespace J4JSoftware.Utilities
 {
     public static class RangeTickExtensions
     {
-        public static TickManager<TSource, MonthNumberTick> TickExtractor<TSource>( 
-            this List<TSource> tickList,
+        public static TickManager<TSource, MonthNumberTick> TickExtractor<TSource>( this List<TSource> tickList,
             Expression<Func<TSource, DateTime>> extractor )
         {
             var temp = extractor.Compile();
 
-            return new CustomTickManager<TSource, MonthNumberTick>( 
-                x=>MonthNumber.GetMonthNumber(temp(x)),
-                new MonthNumberTickCollection() );
+            return new CustomTickManager<TSource, MonthNumberTick>( x => MonthNumber.GetMonthNumber( temp( x ) ),
+                                                                   new MonthNumberTickCollection() );
         }
 
-        public static TickManager<TSource, ScaledTick> TickExtractor<TSource>(
-            this List<TSource> tickList,
-            Expression<Func<TSource, double>> extractor)
+        public static TickManager<TSource, ScaledTick> TickExtractor<TSource>( this List<TSource> tickList,
+                                                                               Expression<Func<TSource, double>>
+                                                                                   extractor )
         {
             var temp = extractor.Compile();
 
-            return new CustomTickManager<TSource, ScaledTick>(
-                x => temp(x),
-                new DoubleTickCollection());
+            return new CustomTickManager<TSource, ScaledTick>( x => temp( x ),
+                                                              new DoubleTickCollection() );
         }
 
-        public static TickManager<TSource, ScaledTick> TickExtractor<TSource>(
-            this List<TSource> tickList,
-            Expression<Func<TSource, decimal>> extractor)
+        public static TickManager<TSource, ScaledTick> TickExtractor<TSource>( this List<TSource> tickList,
+                                                                               Expression<Func<TSource, decimal>>
+                                                                                   extractor )
         {
             var temp = extractor.Compile();
 
-            return new CustomTickManager<TSource, ScaledTick>(
-                x => (double) temp(x),
-                new DoubleTickCollection());
+            return new CustomTickManager<TSource, ScaledTick>( x => (double) temp( x ),
+                                                              new DoubleTickCollection() );
         }
     }
 }

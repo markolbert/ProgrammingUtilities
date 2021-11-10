@@ -23,7 +23,7 @@ using System.Collections.Generic;
 namespace J4JSoftware.Utilities
 {
     public class DefaultSelectableNodeComparer<TEntity, TKey> : IComparer<ISelectableNode<TEntity, TKey>>
-    where TEntity : ISelectableEntity<TEntity, TKey>
+        where TEntity : ISelectableEntity<TEntity, TKey>
     {
         public int Compare( ISelectableNode<TEntity, TKey>? x, ISelectableNode<TEntity, TKey>? y )
         {
