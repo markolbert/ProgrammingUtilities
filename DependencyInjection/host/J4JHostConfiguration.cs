@@ -70,6 +70,27 @@ namespace J4JSoftware.DependencyInjection
 
         internal bool CaseSensitiveFileSystem { get; set; } = false;
 
+        internal void AutoDetectCaseSensitivity()
+        {
+            CaseSensitiveFileSystem = Environment.OSVersion.Platform switch
+            {
+                PlatformID.MacOSX => true,
+                PlatformID.Unix => true,
+                PlatformID.Win32NT => false,
+                PlatformID.Win32S => false,
+                PlatformID.Win32Windows => false,
+                PlatformID.WinCE => false,
+                PlatformID.Xbox => false,
+                _ => default_sensitivity()
+            };
+
+            bool default_sensitivity()
+            {
+                Logger.Warning("Unsupported operating system, case sensitivity set to false");
+                return false;
+            }
+        }
+
         internal StringComparison FileSystemTextComparison =>
             CaseSensitiveFileSystem ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
 
@@ -210,6 +231,7 @@ namespace J4JSoftware.DependencyInjection
                     var retVal = new J4JHostInfo(
                         Publisher,
                         ApplicationName,
+                        CaseSensitiveFileSystem,
                         CommandLineConfiguration?.LexicalElements,
                         _inDesignMode,
                         CommandLineSource
@@ -232,7 +254,7 @@ namespace J4JSoftware.DependencyInjection
             // expose IOptionCollection when J4JCommandLine subsystem is being used
             if( _options != null )
                 builder.Register( c => _options )
-                    .AsImplementedInterfaces()
+                    .AsSelf()
                     .SingleInstance();
         }
 

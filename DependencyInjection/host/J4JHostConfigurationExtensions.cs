@@ -78,6 +78,12 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
+        public static J4JHostConfiguration AutoDetectFileSystemCaseSensitivity(this J4JHostConfiguration config)
+        {
+            config.AutoDetectCaseSensitivity();
+            return config;
+        }
+
         public static J4JHostConfiguration AddApplicationConfigurationFile( 
             this J4JHostConfiguration config,
             string filePath,

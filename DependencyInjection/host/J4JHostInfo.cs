@@ -27,6 +27,7 @@ namespace J4JSoftware.DependencyInjection
     public record J4JHostInfo(
         string Publisher,
         string ApplicationName,
+        bool CaseSensitiveFileSystem,
         ILexicalElements? CommandLineLexicalElements,
         Func<bool>? InDesignMode,
         CommandLineSource? CommandLineSource ) 
