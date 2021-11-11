@@ -30,11 +30,10 @@ namespace Test.MiscellaneousUtilities
                              .ApplicationName( "Tests.MiscellaneousUtilities" )
                              .AddDependencyInjectionInitializers( SetupDependencyInjection );
 
-            var hostBuilder = hostConfig.CreateHostBuilder();
+            var retVal = hostConfig.Build();
+            retVal.Should().NotBeNull();
 
-            hostBuilder.Should().NotBeNull();
-
-            return hostBuilder!.Build();
+            return retVal!;
         }
 
         private void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )

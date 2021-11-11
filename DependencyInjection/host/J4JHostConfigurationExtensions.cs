@@ -18,11 +18,11 @@
 #endregion
 
 using System;
-using System.Reflection;
 using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Configuration.CommandLine;
+using J4JSoftware.DependencyInjection.host;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -81,6 +81,16 @@ namespace J4JSoftware.DependencyInjection
         public static J4JHostConfiguration AutoDetectFileSystemCaseSensitivity( this J4JHostConfiguration config )
         {
             config.AutoDetectCaseSensitivity();
+            return config;
+        }
+
+        public static J4JHostConfiguration CommandLineTextComparison( this J4JHostConfiguration config,
+                                                                      StringComparison? comparison )
+        {
+            if( comparison.HasValue )
+                config.CommandLineTextComparison = comparison.Value;
+            else config.ResetCommandLineTextComparison();
+
             return config;
         }
 
@@ -202,38 +212,47 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
-        public static IHostBuilder? CreateHostBuilder( this J4JHostConfiguration config )
+        public static IJ4JHost? Build( this J4JHostConfiguration config )
         {
-            if( config.MissingRequirements != J4JHostRequirements.AllMet )
+            if (config.MissingRequirements != J4JHostRequirements.AllMet)
                 return null;
 
-            var retVal = new HostBuilder()
-                .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
+            var hostBuilder = new HostBuilder()
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
-            if( retVal == null )
+            if (hostBuilder == null)
                 return null;
 
-            foreach ( var configurator in config.EnvironmentInitializers )
+            foreach (var configurator in config.EnvironmentInitializers)
             {
-                retVal.ConfigureAppConfiguration( configurator );
+                hostBuilder.ConfigureAppConfiguration(configurator);
             }
 
-            foreach ( var configurator in config.ConfigurationInitializers )
+            foreach (var configurator in config.ConfigurationInitializers)
             {
-                retVal.ConfigureHostConfiguration( configurator );
+                hostBuilder.ConfigureHostConfiguration(configurator);
             }
 
-            foreach ( var configurator in config.DependencyInjectionInitializers )
+            foreach (var configurator in config.DependencyInjectionInitializers)
             {
-                retVal.ConfigureContainer( configurator );
+                hostBuilder.ConfigureContainer(configurator);
             }
 
-            foreach ( var configurator in config.ServicesInitializers )
+            foreach (var configurator in config.ServicesInitializers)
             {
-                retVal.ConfigureServices( configurator );
+                hostBuilder.ConfigureServices(configurator);
             }
 
-            return retVal;
+            return new J4JHost( hostBuilder.Build() )
+                   {
+                       ApplicationName = config.ApplicationName,
+                       CommandLineTextComparison = config.CommandLineTextComparison,
+                       CommandLineLexicalElements = config.CommandLineConfiguration?.LexicalElements,
+                       CommandLineSource = config.CommandLineSource,
+                       FileSystemIsCaseSensitive = config.CaseSensitiveFileSystem,
+                       InDesignMode = config.InDesignMode,
+                       Publisher = config.Publisher
+                   };
         }
     }
 }

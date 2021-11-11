@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Autofac;
 using J4JSoftware.Configuration.CommandLine;
 using J4JSoftware.Logging;
@@ -34,11 +33,8 @@ namespace J4JSoftware.DependencyInjection
 {
     public class J4JHostConfiguration
     {
-        // used to determine if the host builder is running within a design-time
-        // environment (e.g., in a WPF designer)
-        private readonly Func<bool> _inDesignMode;
-
         private OptionCollection? _options;
+        private StringComparison? _cmdLineTextComparison;
 
         public J4JHostConfiguration()
             : this( () => false )
@@ -47,7 +43,7 @@ namespace J4JSoftware.DependencyInjection
 
         public J4JHostConfiguration( Func<bool> inDesignMode )
         {
-            _inDesignMode = inDesignMode;
+            InDesignMode = inDesignMode;
 
             ConfigurationInitializers.Add( SetupConfiguration );
 
@@ -64,6 +60,10 @@ namespace J4JSoftware.DependencyInjection
         internal string Publisher { get; set; } = string.Empty;
         internal string ApplicationName { get; set; } = string.Empty;
         internal string DataProtectionPurpose { get; set; } = string.Empty;
+
+        // used to determine if the host builder is running within a design-time
+        // environment (e.g., in a WPF designer)
+        internal Func<bool> InDesignMode { get; }
 
         internal bool CaseSensitiveFileSystem { get; set; } = false;
 
@@ -88,8 +88,20 @@ namespace J4JSoftware.DependencyInjection
             }
         }
 
-        internal StringComparison FileSystemTextComparison =>
-            CaseSensitiveFileSystem ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+        internal StringComparison CommandLineTextComparison
+        {
+            get
+            {
+                if( _cmdLineTextComparison.HasValue )
+                    return _cmdLineTextComparison.Value;
+
+                return CaseSensitiveFileSystem ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            }
+
+            set => _cmdLineTextComparison = value;
+        }
+
+        internal void ResetCommandLineTextComparison() => _cmdLineTextComparison = null;
 
         internal List<ConfigurationFile> ApplicationConfigurationFiles { get; } = new();
         internal List<ConfigurationFile> UserConfigurationFiles { get; } = new();
@@ -108,7 +120,7 @@ namespace J4JSoftware.DependencyInjection
         internal List<Action<HostBuilderContext, IServiceCollection>> ServicesInitializers { get; } = new();
 
         public string ApplicationConfigurationFolder =>
-            _inDesignMode() ? AppContext.BaseDirectory : Environment.CurrentDirectory;
+            InDesignMode() ? AppContext.BaseDirectory : Environment.CurrentDirectory;
 
         public string UserConfigurationFolder =>
             Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
@@ -185,12 +197,12 @@ namespace J4JSoftware.DependencyInjection
             // type of operating system specified
             CommandLineConfiguration!.TextConverters ??= new TextConverters();
 
-            _options = new OptionCollection( FileSystemTextComparison,
+            _options = new OptionCollection( CommandLineTextComparison,
                                             CommandLineConfiguration.TextConverters,
                                             Logger );
 
             CommandLineConfiguration.OptionsGenerator ??=
-                new OptionsGenerator( _options, FileSystemTextComparison, Logger );
+                new OptionsGenerator( _options, CommandLineTextComparison, Logger );
 
             CommandLineConfiguration.LexicalElements ??= CommandLineConfiguration.OperatingSystem switch
                                                          {
@@ -231,22 +243,6 @@ namespace J4JSoftware.DependencyInjection
 
             builder.RegisterType<J4JProtection>()
                    .As<IJ4JProtection>()
-                   .SingleInstance();
-
-            builder.Register( c =>
-                              {
-                                  // the application configuration folder for XAML projects (e.g., WPF) depends upon
-                                  // whether or not the app is running in design mode or run-time mode
-                                  var retVal = new J4JHostInfo( Publisher,
-                                                               ApplicationName,
-                                                               CaseSensitiveFileSystem,
-                                                               CommandLineConfiguration?.LexicalElements,
-                                                               _inDesignMode,
-                                                               CommandLineSource );
-
-                                  return retVal;
-                              } )
-                   .AsSelf()
                    .SingleInstance();
 
             builder.Register( c =>

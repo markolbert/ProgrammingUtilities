@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using J4JSoftware.Configuration.CommandLine;
 using J4JSoftware.DependencyInjection;
+using J4JSoftware.DependencyInjection.host;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using Xunit;
 
@@ -33,8 +29,8 @@ namespace Test.DependencyInjection
             config.MissingRequirements.Should()
                   .Be( J4JHostRequirements.ApplicationName | J4JHostRequirements.Publisher );
 
-            var builder = config.CreateHostBuilder();
-            builder.Should().BeNull();
+            var host = config.Build();
+            host.Should().BeNull();
         }
 
         [ Fact ]
@@ -46,7 +42,7 @@ namespace Test.DependencyInjection
 
             config.MissingRequirements.Should().Be( J4JHostRequirements.AllMet );
 
-            var host = BuildHost( config );
+            BuildHost( config );
         }
 
         [ Fact ]
@@ -65,7 +61,7 @@ namespace Test.DependencyInjection
             logger.SetLoggedType( GetType() );
             logger.Fatal( "This is a test fatal event" );
 
-            void config_logger( IConfiguration buildConfig, J4JLoggerConfiguration loggerConfig )
+            static void config_logger( IConfiguration buildConfig, J4JLoggerConfiguration loggerConfig )
             {
                 loggerConfig.SerilogConfiguration
                             .WriteTo
@@ -113,12 +109,10 @@ namespace Test.DependencyInjection
                   .OptionsInitializer( define_options );
 
             var host = BuildHost( config );
+            host.Should().NotBeNull();
 
-            var hostInfo = host!.Services.GetRequiredService<J4JHostInfo>();
-            hostInfo.Should().NotBeNull();
-            hostInfo.CommandLineSource.Should().NotBeNull();
-
-            hostInfo.CommandLineSource!.SetCommandLine( "/s /t \"hello\"" );
+            host.CommandLineSource.Should().NotBeNull();
+            host.CommandLineSource!.SetCommandLine( "/s /t \"hello\"" );
 
             var optConfig = host.Services.GetRequiredService<IConfiguration>();
             optConfig.Should().NotBeNull();
@@ -129,7 +123,7 @@ namespace Test.DependencyInjection
             cmdOptions.Switch.Should().BeTrue();
             cmdOptions.Text.Should().Be( "hello" );
 
-            void define_options( OptionCollection options )
+            static void define_options( OptionCollection options )
             {
                 options.Bind<OptionsTest, bool>( x => x.Switch, "s" );
                 options.Bind<OptionsTest, string>( x => x.Text, "t" );
@@ -159,21 +153,15 @@ namespace Test.DependencyInjection
             decrypted.Should().Be( "test text" );
         }
 
-        private IHost BuildHost( J4JHostConfiguration config )
+        private static IJ4JHost BuildHost( J4JHostConfiguration config )
         {
             config.MissingRequirements.Should().Be( J4JHostRequirements.AllMet );
 
-            var builder = config.CreateHostBuilder();
-            builder.Should().NotBeNull();
-
-            var host = builder!.Build();
+            var host = config.Build();
             host.Should().NotBeNull();
 
             host!.Services.GetRequiredService<IConfiguration>().Should().NotBeNull();
             host.Services.GetRequiredService<IJ4JLogger>().Should().NotBeNull();
-
-            var hostInfo = host.Services.GetRequiredService<J4JHostInfo>();
-            hostInfo.Should().NotBeNull();
 
             return host;
         }
