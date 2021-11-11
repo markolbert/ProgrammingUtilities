@@ -13,7 +13,8 @@ namespace J4JSoftware.DependencyInjection.host
         StringComparison CommandLineTextComparison { get; }
         ILexicalElements? CommandLineLexicalElements { get; }
         CommandLineSource? CommandLineSource { get; }
-        
+        OptionCollection? Options { get; }
+
         OperatingSystem OperatingSystem { get; }
 
         Func<bool> InDesignMode { get; }
