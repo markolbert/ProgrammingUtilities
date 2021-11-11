@@ -18,11 +18,7 @@
 #endregion
 
 using System;
-using System.Reflection;
-using J4JSoftware.Configuration.CommandLine;
-using J4JSoftware.Logging;
 using Microsoft.Extensions.Hosting;
-using Serilog.Events;
 
 namespace J4JSoftware.DependencyInjection
 {

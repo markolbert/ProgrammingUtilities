@@ -30,7 +30,6 @@ using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog.Events;
 
 namespace J4JSoftware.DependencyInjection
 {

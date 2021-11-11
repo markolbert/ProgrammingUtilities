@@ -20,10 +20,8 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using SQLitePCL;
 
 namespace J4JSoftware.EFCoreUtilities
 {

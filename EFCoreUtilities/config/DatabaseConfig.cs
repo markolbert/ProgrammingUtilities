@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-#pragma warning disable 8618
+﻿#pragma warning disable 8618
 
 namespace J4JSoftware.EFCoreUtilities
 {

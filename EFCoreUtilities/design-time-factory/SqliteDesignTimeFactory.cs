@@ -17,8 +17,6 @@
 
 #endregion
 
-using System;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 
 namespace J4JSoftware.EFCoreUtilities
