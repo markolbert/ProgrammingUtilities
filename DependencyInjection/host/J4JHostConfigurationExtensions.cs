@@ -214,33 +214,33 @@ namespace J4JSoftware.DependencyInjection
 
         public static IJ4JHost? Build( this J4JHostConfiguration config )
         {
-            if (config.MissingRequirements != J4JHostRequirements.AllMet)
+            if ( config.MissingRequirements != J4JHostRequirements.AllMet )
                 return null;
 
             var hostBuilder = new HostBuilder()
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+                .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
 
-            if (hostBuilder == null)
+            if ( hostBuilder == null )
                 return null;
 
-            foreach (var configurator in config.EnvironmentInitializers)
+            foreach ( var configurator in config.EnvironmentInitializers )
             {
-                hostBuilder.ConfigureAppConfiguration(configurator);
+                hostBuilder.ConfigureAppConfiguration( configurator );
             }
 
-            foreach (var configurator in config.ConfigurationInitializers)
+            foreach ( var configurator in config.ConfigurationInitializers )
             {
-                hostBuilder.ConfigureHostConfiguration(configurator);
+                hostBuilder.ConfigureHostConfiguration( configurator );
             }
 
-            foreach (var configurator in config.DependencyInjectionInitializers)
+            foreach ( var configurator in config.DependencyInjectionInitializers )
             {
-                hostBuilder.ConfigureContainer(configurator);
+                hostBuilder.ConfigureContainer( configurator );
             }
 
-            foreach (var configurator in config.ServicesInitializers)
+            foreach ( var configurator in config.ServicesInitializers )
             {
-                hostBuilder.ConfigureServices(configurator);
+                hostBuilder.ConfigureServices( configurator );
             }
 
             return new J4JHost( hostBuilder.Build() )
