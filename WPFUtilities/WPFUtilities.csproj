@@ -16,16 +16,17 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
-		<Version>1.0.0.0</Version>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<PackageReleaseNotes>conform to latest J4JLogging and DependencyInjection APIs</PackageReleaseNotes>
+		<Version>1.1.0.0</Version>
+		<AssemblyVersion>1.1.0.0</AssemblyVersion>
+		<PackageReleaseNotes>updated to net 6</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-		<Pack>True</Pack>
-		<PackagePath></PackagePath>
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
 		</None>
+		<None Include="../docs/nuget/nuget-wpf-utilities.md" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 	<ItemGroup>

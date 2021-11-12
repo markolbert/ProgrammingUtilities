@@ -12,13 +12,13 @@
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Version>1.3.1.0</Version>
-		<AssemblyVersion>1.3.1.0</AssemblyVersion>
+		<Version>1.4.0.0</Version>
+		<AssemblyVersion>1.4.0.0</AssemblyVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageDescription>utilities for console applications</PackageDescription>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>added nuget readme</PackageReleaseNotes>
+		<PackageReleaseNotes>updated for Net 6</PackageReleaseNotes>
 		<PackageReadmeFile>nuget-console.md</PackageReadmeFile>
 	</PropertyGroup>
 
@@ -31,7 +31,7 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="../docs/nuget-console.md" Pack="true" PackagePath="/" />
+		<None Include="../docs/nuget/nuget-console.md" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 	<ItemGroup>
