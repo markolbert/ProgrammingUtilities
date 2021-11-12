@@ -6,6 +6,6 @@ This assembly provides:
 
 - a system for organizing instances of classes which themselves each act on a collection of objects. I needed this for a complex database project where multiple objects had to be processed in multiple ways, but the sequence of processes had to be topologically sorted.
 
-This assembly targets Net5 and has nullability enabled.
+This assembly targets Net 6 and has nullability enabled.
 
 For more information consult the [github documentation](https://github.com/markolbert/ProgrammingUtilities/blob/master/docs/topo-sort.md).
