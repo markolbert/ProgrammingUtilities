@@ -1,5 +1,12 @@
 # WPF Utilities
 
+## Changes
+
+|Version|Summary of Changes|
+|-------|------------------|
+|1.1|updated to Net 6|
+|1.0|initial release|
+
 *Stay tuned...*
 
 ## Color Conversion

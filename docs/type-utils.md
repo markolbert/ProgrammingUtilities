@@ -1,0 +1,3 @@
+# Autofac Type Utilities
+
+documentation forthcoming...

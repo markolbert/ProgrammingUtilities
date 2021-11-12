@@ -2,11 +2,11 @@
 
 Enables run-time editing of configuration parameters in console apps on an as-needed basis.
 
-This assembly targets Net5 and has nullability enabled.
+This assembly targets Net 6 and has nullability enabled.
 
 For more information consult the [github documentation](https://github.com/markolbert/ProgrammingUtilities).
 
-The Net5 `IConfiguration` system is highly flexible and can assemble configuration information from many sources. However, when it's done some values needed by a console app may still be undefined or invalid. `ConfigurationUpdater<>` allows you to set updating rules for such parameters and prompt the user for missing or replacement values.
+The Net `IConfiguration` system is highly flexible and can assemble configuration information from many sources. However, when it's done some values needed by a console app may still be undefined or invalid. `ConfigurationUpdater<>` allows you to set updating rules for such parameters and prompt the user for missing or replacement values.
 
 You do this by defining `IPropertyUpdater<>` classes for the properties you want to check/update.
 

@@ -2,7 +2,7 @@
 
 This assembly provides some wrappers around the [NPOI C# port](https://github.com/nissl-lab/npoi) which I've found useful.
 
-This assembly targets Net5 and has nullability enabled.
+This assembly targets Net 6 and has nullability enabled.
 
 The starting point for using the library is creating an instance of `ExcelWorkbook`. It takes an optional `Func<IJ4JLogger>` logger factory. For more information on `IJ4JLogger` see the [github documentation](https://github.com/markolbert/J4JLogging).
 

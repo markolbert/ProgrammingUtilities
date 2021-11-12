@@ -1,6 +1,11 @@
 # Changes
 
-The library takes a completely different approach with this release.
+|Version|Summary of Changes|
+|-------|------------------|
+|2.1|updated to Net 6|
+|2.0|significant breaking changes; see below|
+
+The library takes a completely different approach with v2.
 
 Instead of providing a series of customizable CompositionRoot classes -- which provided certain services, like logging, but also exposed various important properties, like  application and user configuration file folders -- everything is now a service accessible through an instance of `IHost`.
 

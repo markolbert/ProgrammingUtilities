@@ -1,12 +1,5 @@
 # Visual Utilities
 
-## Changes
-
-|Version|Summary of Changes|
-|-------|------------------|
-|1.1|updated to Net 6|
-|1.0|initial release|
-
 This assembly is focused on functions needed to work with various kinds of media objects.
 
 This assembly targets Net 6 and has nullability enabled.

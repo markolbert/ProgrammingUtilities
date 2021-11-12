@@ -1,5 +1,13 @@
 # Entity Framework Utilities
 
+## Changes
+
+|Version|Summary of Changes|
+|-------|------------------|
+|1.1|updated to Net 6|
+|1.0.1|added nuget readme|
+|1.0|initial release|
+
 This assembly provides two capabilities to simplify using Entity Frameowork Core in projects:
 
 - Simplifies setting up a **design-time factory** for instances of `DbContext` to use during development.

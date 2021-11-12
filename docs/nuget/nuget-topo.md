@@ -8,4 +8,4 @@ This assembly provides:
 
 This assembly targets Net5 and has nullability enabled.
 
-For more information consult the [github documentation](https://github.com/markolbert/ProgrammingUtilities).
+For more information consult the [github documentation](https://github.com/markolbert/ProgrammingUtilities/blob/master/docs/topo-sort.md).
