@@ -24,6 +24,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="range-tick\**" />
+	  <EmbeddedResource Remove="range-tick\**" />
+	  <None Remove="range-tick\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Remove="selectable-node\CollectionChangedHandler.cs" />
 	  <Compile Remove="selectable-node\ISelectableNodeFactory.cs" />
 	  <Compile Remove="selectable-node\SelectableNodeFactory.cs" />

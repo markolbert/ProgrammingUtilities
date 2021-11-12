@@ -7,6 +7,10 @@
 </PropertyGroup>
 
 <ItemGroup>
+  <Compile Remove="RangeTickTest.cs" />
+</ItemGroup>
+
+<ItemGroup>
 	<PackageReference Include="Autofac" Version="6.3.0" />
 	<PackageReference Include="FluentAssertions" Version="6.2.0" />
 	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
