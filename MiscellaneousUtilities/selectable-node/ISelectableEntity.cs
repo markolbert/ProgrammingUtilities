@@ -24,6 +24,5 @@ namespace J4JSoftware.Utilities
         TEntity Entity { get; }
         TEntity? Parent { get; }
         TKey Key { get; }
-        string DisplayName { get; }
     }
 }
