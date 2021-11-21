@@ -31,7 +31,9 @@
 
 	<ItemGroup>
 	  <Compile Remove="selectable-node\CollectionChangedHandler.cs" />
+	  <Compile Remove="selectable-node\ISelectableNode.cs" />
 	  <Compile Remove="selectable-node\ISelectableNodeFactory.cs" />
+	  <Compile Remove="selectable-node\SelectableNode.cs" />
 	  <Compile Remove="selectable-node\SelectableNodeFactory.cs" />
 	</ItemGroup>
 
