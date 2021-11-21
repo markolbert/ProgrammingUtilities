@@ -30,6 +30,8 @@ public sealed class J4JHost : IJ4JHost
 
     public string Publisher { get; internal set; } = "undefined";
     public string ApplicationName { get; internal set; } = "undefined";
+    public string UserConfigurationFolder { get; internal set; } = string.Empty;
+    public string ApplicationConfigurationFolder { get; internal set; } = string.Empty;
 
     public bool FileSystemIsCaseSensitive { get; internal set; }
     public StringComparison CommandLineTextComparison { get; internal set; }

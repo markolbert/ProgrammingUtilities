@@ -9,6 +9,9 @@ namespace J4JSoftware.DependencyInjection.host
         string Publisher { get; }
         string ApplicationName { get; }
 
+        string UserConfigurationFolder { get; }
+        string ApplicationConfigurationFolder { get; }
+
         bool FileSystemIsCaseSensitive { get; }
         StringComparison CommandLineTextComparison { get; }
         ILexicalElements? CommandLineLexicalElements { get; }

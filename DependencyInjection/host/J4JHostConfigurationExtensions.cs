@@ -251,7 +251,9 @@ namespace J4JSoftware.DependencyInjection
                        CommandLineSource = config.CommandLineSource,
                        FileSystemIsCaseSensitive = config.CaseSensitiveFileSystem,
                        InDesignMode = config.InDesignMode,
-                       Publisher = config.Publisher
+                       Publisher = config.Publisher,
+                       ApplicationConfigurationFolder = config.ApplicationConfigurationFolder,
+                       UserConfigurationFolder = config.UserConfigurationFolder
                    };
         }
     }
