@@ -5,22 +5,27 @@ namespace J4JSoftware.Utilities
 {
     public interface ISelectableTree
     {
-        void Clear();
         void SetAll( bool isSelected );
-        object? AddOrGetNode( object entity );
-        void AddOrGetNodes( IEnumerable<object> entities );
+        //object? AddOrGetEntity( object entity );
+        //void AddOrGetEntities( IEnumerable<object> entities );
     }
 
     public interface ISelectableTree<TEntity, TKey> : ISelectableTree
-        where TEntity : ISelectableEntity<TEntity, TKey>
+        where TEntity : class, ISelectableEntity<TEntity, TKey>
+        where TKey : notnull
     {
-        ObservableCollection<ISelectableNode<TEntity, TKey>> Nodes { get; }
-        IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false );
+        ObservableCollection<TEntity> RootEntities { get; }
 
-        ISelectableNode<TEntity, TKey> AddOrGetNode( TEntity entity );
-        void AddOrGetNodes( IEnumerable<TEntity> entities );
+        bool Load( List<TEntity> entities );
+        bool Load( Dictionary<TKey, TEntity> entities );
 
-        bool FindNode( TKey key, out ISelectableNode<TEntity, TKey>? result );
-        void SortNodes( IComparer<ISelectableNode<TEntity, TKey>>? sortComparer = null );
+        IEnumerable<TEntity> SelectedEntities();
+        IEnumerable<TEntity> UnselectedEntities();
+
+        //TEntity AddOrGetEntity( TEntity entity );
+        //void AddOrGetEntities( IEnumerable<TEntity> entities );
+
+        bool FindEntity( TKey key, out TEntity? result );
+        //void Sort( IComparer<TEntity>? sortComparer = null );
     }
 }

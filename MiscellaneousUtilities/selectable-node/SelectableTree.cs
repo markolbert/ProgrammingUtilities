@@ -20,30 +20,30 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.Utilities
 {
     public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, TKey>
         where TKey : notnull
-        where TEntity : ISelectableEntity<TEntity, TKey>
+        where TEntity : class, ISelectableEntity<TEntity, TKey>
     {
-        private static readonly TKey _intKey = (TKey) Convert.ChangeType( 5, typeof( TKey ) );
-
         public event EventHandler? SelectionChanged;
 
-        private readonly Func<ISelectableEntity<TEntity, TKey>, ISelectableNode<TEntity, TKey>> _nodeFactory;
-        private readonly Dictionary<TKey, ISelectableNode<TEntity, TKey>> _masterNodeDict;
+        private readonly Dictionary<TKey, TEntity> _masterDict;
+        private readonly IEqualityComparer<TKey> _keyComparer;
 
-        protected SelectableTree( Func<ISelectableEntity<TEntity, TKey>, ISelectableNode<TEntity, TKey>> nodeFactory,
-                                  IJ4JLogger? logger,
-                                  IEqualityComparer<TKey>? keyComparer = null )
+        protected SelectableTree(
+            IJ4JLogger? logger,
+            IEqualityComparer<TKey>? keyComparer = null
+        )
         {
-            _nodeFactory = nodeFactory;
+            _keyComparer = keyComparer ?? EqualityComparer<TKey>.Default;
 
-            keyComparer ??= EqualityComparer<TKey>.Default;
-            _masterNodeDict = new Dictionary<TKey, ISelectableNode<TEntity, TKey>>( keyComparer );
+            _masterDict = new Dictionary<TKey, TEntity>( keyComparer );
 
             Logger = logger;
             Logger?.SetLoggedType( GetType() );
@@ -51,17 +51,78 @@ namespace J4JSoftware.Utilities
 
         protected IJ4JLogger? Logger { get; }
 
-        public void Clear()
+        public bool Load( List<TEntity> entities )
         {
-            Nodes.Clear();
-            _masterNodeDict.Clear();
+            var temp = new Dictionary<TKey, TEntity>();
+
+            foreach( var entity in entities )
+            {
+                if( !temp.ContainsKey( entity.Key ) )
+                {
+                    temp.Add( entity.Key, entity );
+                    continue;
+                }
+
+                Logger?.Error( "Entity ({0}) with duplicate key ({1}) encountered", entity.DisplayName, entity.Key );
+                return false;
+            }
+
+            return Load( temp );
+        }
+
+        public bool Load( Dictionary<TKey, TEntity> entities )
+        {
+            _masterDict.Clear();
+            RootEntities.Clear();
+
+            foreach( var kvp in entities )
+            {
+                if( !_masterDict.ContainsKey( kvp.Key ) )
+                    _masterDict.Add( kvp.Key, kvp.Value );
+
+                if( kvp.Value.Parent == null )
+                    RootEntities.Add( kvp.Value );
+            }
+
+            // check for loops
+            var curPath = new List<TKey>();
+
+            foreach( var kvp in _masterDict )
+            {
+                curPath.Clear();
+                var curEntity = kvp.Value;
+
+                while( curEntity.Parent != null )
+                {
+                    if( !curPath.Any( x => _keyComparer.Equals( x, curEntity.Key ) ) )
+                    {
+                        curPath.Add( curEntity.Key );
+                        curEntity = curEntity.Parent;
+
+                        continue;
+                    }
+
+                    Logger?.Error( "Loop detected for entity '{0}' (key: {1}) at '{2}' (key: {3})",
+                                  new object[]
+                                  {
+                                      kvp.Value.DisplayName, kvp.Key, curEntity.DisplayName, curEntity.Key
+                                  } );
+
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public void SetAll( bool isSelected )
         {
-            foreach( var node in Nodes.SelectMany( x => x.DescendantsAndSelf ) )
+            foreach( var rootEntity in RootEntities )
             {
-                node.IsSelected = isSelected;
+                foreach( var entity in rootEntity.DescendantEntitiesAndSelf<TEntity, TKey>() )
+                {
+                    entity.IsSelected = true;
+                }
             }
 
             OnSelectionChanged();
@@ -69,121 +130,114 @@ namespace J4JSoftware.Utilities
 
         protected internal virtual void OnSelectionChanged() => SelectionChanged?.Invoke( this, EventArgs.Empty );
 
-        public ObservableCollection<ISelectableNode<TEntity, TKey>> Nodes { get; } = new();
+        public ObservableCollection<TEntity> RootEntities { get; } = new();
 
-        public bool FindNode( TKey key, out ISelectableNode<TEntity, TKey>? result )
+        public bool FindEntity( TKey key, out TEntity? result )
         {
             result = null;
 
-            if( _masterNodeDict.ContainsKey( key ) )
-                result = _masterNodeDict[ key ];
+            if( _masterDict.ContainsKey( key ) )
+                result = _masterDict[ key ];
 
             return result != null;
         }
 
-        public IEnumerable<TEntity> GetSelectedNodes( bool getUnselected = false ) =>
-            getUnselected
-                ? _masterNodeDict
-                  .Where( x => !x.Value.IsSelected )
-                  .Select( x => x.Value.Entity )
-                : _masterNodeDict
-                  .Where( x => x.Value.IsSelected )
-                  .Select( x => x.Value.Entity );
-
-        ///TODO tracing and reversing the path through the selected nodes may not be necessary
-        public ISelectableNode<TEntity, TKey> AddOrGetNode( TEntity entity )
+        public IEnumerable<TEntity> SelectedEntities()
         {
-            if( FindNode( GetKey( entity ), out var node ) )
-                return node!;
-
-            // trace the entities back up to a root entity, and then
-            // create, if necessary, nodes in reverse order from that path
-            var pathEntities = GetEntitiesPath( entity );
-            pathEntities.Reverse();
-
-            ISelectableNode<TEntity, TKey>? parentNode = null;
-            ISelectableNode<TEntity, TKey>? retVal = null;
-
-            foreach( var pathEntity in pathEntities )
+            foreach( var rootEntity in RootEntities )
             {
-                var pathEntityKey = GetKey( pathEntity );
-                var match = EqualityComparer<TKey>.Default.Equals( pathEntityKey, _intKey );
-
-                bool nodeExists = FindNode( GetKey( pathEntity ), out retVal );
-                retVal ??= _nodeFactory( pathEntity );
-
-                if( !nodeExists )
+                foreach( var child in rootEntity.DescendantEntitiesAndSelf<TEntity, TKey>())
                 {
-                    if( parentNode == null )
-                        Nodes.Add( retVal );
-                    else parentNode.ChildNodes.Add( retVal );
-
-                    _masterNodeDict.Add( retVal.Key, retVal );
+                    if( child.IsSelected  )
+                        yield return child;
                 }
-
-                parentNode = retVal;
             }
-
-            return retVal!;
         }
 
-        public void AddOrGetNodes( IEnumerable<TEntity> entities )
+        public IEnumerable<TEntity> UnselectedEntities()
         {
-            foreach ( var entity in entities )
+            foreach (var rootEntity in RootEntities)
             {
-                AddOrGetNode( entity );
+                foreach (var child in rootEntity.DescendantEntitiesAndSelf<TEntity, TKey>())
+                {
+                    if (!child.IsSelected)
+                        yield return child;
+                }
             }
         }
 
-        public void SortNodes( IComparer<ISelectableNode<TEntity, TKey>>? sortComparer = null )
-        {
-            sortComparer ??= new DefaultSelectableNodeComparer<TEntity, TKey>();
+        /////TODO tracing and reversing the path through the selected nodes may not be necessary
+        //public TEntity AddOrGetEntity( TEntity entity )
+        //{
+        //    if( FindEntity( GetKey( entity ), out var retVal ) )
+        //        return retVal!;
 
-            var tempRoot = Nodes
-                           .OrderBy( x => x, sortComparer )
-                           .ToList();
+        //    // trace the entities back up to a root entity, and then
+        //    // create, if necessary, nodes in reverse order from that path
+        //    var pathEntities = GetEntitiesPath( entity );
+        //    pathEntities.Reverse();
 
-            Nodes.Clear();
+        //    TEntity? parent = null;
 
-            foreach( var node in tempRoot )
-            {
-                Nodes.Add( node );
+        //    foreach( var pathEntity in pathEntities )
+        //    {
+        //        bool nodeExists = FindEntity( GetKey( pathEntity ), out retVal );
+        //        retVal = entity;
 
-                node.SortChildNodes( sortComparer );
-            }
-        }
+        //        if( !nodeExists )
+        //        {
+        //            if( parent == null )
+        //                RootEntities.Add( retVal );
 
-        protected abstract bool GetParentEntity( TEntity entity, out TEntity? parentEntity );
+        //            if( !_masterDict.ContainsKey(retVal.Key))
+        //                _masterDict.Add( retVal.Key, retVal );
+        //        }
 
-        // don't reverse the entity path (i.e., the root entity should be the last entity in what's returned)
-        protected abstract List<TEntity> GetEntitiesPath( TEntity entity );
+        //        parent = retVal;
+        //    }
 
-        protected abstract TKey GetKey( TEntity entity );
+        //    return retVal!;
+        //}
 
-        object? ISelectableTree.AddOrGetNode( object entity )
-        {
-            if( entity is TEntity castEntity )
-                return AddOrGetNode( castEntity );
+        //public void AddOrGetEntities( IEnumerable<TEntity> entities )
+        //{
+        //    foreach ( var entity in entities )
+        //    {
+        //        AddOrGetEntity( entity );
+        //    }
+        //}
 
-            Logger?.Error( "Expected a {0} but got a {1}", typeof( TEntity ), entity.GetType() );
+        //protected abstract bool GetParentEntity( TEntity entity, out TEntity? parentEntity );
 
-            return null;
-        }
+        //// don't reverse the entity path (i.e., the root entity should be the last entity in what's returned)
+        //protected abstract List<TEntity> GetEntitiesPath( TEntity entity );
 
-        void ISelectableTree.AddOrGetNodes( IEnumerable<object> entities )
-        {
-            var temp = entities.ToList();
+        //protected abstract TKey GetKey( TEntity entity );
 
-            if( temp.Any( x => x is not TEntity ) )
-            {
-                Logger?.Error( "Expected a collection of {0} but did not get it", typeof( TEntity ) );
-                return;
-            }
+        //object? ISelectableTree.AddOrGetEntity( object entity )
+        //{
+        //    if( entity is TEntity castEntity )
+        //        return AddOrGetEntity( castEntity );
 
-            foreach( var entity in temp.Cast<TEntity>() )
-            {
-                AddOrGetNode( entity );
-            }
-        }
+        //    Logger?.Error( "Expected a {0} but got a {1}", typeof( TEntity ), entity.GetType() );
+
+        //    return null;
+        //}
+
+        //void ISelectableTree.AddOrGetEntities( IEnumerable<object> entities )
+        //{
+        //    var temp = entities.ToList();
+
+        //    if( temp.Any( x => x is not TEntity ) )
+        //    {
+        //        Logger?.Error( "Expected a collection of {0} but did not get it", typeof( TEntity ) );
+        //        return;
+        //    }
+
+        //    foreach( var entity in temp.Cast<TEntity>() )
+        //    {
+        //        AddOrGetEntity( entity );
+        //    }
+        //}
     }
 }

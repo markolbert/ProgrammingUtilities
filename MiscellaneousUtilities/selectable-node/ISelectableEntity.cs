@@ -17,12 +17,19 @@
 
 #endregion
 
+using System.Collections.Generic;
+
 namespace J4JSoftware.Utilities
 {
-    public interface ISelectableEntity<out TEntity, out TKey>
+    public interface ISelectableEntity<TEntity, TKey>
+    where TEntity : class, ISelectableEntity<TEntity, TKey>
     {
         TEntity Entity { get; }
         TEntity? Parent { get; }
+        IEnumerable<TEntity> Children { get; }
         TKey Key { get; }
+
+        string DisplayName { get; }
+        bool IsSelected { get; set; }
     }
 }

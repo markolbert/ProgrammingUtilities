@@ -46,7 +46,7 @@ namespace J4JSoftware.Utilities
 
         public void SortChildNodes( IComparer<ISelectableNode<TEntity, TKey>>? sortComparer = null )
         {
-            sortComparer ??= new DefaultSelectableNodeComparer<TEntity, TKey>();
+            sortComparer ??= new DefaultSelectableEntityComparer<TEntity, TKey>();
 
             var tempRoot = ChildNodes
                            .OrderBy( x => x, sortComparer )
