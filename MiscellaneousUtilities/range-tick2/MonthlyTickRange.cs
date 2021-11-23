@@ -175,7 +175,7 @@ namespace J4JSoftware.Utilities
 
         private int NextTraditionalMonthsPerMinor()
         {
-            var retVal = 0;
+            int retVal;
 
             if( _traditionalIndex < TraditionalMonthsPerMinor.Length )
             {
@@ -191,7 +191,7 @@ namespace J4JSoftware.Utilities
             return retVal;
         }
 
-        private int IntegerFloor( double value ) => Convert.ToInt32( Math.Floor( value ) );
+        private static int IntegerFloor( double value ) => Convert.ToInt32( Math.Floor( value ) );
 
         bool ITickRange.GetRange( double controlSize,
                                   object minValue,
