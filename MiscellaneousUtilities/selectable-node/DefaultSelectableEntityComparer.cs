@@ -22,10 +22,10 @@ using System.Collections.Generic;
 
 namespace J4JSoftware.Utilities
 {
-    public class DefaultSelectableNodeComparer<TEntity, TKey> : IComparer<ISelectableNode<TEntity, TKey>>
-        where TEntity : ISelectableEntity<TEntity, TKey>
+    public class DefaultSelectableEntityComparer<TEntity, TKey> : IComparer<TEntity>
+        where TEntity : class, ISelectableEntity<TEntity, TKey>
     {
-        public int Compare( ISelectableNode<TEntity, TKey>? x, ISelectableNode<TEntity, TKey>? y )
+        public int Compare( TEntity? x, TEntity? y )
         {
             if( x == null && y == null )
                 return 0;
