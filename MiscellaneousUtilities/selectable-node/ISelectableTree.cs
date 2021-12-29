@@ -1,16 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace J4JSoftware.Utilities
 {
-    public interface ISelectableTree
-    {
-        void SetAll( bool isSelected );
-        //object? AddOrGetEntity( object entity );
-        //void AddOrGetEntities( IEnumerable<object> entities );
-    }
-
-    public interface ISelectableTree<TEntity, TKey> : ISelectableTree
+    public interface ISelectableTree<TEntity, TKey>
         where TEntity : class, ISelectableEntity<TEntity, TKey>
         where TKey : notnull
     {
@@ -22,10 +16,6 @@ namespace J4JSoftware.Utilities
         IEnumerable<TEntity> SelectedEntities();
         IEnumerable<TEntity> UnselectedEntities();
 
-        //TEntity AddOrGetEntity( TEntity entity );
-        //void AddOrGetEntities( IEnumerable<TEntity> entities );
-
         bool FindEntity( TKey key, out TEntity? result );
-        //void Sort( IComparer<TEntity>? sortComparer = null );
     }
 }

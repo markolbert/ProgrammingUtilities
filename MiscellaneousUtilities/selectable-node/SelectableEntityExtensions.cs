@@ -9,6 +9,46 @@ namespace J4JSoftware.Utilities
 {
     public static class SelectableEntityExtensions
     {
+        public static void SetTree<TEntity, TKey>( this ISelectableTree<TEntity, TKey> tree )
+            where TEntity : class, ISelectableEntity<TEntity, TKey>
+            where TKey : notnull
+        {
+            foreach (var rootEntity in tree.RootEntities)
+            {
+                rootEntity.SetBranch<TEntity, TKey>();
+            }
+        }
+
+        public static void ClearTree<TEntity, TKey>(this ISelectableTree<TEntity, TKey> tree)
+            where TEntity : class, ISelectableEntity<TEntity, TKey>
+            where TKey : notnull
+        {
+            foreach (var rootEntity in tree.RootEntities)
+            {
+                rootEntity.ClearBranch<TEntity, TKey>();
+            }
+        }
+
+        public static void SetBranch<TEntity, TKey>( this TEntity node )
+            where TEntity : class, ISelectableEntity<TEntity, TKey>
+            where TKey : notnull
+        {
+            foreach( var entity in node.DescendantEntitiesAndSelf<TEntity, TKey>() )
+            {
+                entity.IsSelected = true;
+            }
+        }
+
+        public static void ClearBranch<TEntity, TKey>( this TEntity node )
+            where TEntity : class, ISelectableEntity<TEntity, TKey>
+            where TKey : notnull
+        {
+            foreach( var entity in node.DescendantEntitiesAndSelf<TEntity, TKey>() )
+            {
+                entity.IsSelected = false;
+            }
+        }
+
         public static IEnumerable<TEntity> DescendantEntitiesAndSelf<TEntity, TKey>(
             this TEntity rootEntity )
             where TEntity : class, ISelectableEntity<TEntity, TKey>

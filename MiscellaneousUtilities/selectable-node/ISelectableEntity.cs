@@ -17,12 +17,14 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace J4JSoftware.Utilities
 {
-    public interface ISelectableEntity<TEntity, TKey>
-    where TEntity : class, ISelectableEntity<TEntity, TKey>
+    public interface ISelectableEntity<TEntity, TKey> : INotifyPropertyChanged
+        where TEntity : class, ISelectableEntity<TEntity, TKey>
     {
         TEntity Entity { get; }
         TEntity? Parent { get; }

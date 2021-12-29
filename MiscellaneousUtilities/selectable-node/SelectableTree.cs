@@ -31,8 +31,6 @@ namespace J4JSoftware.Utilities
         where TKey : notnull
         where TEntity : class, ISelectableEntity<TEntity, TKey>
     {
-        public event EventHandler? SelectionChanged;
-
         private readonly Dictionary<TKey, TEntity> _masterDict;
         private readonly IEqualityComparer<TKey> _keyComparer;
 
@@ -115,21 +113,6 @@ namespace J4JSoftware.Utilities
             return true;
         }
 
-        public void SetAll( bool isSelected )
-        {
-            foreach( var rootEntity in RootEntities )
-            {
-                foreach( var entity in rootEntity.DescendantEntitiesAndSelf<TEntity, TKey>() )
-                {
-                    entity.IsSelected = true;
-                }
-            }
-
-            OnSelectionChanged();
-        }
-
-        protected internal virtual void OnSelectionChanged() => SelectionChanged?.Invoke( this, EventArgs.Empty );
-
         public ObservableCollection<TEntity> RootEntities { get; } = new();
 
         public bool FindEntity( TKey key, out TEntity? result )
@@ -165,79 +148,5 @@ namespace J4JSoftware.Utilities
                 }
             }
         }
-
-        /////TODO tracing and reversing the path through the selected nodes may not be necessary
-        //public TEntity AddOrGetEntity( TEntity entity )
-        //{
-        //    if( FindEntity( GetKey( entity ), out var retVal ) )
-        //        return retVal!;
-
-        //    // trace the entities back up to a root entity, and then
-        //    // create, if necessary, nodes in reverse order from that path
-        //    var pathEntities = GetEntitiesPath( entity );
-        //    pathEntities.Reverse();
-
-        //    TEntity? parent = null;
-
-        //    foreach( var pathEntity in pathEntities )
-        //    {
-        //        bool nodeExists = FindEntity( GetKey( pathEntity ), out retVal );
-        //        retVal = entity;
-
-        //        if( !nodeExists )
-        //        {
-        //            if( parent == null )
-        //                RootEntities.Add( retVal );
-
-        //            if( !_masterDict.ContainsKey(retVal.Key))
-        //                _masterDict.Add( retVal.Key, retVal );
-        //        }
-
-        //        parent = retVal;
-        //    }
-
-        //    return retVal!;
-        //}
-
-        //public void AddOrGetEntities( IEnumerable<TEntity> entities )
-        //{
-        //    foreach ( var entity in entities )
-        //    {
-        //        AddOrGetEntity( entity );
-        //    }
-        //}
-
-        //protected abstract bool GetParentEntity( TEntity entity, out TEntity? parentEntity );
-
-        //// don't reverse the entity path (i.e., the root entity should be the last entity in what's returned)
-        //protected abstract List<TEntity> GetEntitiesPath( TEntity entity );
-
-        //protected abstract TKey GetKey( TEntity entity );
-
-        //object? ISelectableTree.AddOrGetEntity( object entity )
-        //{
-        //    if( entity is TEntity castEntity )
-        //        return AddOrGetEntity( castEntity );
-
-        //    Logger?.Error( "Expected a {0} but got a {1}", typeof( TEntity ), entity.GetType() );
-
-        //    return null;
-        //}
-
-        //void ISelectableTree.AddOrGetEntities( IEnumerable<object> entities )
-        //{
-        //    var temp = entities.ToList();
-
-        //    if( temp.Any( x => x is not TEntity ) )
-        //    {
-        //        Logger?.Error( "Expected a collection of {0} but did not get it", typeof( TEntity ) );
-        //        return;
-        //    }
-
-        //    foreach( var entity in temp.Cast<TEntity>() )
-        //    {
-        //        AddOrGetEntity( entity );
-        //    }
-        //}
     }
 }
