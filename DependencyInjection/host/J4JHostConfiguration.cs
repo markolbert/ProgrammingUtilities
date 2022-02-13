@@ -36,14 +36,20 @@ namespace J4JSoftware.DependencyInjection
         private OptionCollection? _options;
         private StringComparison? _cmdLineTextComparison;
 
-        public J4JHostConfiguration()
-            : this( () => false )
+        public J4JHostConfiguration(
+            bool registerJ4JHost = true
+            )
+            : this( () => false, registerJ4JHost )
         {
         }
 
-        public J4JHostConfiguration( Func<bool> inDesignMode )
+        public J4JHostConfiguration( 
+            Func<bool> inDesignMode,
+            bool registerJ4JHost = true
+            )
         {
             InDesignMode = inDesignMode;
+            RegisterJ4JHost = registerJ4JHost;
 
             ConfigurationInitializers.Add( SetupConfiguration );
 
@@ -64,6 +70,11 @@ namespace J4JSoftware.DependencyInjection
         // used to determine if the host builder is running within a design-time
         // environment (e.g., in a WPF designer)
         internal Func<bool> InDesignMode { get; }
+
+        // controls whether the IJ4JHost instance that gets built is itself
+        // registered via dependency injection (default = true)
+        internal bool RegisterJ4JHost { get; }
+        internal IJ4JHost? Host { get; set; }
 
         internal bool CaseSensitiveFileSystem { get; set; } = false;
 
@@ -258,6 +269,12 @@ namespace J4JSoftware.DependencyInjection
             if( _options != null )
                 builder.Register( c => _options )
                        .AsSelf()
+                       .SingleInstance();
+
+            // register the IJ4JHost which will get built
+            if( RegisterJ4JHost )
+                builder.Register( c => Host! )
+                       .As<IJ4JHost>()
                        .SingleInstance();
         }
 

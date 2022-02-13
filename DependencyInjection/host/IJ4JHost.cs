@@ -2,7 +2,7 @@
 using J4JSoftware.Configuration.CommandLine;
 using Microsoft.Extensions.Hosting;
 
-namespace J4JSoftware.DependencyInjection.host
+namespace J4JSoftware.DependencyInjection
 {
     public interface IJ4JHost : IHost
     {

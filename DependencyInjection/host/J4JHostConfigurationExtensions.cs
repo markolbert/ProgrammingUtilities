@@ -243,7 +243,7 @@ namespace J4JSoftware.DependencyInjection
                 hostBuilder.ConfigureServices( configurator );
             }
 
-            return new J4JHost( hostBuilder.Build() )
+            config.Host = new J4JHost(hostBuilder.Build())
                    {
                        ApplicationName = config.ApplicationName,
                        CommandLineTextComparison = config.CommandLineTextComparison,
@@ -255,6 +255,8 @@ namespace J4JSoftware.DependencyInjection
                        ApplicationConfigurationFolder = config.ApplicationConfigurationFolder,
                        UserConfigurationFolder = config.UserConfigurationFolder
                    };
+
+            return config.Host;
         }
     }
 }
