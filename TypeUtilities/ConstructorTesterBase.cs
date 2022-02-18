@@ -20,37 +20,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace J4JSoftware.DependencyInjection
 {
     public abstract class ConstructorTesterBase<T> : ITypeTester
         where T : class
     {
-        protected ConstructorTesterBase( Type[] reqdParameters,
-                                         bool permuteParameters )
+        protected ConstructorTesterBase()
         {
-            PermuteParameters = permuteParameters;
-            RequiredParameters = reqdParameters;
         }
 
-        protected Type[] RequiredParameters { get; private set; }
-
-        public bool PermuteParameters { get; }
-
-        public bool MeetsRequirements( Type toCheck )
-        {
-            if( !typeof( T ).IsAssignableFrom( toCheck ) )
-                return false;
-
-            foreach( var ctorParameters in EnumerateParameterList() )
-            {
-                if( toCheck.GetConstructor( ctorParameters.ToArray() ) != null )
-                    return true;
-            }
-
-            return false;
-        }
-
-        protected abstract IEnumerable<IEnumerable<Type>> EnumerateParameterList();
+        public virtual bool MeetsRequirements( Type toCheck )=> typeof( T ).IsAssignableFrom( toCheck );
     }
 }

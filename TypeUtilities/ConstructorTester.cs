@@ -19,6 +19,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.DependencyInjection
@@ -26,20 +28,50 @@ namespace J4JSoftware.DependencyInjection
     public class ConstructorTester<T> : ConstructorTesterBase<T>
         where T : class
     {
-        public static ConstructorTester<T> ParameterLess { get; } = new();
-
-        public static ConstructorTester<T> RequiresLogger { get; } = new( typeof( IJ4JLogger ) );
-
-        //public static ConstructorTester<T> RequiresLoggerFactory { get; } = new(typeof(IJ4JLoggerFactory));
+        private readonly List<Type> _reqdParameters;
 
         public ConstructorTester( params Type[] reqdParameters )
-            : base( reqdParameters, false )
+            :this( reqdParameters.AsEnumerable())
         {
         }
 
-        protected override IEnumerable<IEnumerable<Type>> EnumerateParameterList()
+        public ConstructorTester( IEnumerable<Type> reqdParameters )
         {
-            yield return RequiredParameters;
+            _reqdParameters = reqdParameters.ToList();
+        }
+
+        public override bool MeetsRequirements( Type toCheck )
+        {
+            if( !base.MeetsRequirements( toCheck ) )
+                return false;
+
+            var ctors = toCheck.GetConstructors( BindingFlags.Instance
+                                                 | BindingFlags.Public
+                                                 | BindingFlags.CreateInstance );
+
+            foreach ( var ctor in ctors )
+            {
+                var ctorParameters = ctor.GetParameters();
+
+                if( ctorParameters.Length != _reqdParameters.Count )
+                    continue;
+
+                var allOkay = true;
+
+                for( var idx = 0; idx < ctorParameters.Length; idx++ )
+                {
+                    if( ctorParameters[ idx ].ParameterType.IsAssignableFrom( _reqdParameters[ idx ] ) )
+                        continue;
+
+                    allOkay = false;
+                    break;
+                }
+
+                if( allOkay )
+                    return true;
+            }
+
+            return false;
         }
     }
 }
