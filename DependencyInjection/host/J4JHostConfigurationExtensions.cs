@@ -153,7 +153,7 @@ namespace J4JSoftware.DependencyInjection
         }
 
         public static J4JHostConfiguration AddNetEventSinkToLogger( this J4JHostConfiguration config,
-                                                                    string? outputTemplate = null,
+                                                                    string? outputTemplate = NetEventSink.DefaultTemplate,
                                                                     LogEventLevel minimumLevel = LogEventLevel.Verbose )
         {
             config.NetEventConfiguration = new NetEventConfiguration( outputTemplate, minimumLevel );
