@@ -2,6 +2,7 @@
 
 |Version|Summary of Changes|
 |-------|------------------|
+|2.2|simplified creating type tests, register IJ4JHost when creating IJ4JHostConfiguration|
 |2.1|updated to Net 6|
 |2.0|significant breaking changes; see below|
 
