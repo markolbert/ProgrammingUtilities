@@ -157,8 +157,8 @@ namespace J4JSoftware.Utilities
                 var minorValue = numericTick.NormalizedSize * PowerOf10( pow10 );
 
                 var adjMin = minValue < 0
-                                 ? Math.Ceiling( minValue / minorValue ) * minorValue
-                                 : Math.Floor( minValue / minorValue ) * minorValue;
+                                 ? Math.Floor( minValue / minorValue ) * minorValue
+                                 : Math.Ceiling( minValue / minorValue ) * minorValue;
 
                 var adjMax = maxValue < 0
                                  ? Math.Floor( maxValue / minorValue ) * minorValue
@@ -175,7 +175,7 @@ namespace J4JSoftware.Utilities
 
                 var surplusTicks = ( ( (decimal) controlSize ) - numTicks * tickSize ) / tickSize;
                 var prefixTicksToAdd = Math.Floor( surplusTicks / 2 );
-                var suffixTicksToAdd = surplusTicks - prefixTicksToAdd;
+                var suffixTicksToAdd = Math.Ceiling(surplusTicks - prefixTicksToAdd);
 
                 result = new NumericRange( tickSize,
                                           minorValue,
