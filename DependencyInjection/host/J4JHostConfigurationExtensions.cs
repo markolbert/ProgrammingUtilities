@@ -94,6 +94,21 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
+        public static J4JHostConfiguration SetApplicationConfigurationFolder(
+            this J4JHostConfiguration config,
+            AppEnvironment appEnv
+        )
+        {
+            config.ApplicationConfigurationFolder = appEnv switch
+            {
+                AppEnvironment.WinApp => AppContext.BaseDirectory,
+                AppEnvironment.WpfDesignMode => AppContext.BaseDirectory,
+                _ => Environment.CurrentDirectory
+            };
+
+            return config;
+        }
+
         public static J4JHostConfiguration AddApplicationConfigurationFile( this J4JHostConfiguration config,
                                                                             string filePath,
                                                                             bool optional = true,
@@ -250,7 +265,7 @@ namespace J4JSoftware.DependencyInjection
                        CommandLineLexicalElements = config.CommandLineConfiguration?.LexicalElements,
                        CommandLineSource = config.CommandLineSource,
                        FileSystemIsCaseSensitive = config.CaseSensitiveFileSystem,
-                       InDesignMode = config.InDesignMode,
+                       AppEnvironment = config.AppEnvironment,
                        Publisher = config.Publisher,
                        ApplicationConfigurationFolder = config.ApplicationConfigurationFolder,
                        UserConfigurationFolder = config.UserConfigurationFolder

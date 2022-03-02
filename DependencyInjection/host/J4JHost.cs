@@ -41,5 +41,5 @@ public sealed class J4JHost : IJ4JHost
 
     public OperatingSystem OperatingSystem => Environment.OSVersion;
 
-    public Func<bool> InDesignMode { get; internal set; } = () => false;
+    public AppEnvironment AppEnvironment { get; internal set; } = AppEnvironment.Console;
 }

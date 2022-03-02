@@ -20,6 +20,6 @@ namespace J4JSoftware.DependencyInjection
 
         OperatingSystem OperatingSystem { get; }
 
-        Func<bool> InDesignMode { get; }
+        AppEnvironment AppEnvironment { get; }
     }
 }

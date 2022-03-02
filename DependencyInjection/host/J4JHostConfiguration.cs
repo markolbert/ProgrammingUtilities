@@ -35,20 +35,12 @@ namespace J4JSoftware.DependencyInjection
     {
         private OptionCollection? _options;
         private StringComparison? _cmdLineTextComparison;
+        private string? _userConfigFolder;
 
         public J4JHostConfiguration(
             bool registerJ4JHost = true
             )
-            : this( () => false, registerJ4JHost )
         {
-        }
-
-        public J4JHostConfiguration( 
-            Func<bool> inDesignMode,
-            bool registerJ4JHost = true
-            )
-        {
-            InDesignMode = inDesignMode;
             RegisterJ4JHost = registerJ4JHost;
 
             ConfigurationInitializers.Add( SetupConfiguration );
@@ -66,10 +58,7 @@ namespace J4JSoftware.DependencyInjection
         internal string Publisher { get; set; } = string.Empty;
         internal string ApplicationName { get; set; } = string.Empty;
         internal string DataProtectionPurpose { get; set; } = string.Empty;
-
-        // used to determine if the host builder is running within a design-time
-        // environment (e.g., in a WPF designer)
-        internal Func<bool> InDesignMode { get; }
+        internal AppEnvironment AppEnvironment { get; set; } = AppEnvironment.Console;
 
         // controls whether the IJ4JHost instance that gets built is itself
         // registered via dependency injection (default = true)
@@ -130,13 +119,23 @@ namespace J4JSoftware.DependencyInjection
         internal List<Action<HostBuilderContext, ContainerBuilder>> DependencyInjectionInitializers { get; } = new();
         internal List<Action<HostBuilderContext, IServiceCollection>> ServicesInitializers { get; } = new();
 
-        public string ApplicationConfigurationFolder =>
-            InDesignMode() ? AppContext.BaseDirectory : Environment.CurrentDirectory;
+        public string ApplicationConfigurationFolder { get; set; } = string.Empty;
 
-        public string UserConfigurationFolder =>
-            Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
-                         Publisher,
-                         ApplicationName );
+        public string UserConfigurationFolder
+        {
+            get
+            {
+                if( string.IsNullOrEmpty( _userConfigFolder ) )
+                    _userConfigFolder = Path.Combine(
+                        Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
+                        Publisher,
+                        ApplicationName );
+
+                return _userConfigFolder;
+            }
+
+            set => _userConfigFolder = value;
+        }
 
         public J4JHostBuildStatus BuildStatus { get; private set; } = J4JHostBuildStatus.NotInitialized;
 
