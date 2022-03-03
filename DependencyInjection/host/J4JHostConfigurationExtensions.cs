@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -114,7 +115,13 @@ namespace J4JSoftware.DependencyInjection
                                                                             bool optional = true,
                                                                             bool reloadOnChange = false )
         {
-            config.ApplicationConfigurationFiles.Add( new ConfigurationFile( filePath, optional, reloadOnChange ) );
+            config.ApplicationConfigurationFiles.Add(
+                new ConfigurationFile( config,
+                                       ConfigurationFileType.Application,
+                                       filePath,
+                                       optional,
+                                       reloadOnChange ) );
+
             return config;
         }
 
@@ -123,7 +130,8 @@ namespace J4JSoftware.DependencyInjection
                                                                      bool optional = true,
                                                                      bool reloadOnChange = false )
         {
-            config.UserConfigurationFiles.Add( new ConfigurationFile( filePath, optional, reloadOnChange ) );
+            config.UserConfigurationFiles.Add(
+                new ConfigurationFile( config, ConfigurationFileType.User, filePath, optional, reloadOnChange ) );
             return config;
         }
 
@@ -258,18 +266,20 @@ namespace J4JSoftware.DependencyInjection
                 hostBuilder.ConfigureServices( configurator );
             }
 
-            config.Host = new J4JHost(hostBuilder.Build())
-                   {
-                       ApplicationName = config.ApplicationName,
-                       CommandLineTextComparison = config.CommandLineTextComparison,
-                       CommandLineLexicalElements = config.CommandLineConfiguration?.LexicalElements,
-                       CommandLineSource = config.CommandLineSource,
-                       FileSystemIsCaseSensitive = config.CaseSensitiveFileSystem,
-                       AppEnvironment = config.AppEnvironment,
-                       Publisher = config.Publisher,
-                       ApplicationConfigurationFolder = config.ApplicationConfigurationFolder,
-                       UserConfigurationFolder = config.UserConfigurationFolder
-                   };
+            config.Host = new J4JHost( hostBuilder.Build() )
+            {
+                ApplicationName = config.ApplicationName,
+                CommandLineTextComparison = config.CommandLineTextComparison,
+                CommandLineLexicalElements = config.CommandLineConfiguration?.LexicalElements,
+                CommandLineSource = config.CommandLineSource,
+                FileSystemIsCaseSensitive = config.CaseSensitiveFileSystem,
+                AppEnvironment = config.AppEnvironment,
+                Publisher = config.Publisher,
+                ApplicationConfigurationFolder = config.ApplicationConfigurationFolder,
+                ApplicationConfigurationFiles = config.ApplicationConfigurationFiles.Select( x => x.FilePath ).ToList(),
+                UserConfigurationFolder = config.UserConfigurationFolder,
+                UserConfigurationFiles = config.UserConfigurationFiles.Select( x => x.FilePath ).ToList(),
+            };
 
             return config.Host;
         }

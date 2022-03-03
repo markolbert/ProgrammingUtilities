@@ -23,7 +23,7 @@ using System.IO;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public record ConfigurationFile( string FilePath, bool Optional, bool ReloadOnChange )
+    public class ConfigurationFile
     {
         private sealed class FilePathEqualityComparer : IEqualityComparer<ConfigurationFile>
         {
@@ -55,6 +55,47 @@ namespace J4JSoftware.DependencyInjection
 
         public static IEqualityComparer<ConfigurationFile> CaseInsensitiveComparer { get; } =
             new FilePathEqualityComparer( StringComparison.OrdinalIgnoreCase );
+
+        private readonly J4JHostConfiguration _hostConfig;
+        private readonly ConfigurationFileType _configType;
+
+        private string _filePath;
+
+        public ConfigurationFile(
+            J4JHostConfiguration hostConfig,
+            ConfigurationFileType configType,
+            string filePath,
+            bool optional = true,
+            bool reloadOnChange = false
+        )
+        {
+            _hostConfig = hostConfig;
+            _configType = configType;
+
+            _filePath = filePath;
+            Optional = optional;
+            ReloadOnChange = reloadOnChange;
+        }
+
+        public string FilePath
+        {
+            get
+            {
+                if( string.IsNullOrEmpty( _filePath ) )
+                    return string.Empty;
+
+                var folder = _configType == ConfigurationFileType.Application
+                    ? _hostConfig.ApplicationConfigurationFolder
+                    : _hostConfig.UserConfigurationFolder;
+
+                return Path.IsPathRooted( _filePath )
+                    ? _filePath
+                    : Path.Combine( folder, _filePath );
+            }
+        }
+
+        public bool Optional { get; }
+        public bool ReloadOnChange { get; }
 
         public bool FilePathIsRooted => Path.IsPathRooted( FilePath );
     }

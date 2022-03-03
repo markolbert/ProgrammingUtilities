@@ -181,11 +181,11 @@ namespace J4JSoftware.DependencyInjection
                                        ? ConfigurationFile.CaseSensitiveComparer
                                        : ConfigurationFile.CaseInsensitiveComparer ) )
             {
-                var filePath = Path.IsPathRooted( configFile.FilePath )
-                                   ? configFile.FilePath
-                                   : Path.Combine( ApplicationConfigurationFolder, configFile.FilePath );
+                //var filePath = Path.IsPathRooted( configFile.FilePath )
+                //                   ? configFile.FilePath
+                //                   : Path.Combine( ApplicationConfigurationFolder, configFile.FilePath );
 
-                builder.AddJsonFile( filePath, configFile.Optional, configFile.ReloadOnChange );
+                builder.AddJsonFile( configFile.FilePath, configFile.Optional, configFile.ReloadOnChange );
             }
 
             foreach ( var configFile in UserConfigurationFiles
@@ -193,11 +193,11 @@ namespace J4JSoftware.DependencyInjection
                                         ? ConfigurationFile.CaseSensitiveComparer
                                         : ConfigurationFile.CaseInsensitiveComparer ) )
             {
-                var filePath = Path.IsPathRooted( configFile.FilePath )
-                                   ? configFile.FilePath
-                                   : Path.Combine( UserConfigurationFolder, configFile.FilePath );
+                //var filePath = Path.IsPathRooted( configFile.FilePath )
+                //                   ? configFile.FilePath
+                //                   : Path.Combine( UserConfigurationFolder, configFile.FilePath );
 
-                builder.AddJsonFile( filePath, configFile.Optional, configFile.ReloadOnChange );
+                builder.AddJsonFile( configFile.FilePath, configFile.Optional, configFile.ReloadOnChange );
             }
         }
 

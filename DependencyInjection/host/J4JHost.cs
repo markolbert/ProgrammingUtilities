@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using J4JSoftware.Configuration.CommandLine;
@@ -31,7 +32,9 @@ public sealed class J4JHost : IJ4JHost
     public string Publisher { get; internal set; } = "undefined";
     public string ApplicationName { get; internal set; } = "undefined";
     public string UserConfigurationFolder { get; internal set; } = string.Empty;
+    public List<string> UserConfigurationFiles { get; internal set; } = new();
     public string ApplicationConfigurationFolder { get; internal set; } = string.Empty;
+    public List<string> ApplicationConfigurationFiles { get; internal set; } = new();
 
     public bool FileSystemIsCaseSensitive { get; internal set; }
     public StringComparison CommandLineTextComparison { get; internal set; }

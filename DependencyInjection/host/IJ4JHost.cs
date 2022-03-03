@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using J4JSoftware.Configuration.CommandLine;
 using Microsoft.Extensions.Hosting;
 
@@ -10,7 +11,9 @@ namespace J4JSoftware.DependencyInjection
         string ApplicationName { get; }
 
         string UserConfigurationFolder { get; }
+        List<string> UserConfigurationFiles { get; }
         string ApplicationConfigurationFolder { get; }
+        List<string> ApplicationConfigurationFiles { get; }
 
         bool FileSystemIsCaseSensitive { get; }
         StringComparison CommandLineTextComparison { get; }
