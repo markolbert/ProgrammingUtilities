@@ -13,9 +13,13 @@ namespace J4JSoftware.DependencyInjection
         private string? _clearText;
         private string? _encryptedText;
 
+        [JsonIgnore]
         public IJ4JLogger? Logger { get; set; }
+
+        [JsonIgnore]
         public IJ4JProtection? Protector { get; set; }
 
+        [JsonIgnore]
         public bool IsDefined => !string.IsNullOrEmpty( ClearText ) && !string.IsNullOrEmpty( EncryptedText );
 
         [JsonIgnore]
