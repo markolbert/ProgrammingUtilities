@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public class EncryptedString
+    public class EncryptedString : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         private string? _clearText;
         private string? _encryptedText;
 
@@ -42,17 +41,17 @@ namespace J4JSoftware.DependencyInjection
                 if( Protector.Unprotect(_encryptedText, out var temp))
                     Logger?.Error("Could not decrypt text");
 
-                _clearText = temp;
+                SetProperty( ref _clearText, temp );
 
                 return _clearText;
             }
 
             set
             {
-                _clearText = value;
+                SetProperty( ref _clearText, value );
 
                 if( !string.IsNullOrEmpty( _encryptedText ) )
-                    _encryptedText = null;
+                    SetProperty( ref _encryptedText, null );
             }
         }
 
@@ -75,18 +74,27 @@ namespace J4JSoftware.DependencyInjection
                 if ( !Protector.Protect(_clearText, out var temp  ))
                     Logger?.Error("Could not encrypt text");
 
-                _encryptedText = temp;
+                SetProperty( ref _encryptedText, temp );
 
                 return _encryptedText;
             }
 
             set
             {
-                _encryptedText = value;
+                SetProperty( ref _encryptedText, value );
 
                 if( !string.IsNullOrEmpty( _clearText ) )
-                    _clearText = null;
+                    SetProperty( ref _clearText, null );
             }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        {
+            field = value;
+            OnPropertyChanged(propertyName);
         }
     }
 }
