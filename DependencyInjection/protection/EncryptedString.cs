@@ -38,7 +38,7 @@ namespace J4JSoftware.DependencyInjection
                     return null;
                 }
 
-                if( Protector.Unprotect(_encryptedText, out var temp))
+                if( !Protector.Unprotect(_encryptedText, out var temp))
                     Logger?.Error("Could not decrypt text");
 
                 SetProperty( ref _clearText, temp );
