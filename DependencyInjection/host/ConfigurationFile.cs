@@ -58,8 +58,7 @@ namespace J4JSoftware.DependencyInjection
 
         private readonly J4JHostConfiguration _hostConfig;
         private readonly ConfigurationFileType _configType;
-
-        private string _filePath;
+        private readonly string _filePath;
 
         public ConfigurationFile(
             J4JHostConfiguration hostConfig,
@@ -84,13 +83,14 @@ namespace J4JSoftware.DependencyInjection
                 if( string.IsNullOrEmpty( _filePath ) )
                     return string.Empty;
 
+                if( Path.IsPathRooted(_filePath))
+                    return _filePath;
+
                 var folder = _configType == ConfigurationFileType.Application
                     ? _hostConfig.ApplicationConfigurationFolder
                     : _hostConfig.UserConfigurationFolder;
 
-                return Path.IsPathRooted( _filePath )
-                    ? _filePath
-                    : Path.Combine( folder, _filePath );
+                return Path.Combine( folder, _filePath );
             }
         }
 

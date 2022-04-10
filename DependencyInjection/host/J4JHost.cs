@@ -12,14 +12,22 @@ public sealed class J4JHost : IJ4JHost
 {
     private readonly IHost _host;
 
-    internal J4JHost( IHost host )
+    internal J4JHost( 
+        IHost host,
+        AppEnvironment appEnvironment
+        )
     {
         _host = host;
+        AppEnvironment = appEnvironment;
 
         Options = _host.Services.GetService<OptionCollection>();
     }
 
     public void Dispose() => _host.Dispose();
+
+    public OptionCollection? Options { get; }
+    public OperatingSystem OperatingSystem => Environment.OSVersion;
+    public AppEnvironment AppEnvironment { get; }
 
     public Task StartAsync( CancellationToken cancellationToken = new CancellationToken() ) =>
         _host.StartAsync( cancellationToken );
@@ -40,9 +48,4 @@ public sealed class J4JHost : IJ4JHost
     public StringComparison CommandLineTextComparison { get; internal set; }
     public ILexicalElements? CommandLineLexicalElements { get; internal set; }
     public CommandLineSource? CommandLineSource { get; internal set; }
-    public OptionCollection? Options { get; }
-
-    public OperatingSystem OperatingSystem => Environment.OSVersion;
-
-    public AppEnvironment AppEnvironment { get; internal set; } = AppEnvironment.Console;
 }
