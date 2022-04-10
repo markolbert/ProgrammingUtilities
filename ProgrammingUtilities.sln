@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TopologicalSort", "TopologicalSort\TopologicalSort.csproj", "{11FE4710-A973-4904-AEC2-97639E198E27}"
 EndProject
@@ -44,11 +44,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{7DFBF69A-5
 		docs\excel-export.md = docs\excel-export.md
 		LICENSE.md = LICENSE.md
 		docs\mahappsmatdesign.md = docs\mahappsmatdesign.md
-		docs\nuget-console.md = docs\nuget-console.md
-		docs\nuget-dependency.md = docs\nuget-dependency.md
-		docs\nuget-excelexport.md = docs\nuget-excelexport.md
-		docs\nuget-misc.md = docs\nuget-misc.md
-		docs\nuget-topo.md = docs\nuget-topo.md
 		README.md = README.md
 		docs\topo-sort.md = docs\topo-sort.md
 		docs\visual-utils.md = docs\visual-utils.md
@@ -86,6 +81,23 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "selectable", "selectable", "{8E4E12A3-A698-44EB-8F81-94BB72E2EB72}"
 	ProjectSection(SolutionItems) = preProject
 		docs\miscutils\selectable\intro.md = docs\miscutils\selectable\intro.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAppUtilities", "WindowsAppUtilities\WindowsAppUtilities.csproj", "{896CEB8F-5763-47A5-A284-3749876A956A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{B38D3ED3-4DFA-4BD2-B264-0FE6407C4C3B}"
+	ProjectSection(SolutionItems) = preProject
+		docs\nuget\nuget-console.md = docs\nuget\nuget-console.md
+		docs\nuget\nuget-dependency.md = docs\nuget\nuget-dependency.md
+		docs\nuget\nuget-efcore.md = docs\nuget\nuget-efcore.md
+		docs\nuget\nuget-excelexport.md = docs\nuget\nuget-excelexport.md
+		docs\nuget\nuget-mahapps.md = docs\nuget\nuget-mahapps.md
+		docs\nuget\nuget-misc.md = docs\nuget\nuget-misc.md
+		docs\nuget\nuget-topo.md = docs\nuget\nuget-topo.md
+		docs\nuget\nuget-type-utils.md = docs\nuget\nuget-type-utils.md
+		docs\nuget\nuget-visual-utils.md = docs\nuget\nuget-visual-utils.md
+		docs\nuget\nuget-winapp.md = docs\nuget\nuget-winapp.md
+		docs\nuget\nuget-wpf-utilities.md = docs\nuget\nuget-wpf-utilities.md
 	EndProjectSection
 EndProject
 Global
@@ -158,6 +170,10 @@ Global
 		{52825A6E-7305-4826-A31C-474565A92BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52825A6E-7305-4826-A31C-474565A92BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52825A6E-7305-4826-A31C-474565A92BEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{896CEB8F-5763-47A5-A284-3749876A956A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{896CEB8F-5763-47A5-A284-3749876A956A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{896CEB8F-5763-47A5-A284-3749876A956A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{896CEB8F-5763-47A5-A284-3749876A956A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -170,6 +186,7 @@ Global
 		{7EA3AFA3-3374-4A8E-992C-38864BE6B909} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
 		{3859C037-FE05-4118-A5A0-FBCBD8C77CC6} = {7EA3AFA3-3374-4A8E-992C-38864BE6B909}
 		{8E4E12A3-A698-44EB-8F81-94BB72E2EB72} = {7EA3AFA3-3374-4A8E-992C-38864BE6B909}
+		{B38D3ED3-4DFA-4BD2-B264-0FE6407C4C3B} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4181E7AB-9170-480C-A128-CAB8740DD30B}
