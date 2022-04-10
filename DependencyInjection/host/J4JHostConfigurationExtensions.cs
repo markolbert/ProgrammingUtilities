@@ -95,20 +95,20 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
-        public static J4JHostConfiguration SetApplicationConfigurationFolder(
-            this J4JHostConfiguration config,
-            AppEnvironment appEnv
-        )
-        {
-            config.ApplicationConfigurationFolder = appEnv switch
-            {
-                AppEnvironment.WinApp => AppContext.BaseDirectory,
-                AppEnvironment.WpfDesignMode => AppContext.BaseDirectory,
-                _ => Environment.CurrentDirectory
-            };
+        //public static J4JHostConfiguration SetApplicationConfigurationFolder(
+        //    this J4JHostConfiguration config,
+        //    AppEnvironment appEnv
+        //)
+        //{
+        //    config.ApplicationConfigurationFolder = appEnv switch
+        //    {
+        //        AppEnvironment.UnpackagedWinApp => AppContext.BaseDirectory,
+        //        AppEnvironment.WpfDesignMode => AppContext.BaseDirectory,
+        //        _ => Environment.CurrentDirectory
+        //    };
 
-            return config;
-        }
+        //    return config;
+        //}
 
         public static J4JHostConfiguration AddApplicationConfigurationFile( this J4JHostConfiguration config,
                                                                             string filePath,
@@ -168,7 +168,7 @@ namespace J4JSoftware.DependencyInjection
         }
 
         public static J4JHostConfiguration LoggerInitializer( this J4JHostConfiguration config,
-                                                              Action<IConfiguration, J4JLoggerConfiguration>
+                                                              Action<IConfiguration, J4JHostConfiguration, J4JLoggerConfiguration>
                                                                   initializer )
         {
             config.LoggerInitializer = initializer;
@@ -266,14 +266,13 @@ namespace J4JSoftware.DependencyInjection
                 hostBuilder.ConfigureServices( configurator );
             }
 
-            config.Host = new J4JHost( hostBuilder.Build() )
+            config.Host = new J4JHost( hostBuilder.Build(), config.AppEnvironment )
             {
                 ApplicationName = config.ApplicationName,
                 CommandLineTextComparison = config.CommandLineTextComparison,
                 CommandLineLexicalElements = config.CommandLineConfiguration?.LexicalElements,
                 CommandLineSource = config.CommandLineSource,
                 FileSystemIsCaseSensitive = config.CaseSensitiveFileSystem,
-                AppEnvironment = config.AppEnvironment,
                 Publisher = config.Publisher,
                 ApplicationConfigurationFolder = config.ApplicationConfigurationFolder,
                 ApplicationConfigurationFiles = config.ApplicationConfigurationFiles.Select( x => x.FilePath ).ToList(),

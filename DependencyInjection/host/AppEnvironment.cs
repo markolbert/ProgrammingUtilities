@@ -5,6 +5,7 @@
         Console,
         WpfDesignMode,
         Wpf,
-        WinApp
+        UnpackagedWinApp,
+        PackagedWinApp
     }
 }

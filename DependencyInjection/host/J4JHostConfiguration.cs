@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using Autofac;
@@ -36,12 +37,20 @@ namespace J4JSoftware.DependencyInjection
         private OptionCollection? _options;
         private StringComparison? _cmdLineTextComparison;
         private string? _userConfigFolder;
+        private string _publisher = string.Empty;
+        private string _appName = string.Empty;
 
         public J4JHostConfiguration(
+            AppEnvironment appEnvironment,
             bool registerJ4JHost = true
             )
         {
             RegisterJ4JHost = registerJ4JHost;
+            AppEnvironment = appEnvironment;
+
+            ApplicationConfigurationFolder = AppEnvironment == AppEnvironment.WpfDesignMode
+                ? AppContext.BaseDirectory
+                : Environment.CurrentDirectory;
 
             ConfigurationInitializers.Add( SetupConfiguration );
 
@@ -55,10 +64,30 @@ namespace J4JSoftware.DependencyInjection
         // when the ultimate J4JLogger instance is not yet available
         public J4JCachedLogger Logger { get; } = new();
 
-        internal string Publisher { get; set; } = string.Empty;
-        internal string ApplicationName { get; set; } = string.Empty;
+        internal string Publisher
+        {
+            get => _publisher;
+
+            set
+            {
+                _publisher = value;
+                _userConfigFolder = null;
+            }
+        }
+
+        internal string ApplicationName
+        {
+            get => _appName;
+
+            set
+            {
+                _appName = value;
+                _userConfigFolder = null;
+            }
+        }
+
         internal string DataProtectionPurpose { get; set; } = string.Empty;
-        internal AppEnvironment AppEnvironment { get; set; } = AppEnvironment.Console;
+        internal AppEnvironment AppEnvironment { get; }
 
         // controls whether the IJ4JHost instance that gets built is itself
         // registered via dependency injection (default = true)
@@ -110,7 +139,7 @@ namespace J4JSoftware.DependencyInjection
 
         internal CommandLineSource? CommandLineSource { get; private set; }
 
-        internal Action<IConfiguration, J4JLoggerConfiguration>? LoggerInitializer { get; set; }
+        internal Action<IConfiguration, J4JHostConfiguration, J4JLoggerConfiguration>? LoggerInitializer { get; set; }
         internal Func<Type?, string, int, string, string>? FilePathTrimmer { get; set; }
         internal NetEventConfiguration? NetEventConfiguration { get; set; }
 
@@ -119,22 +148,32 @@ namespace J4JSoftware.DependencyInjection
         internal List<Action<HostBuilderContext, ContainerBuilder>> DependencyInjectionInitializers { get; } = new();
         internal List<Action<HostBuilderContext, IServiceCollection>> ServicesInitializers { get; } = new();
 
-        public string ApplicationConfigurationFolder { get; set; } = string.Empty;
+        public string ApplicationConfigurationFolder { get; protected set; }
 
-        public string UserConfigurationFolder
+        public virtual string UserConfigurationFolder
         {
             get
             {
-                if( string.IsNullOrEmpty( _userConfigFolder ) )
-                    _userConfigFolder = Path.Combine(
-                        Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
-                        Publisher,
-                        ApplicationName );
+                ValidatePublisherAppName();
+
+                _userConfigFolder ??= Path.Combine(
+                    Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
+                    Publisher,
+                    ApplicationName );
 
                 return _userConfigFolder;
             }
+        }
 
-            set => _userConfigFolder = value;
+        protected void ValidatePublisherAppName()
+        {
+            if (string.IsNullOrEmpty(_publisher))
+                throw new NullReferenceException(
+                    $"{nameof(UserConfigurationFolder)} is undefined because {nameof(Publisher)} is undefined");
+
+            if (string.IsNullOrEmpty(_appName))
+                throw new NullReferenceException(
+                    $"{nameof(UserConfigurationFolder)} is undefined because {nameof(ApplicationName)} is undefined");
         }
 
         public J4JHostBuildStatus BuildStatus { get; private set; } = J4JHostBuildStatus.NotInitialized;
@@ -293,7 +332,7 @@ namespace J4JSoftware.DependencyInjection
                                                             NetEventConfiguration.MinimumLevel );
                                   }
 
-                                  LoggerInitializer?.Invoke( hbc.Configuration, loggerConfig );
+                                  LoggerInitializer?.Invoke( hbc.Configuration, this, loggerConfig );
 
                                   return loggerConfig.CreateLogger();
                               } )
