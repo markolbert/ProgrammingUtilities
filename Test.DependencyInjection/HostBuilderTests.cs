@@ -61,7 +61,7 @@ public class HostBuilderTests
         logger.SetLoggedType( GetType() );
         logger.Fatal( "This is a test fatal event" );
 
-        static void config_logger( IConfiguration buildConfig, J4JLoggerConfiguration loggerConfig )
+        static void config_logger( IConfiguration buildConfig, J4JHostConfiguration hostConfig, J4JLoggerConfiguration loggerConfig )
         {
             loggerConfig.SerilogConfiguration
                         .WriteTo
@@ -90,7 +90,7 @@ public class HostBuilderTests
             configBuilder.AddJsonFile( Path.Combine( Environment.CurrentDirectory, "appConfig.json" ), false );
         }
 
-        void config_logger( IConfiguration buildConfig, J4JLoggerConfiguration loggerConfig )
+        void config_logger( IConfiguration buildConfig, J4JHostConfiguration hostConfig, J4JLoggerConfiguration loggerConfig )
         {
             loggerConfig.SerilogConfiguration
                         .ReadFrom
