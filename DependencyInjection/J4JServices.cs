@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 #pragma warning disable CS8618
 
-namespace J4JSoftware.DependencyInjection;
+namespace J4JSoftware.DependencyInjection.Deprecated;
 
 public static class J4JServices
 {
