@@ -40,6 +40,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
+	  <ProjectReference Include="..\DeusEx\DeusEx.csproj" />
 	</ItemGroup>
 
 </Project>

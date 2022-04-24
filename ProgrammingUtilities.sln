@@ -83,7 +83,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "selectable", "selectable", 
 		docs\miscutils\selectable\intro.md = docs\miscutils\selectable\intro.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsAppUtilities", "WindowsAppUtilities\WindowsAppUtilities.csproj", "{896CEB8F-5763-47A5-A284-3749876A956A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsAppUtilities", "WindowsAppUtilities\WindowsAppUtilities.csproj", "{896CEB8F-5763-47A5-A284-3749876A956A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{B38D3ED3-4DFA-4BD2-B264-0FE6407C4C3B}"
 	ProjectSection(SolutionItems) = preProject
@@ -99,6 +99,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{B38D3ED3
 		docs\nuget\nuget-winapp.md = docs\nuget\nuget-winapp.md
 		docs\nuget\nuget-wpf-utilities.md = docs\nuget\nuget-wpf-utilities.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeusEx", "DeusEx\DeusEx.csproj", "{C7A985E1-AE32-4132-AEA7-8FFAC2002758}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -174,6 +176,10 @@ Global
 		{896CEB8F-5763-47A5-A284-3749876A956A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{896CEB8F-5763-47A5-A284-3749876A956A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{896CEB8F-5763-47A5-A284-3749876A956A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7A985E1-AE32-4132-AEA7-8FFAC2002758}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7A985E1-AE32-4132-AEA7-8FFAC2002758}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7A985E1-AE32-4132-AEA7-8FFAC2002758}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7A985E1-AE32-4132-AEA7-8FFAC2002758}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
