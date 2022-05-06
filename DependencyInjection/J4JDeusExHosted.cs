@@ -8,7 +8,7 @@ namespace J4JSoftware.DependencyInjection;
 
 public abstract class J4JDeusExHosted : J4JDeusEx
 {
-    protected virtual J4JHostConfiguration? GetHostConfiguration() => null;
+    protected abstract J4JHostConfiguration? GetHostConfiguration();
 
     protected virtual string GetCrashFilePath( J4JHostConfiguration hostConfig, string crashFileName = "crashFile.txt" )
     {
@@ -45,7 +45,12 @@ public abstract class J4JDeusExHosted : J4JDeusEx
         if( host != null )
         {
             ServiceProvider = host.Services;
-            Logger = host.Services.GetService<IJ4JLogger>();
+
+            var runTimeLogger = host.Services.GetService<IJ4JLogger>();
+            runTimeLogger?.OutputCache( hostConfig.Logger );
+
+            Logger = runTimeLogger;
+
             IsInitialized = true;
 
             return true;

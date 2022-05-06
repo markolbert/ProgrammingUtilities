@@ -3,7 +3,7 @@ using J4JSoftware.DependencyInjection;
 
 namespace J4JSoftware.WindowsAppUtilities
 {
-    public class J4JDeusExWinApp : J4JDeusExHosted
+    public abstract class J4JDeusExWinApp : J4JDeusExHosted
     {
         protected override string GetCrashFilePath( J4JHostConfiguration hostConfig, string crashFileName = "crashFile.txt" )
         {

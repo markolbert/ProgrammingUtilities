@@ -5,7 +5,23 @@ namespace J4JSoftware.DeusEx;
 
 public class J4JDeusEx
 {
-    public static IServiceProvider? ServiceProvider { get; protected set; }
+    private static IServiceProvider? _serviceProvider;
+
+    public static IServiceProvider ServiceProvider
+    {
+        get
+        {
+            if( _serviceProvider == null )
+            {
+                Logger?.Fatal("IServiceProvider is undefined");
+                throw new J4JDeusExException( "IServiceProvider is undefined" );
+            }
+
+            return _serviceProvider;
+        }
+
+        protected set => _serviceProvider = value;
+    }
 
     public static bool IsInitialized { get; protected set; }
     public static string? CrashFilePath { get; protected set; }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace J4JSoftware.DeusEx
+﻿namespace J4JSoftware.DeusEx
 {
     public class J4JDeusExException : Exception
     {
