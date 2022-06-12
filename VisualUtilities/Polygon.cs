@@ -6,14 +6,14 @@ using System.Numerics;
 
 namespace J4JSoftware.VisualUtilities;
 
-public class VectorPolygon
+public class Polygon
 {
-    public static VectorPolygon? Create( params Vector2[] vertices )
+    public static Polygon? Create( params Vector2[] vertices )
     {
         if( vertices.Length < 3 )
             return null;
 
-        var retVal = new VectorPolygon();
+        var retVal = new Polygon();
         
         foreach( var v in vertices )
         {
@@ -27,7 +27,7 @@ public class VectorPolygon
     private bool _isConvex;
     private bool _convexityDetermined;
 
-    private VectorPolygon()
+    private Polygon()
     {
     }
 

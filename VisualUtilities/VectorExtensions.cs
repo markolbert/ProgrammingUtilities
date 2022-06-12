@@ -13,8 +13,8 @@ public static class VectorExtensions
         {
         }
 
-        public float Minimum = Single.PositiveInfinity;
-        public float Maximum = Single.NegativeInfinity;
+        public float Minimum = float.PositiveInfinity;
+        public float Maximum = float.NegativeInfinity;
     }
 
     public static Vector2 Perpendicular( this Vector2 vector, bool normalize = false )
@@ -24,38 +24,38 @@ public static class VectorExtensions
         return normalize ? Vector2.Normalize(retVal) : retVal;
     }
 
-    public static VectorPolygon Translate( this VectorPolygon vPolygon, Vector2 translate )
+    public static Polygon Translate( this Polygon polygon, Vector2 translate )
     {
         var transformation = Matrix3x2.CreateTranslation(translate);
 
-        return VectorPolygon.Create( vPolygon.Vertices.Select( v => Vector2.Transform( v, transformation ) ).ToArray() )!;
+        return Polygon.Create( polygon.Vertices.Select( v => Vector2.Transform( v, transformation ) ).ToArray() )!;
     }
 
-    public static VectorPolygon Translate( this VectorPolygon vPolygon, double xDelta, double yDelta ) =>
-        vPolygon.Translate( new Vector2( Convert.ToSingle( xDelta ), Convert.ToSingle( yDelta ) ) );
+    public static Polygon Translate( this Polygon polygon, double xDelta, double yDelta ) =>
+        polygon.Translate( new Vector2( Convert.ToSingle( xDelta ), Convert.ToSingle( yDelta ) ) );
 
-    public static VectorPolygon Rotate(this VectorPolygon vPolygon, double degrees, Vector2? centerPoint = null )
+    public static Polygon Rotate(this Polygon polygon, double degrees, Vector2? centerPoint = null )
     {
-        centerPoint ??= vPolygon.Center;
+        centerPoint ??= polygon.Center;
         var radians = Convert.ToSingle( degrees * Math.PI / 180 );
 
         var transformation = Matrix3x2.CreateRotation( radians, centerPoint.Value );
 
-        return VectorPolygon.Create(vPolygon.Vertices.Select(v => Vector2.Transform(v, transformation)).ToArray())!;
+        return Polygon.Create(polygon.Vertices.Select(v => Vector2.Transform(v, transformation)).ToArray())!;
     }
 
-    public static IEnumerable<Vector2> GetPerpendiculars( params VectorPolygon[] polygons )
+    public static IEnumerable<Vector2> GetPerpendiculars( params Polygon[] polygons )
     {
         foreach( var polygon in polygons )
         {
             foreach( var edge in polygon.Edges )
             {
-                yield return edge.Perpendicular(false);
+                yield return edge.Perpendicular();
             }
         }
     }
 
-    public static IEnumerable<Vector2> GetNormalizedPerpendiculars(params VectorPolygon[] polygons)
+    public static IEnumerable<Vector2> GetNormalizedPerpendiculars(params Polygon[] polygons)
     {
         foreach (var polygon in polygons)
         {
@@ -66,7 +66,7 @@ public static class VectorExtensions
         }
     }
 
-    public static bool Intersects( this VectorPolygon polygon1, VectorPolygon polygon2, bool throwIfNotConvex = true )
+    public static bool Intersects( this Polygon polygon1, Polygon polygon2, bool throwIfNotConvex = true )
     {
         if( !polygon1.IsConvex || !polygon2.IsConvex )
         {
@@ -92,7 +92,7 @@ public static class VectorExtensions
         return true;
     }
 
-    private static Span GetProjectionSpan( this Vector2 perpendicular, VectorPolygon polygon )
+    private static Span GetProjectionSpan( this Vector2 perpendicular, Polygon polygon )
     {
         var retVal = new Span();
 
