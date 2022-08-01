@@ -6,14 +6,14 @@ using System.Numerics;
 
 namespace J4JSoftware.VisualUtilities;
 
-public class Polygon
+public class VectorPolygon
 {
-    public static Polygon? Create( params Vector2[] vertices )
+    public static VectorPolygon? Create( params Vector2[] vertices )
     {
         if( vertices.Length < 3 )
             return null;
 
-        var retVal = new Polygon();
+        var retVal = new VectorPolygon();
         
         foreach( var v in vertices )
         {
@@ -23,11 +23,28 @@ public class Polygon
         return retVal;
     }
 
+    public static VectorPolygon CreateRectangle( double x, double y, double width, double height )
+    {
+        var xFloat = Convert.ToSingle( x );
+        var yFloat = Convert.ToSingle( y );
+        var widthFloat = Convert.ToSingle( width );
+        var heightFloat = Convert.ToSingle( height );
+
+        var retVal = new VectorPolygon();
+
+        retVal.AddVertex(new Vector2(xFloat, yFloat));
+        retVal.AddVertex(new Vector2(xFloat, yFloat + heightFloat));
+        retVal.AddVertex(new Vector2(xFloat + widthFloat, yFloat + heightFloat));
+        retVal.AddVertex(new Vector2(xFloat +widthFloat, yFloat));
+
+        return retVal;
+    }
+
     private List<Vector2> _vertices = new();
     private bool _isConvex;
     private bool _convexityDetermined;
 
-    private Polygon()
+    private VectorPolygon()
     {
     }
 
