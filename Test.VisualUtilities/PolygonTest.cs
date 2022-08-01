@@ -18,12 +18,12 @@ namespace Test.VisualUtilities
         [Fact]
         public void BasicRectangles()
         {
-            var rect1 = Polygon.Create(new Vector2[]
+            var rect1 = VectorPolygon.Create(new Vector2[]
             {
                 new( 0, 0 ), new( 0, 100 ), new( 100, 100 ), new( 100, 0 )
             });
 
-            var rect2 = Polygon.Create(new Vector2[]
+            var rect2 = VectorPolygon.Create(new Vector2[]
             {
                 new( 50, 50 ), new( 50, 150 ), new( 150, 150 ), new( 150, 50 )
             });
@@ -60,14 +60,14 @@ namespace Test.VisualUtilities
             bool intersects
         )
         {
-            var rect1 = Polygon.Create( new Vector2( xOrigin1, yOrigin1 ),
+            var rect1 = VectorPolygon.Create( new Vector2( xOrigin1, yOrigin1 ),
                                               new Vector2( xOrigin1, yOrigin1 + height1 ),
                                               new Vector2( xOrigin1 + width1, yOrigin1 + height1 ),
                                               new Vector2( xOrigin1 + width1, yOrigin1 ) );
             rect1.Should().NotBeNull();
             rect1 = rect1!.Rotate( rotation1 );
 
-            var rect2 = Polygon.Create( new Vector2( xOrigin2, yOrigin2 ),
+            var rect2 = VectorPolygon.Create( new Vector2( xOrigin2, yOrigin2 ),
                                               new Vector2( xOrigin2, yOrigin2 + height2 ),
                                               new Vector2( xOrigin2 + width2, yOrigin2 + height2 ),
                                               new Vector2( xOrigin2 + width2, yOrigin2 ) );
@@ -93,7 +93,7 @@ namespace Test.VisualUtilities
             float tolerance
         )
         {
-            var original = Polygon.Create(new Vector2(xOriginal, yOriginal),
+            var original = VectorPolygon.Create(new Vector2(xOriginal, yOriginal),
                                              new Vector2(xOriginal, yOriginal + height),
                                              new Vector2(xOriginal + width, yOriginal + height),
                                              new Vector2(xOriginal + width, yOriginal));
@@ -115,7 +115,7 @@ namespace Test.VisualUtilities
             yError.Should().BeLessThan(tolerance);
         }
 
-        private float GetDistanceError( float compareTo, Polygon polygon )
+        private float GetDistanceError( float compareTo, VectorPolygon polygon )
         {
             var distance1 = Vector2.Distance( polygon.Vertices[ 0 ], polygon.Vertices[ 1 ] );
             var distance2 = Vector2.Distance( polygon.Vertices[ 0 ], polygon.Vertices[ 3 ] );
@@ -125,5 +125,40 @@ namespace Test.VisualUtilities
 
             return retVal2 < retVal1 ? retVal2 : retVal1;
         }
+
+        [Theory]
+        [InlineData(0, 0, 100, 100, 30.0, 20, 20, 60, 60, 30.0, true)]
+        [InlineData(0, 0, 100, 100, 30.0, 80, 80, 100, 100, 30.0, false)]
+        public void InsideRectangles(
+            float xOrigin1,
+            float yOrigin1,
+            float width1,
+            float height1,
+            double rotation1,
+            float xOrigin2,
+            float yOrigin2,
+            float width2,
+            float height2,
+            double rotation2,
+            bool inside
+        )
+        {
+            var rect1 = VectorPolygon.Create(new Vector2(xOrigin1, yOrigin1),
+                                             new Vector2(xOrigin1, yOrigin1 + height1),
+                                             new Vector2(xOrigin1 + width1, yOrigin1 + height1),
+                                             new Vector2(xOrigin1 + width1, yOrigin1));
+            rect1.Should().NotBeNull();
+            rect1 = rect1!.Rotate(rotation1);
+
+            var rect2 = VectorPolygon.Create(new Vector2(xOrigin2, yOrigin2),
+                                             new Vector2(xOrigin2, yOrigin2 + height2),
+                                             new Vector2(xOrigin2 + width2, yOrigin2 + height2),
+                                             new Vector2(xOrigin2 + width2, yOrigin2));
+            rect2.Should().NotBeNull();
+            rect2 = rect2!.Rotate(rotation2);
+
+            rect1.Inside(rect2).Should().Be(inside);
+        }
+
     }
 }
