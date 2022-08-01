@@ -39,21 +39,21 @@ namespace J4JSoftware.EFCoreUtilities
 
             var ctors = typeof( TDbContext ).GetConstructors().ToList();
             if( ctors.Count == 0 )
-                throw new ArgumentException( $"No constructors" );
+                throw new ArgumentException( $"{nameof( DesignTimeFactory<TDbContext> )}::ctor() - no constructors" );
 
             ctors = ctors.Where( x => x.GetParameters().Length == 2 ).ToList();
             if( ctors.Count == 0 )
-                throw new ArgumentException( $"No constructors with 2 parameters" );
+                throw new ArgumentException( $"{nameof(DesignTimeFactory<TDbContext>)}::ctor() - no constructors with 2 parameters" );
 
             ctors = ctors.Where( x => x.GetParameters()[ 0 ].ParameterType.IsAssignableFrom( optionsType ) ).ToList();
             if( ctors.Count == 0 )
-                throw new ArgumentException( $"No constructors with 1st parameter assignable from {optionsType}" );
+                throw new ArgumentException( $"{nameof(DesignTimeFactory<TDbContext>)}::ctor() - no constructors with 1st parameter assignable from {optionsType}" );
 
             ctors = ctors.Where( x => x.GetParameters()[ 1 ].ParameterType.IsAssignableTo( typeof( IDatabaseConfig ) ) )
                          .ToList();
             if( ctors.Count == 0 )
                 throw new
-                    ArgumentException( $"No constructors with 2nd parameter assignable to {typeof( IDatabaseConfig )}" );
+                    ArgumentException( $"{nameof(DesignTimeFactory<TDbContext>)}::ctor() - no constructors with 2nd parameter assignable to {typeof( IDatabaseConfig )}" );
         }
 
         public TDbContext CreateDbContext( string[] args )
