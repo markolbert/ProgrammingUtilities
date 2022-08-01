@@ -23,16 +23,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Autofac" Version="6.3.0" />
+		<PackageReference Include="Autofac" Version="6.4.0" />
 		<PackageReference Include="NPOI" Version="2.5.6" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="J4JSoftware.Logging" Version="4.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -26,10 +26,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="J4JSoftware.Logging" Version="4.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
