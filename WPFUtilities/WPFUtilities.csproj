@@ -16,8 +16,8 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
-		<Version>1.1.1.0</Version>
-		<AssemblyVersion>1.1.1.0</AssemblyVersion>
+		<Version>1.1.2.0</Version>
+		<AssemblyVersion>1.1.2.0</AssemblyVersion>
 		<PackageReleaseNotes>updated packages</PackageReleaseNotes>
 	</PropertyGroup>
 

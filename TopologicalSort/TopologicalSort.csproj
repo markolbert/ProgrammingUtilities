@@ -12,13 +12,13 @@
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Version>1.0.0.0</Version>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<Version>1.0.1.0</Version>
+		<AssemblyVersion>1.0.1.0</AssemblyVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageDescription>a topological sort implementation, suitable for enforcing dependencies</PackageDescription>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>updated to net 6, added utilities to create topological sort node lists</PackageReleaseNotes>
+		<PackageReleaseNotes>updated packages</PackageReleaseNotes>
 		<PackageReadmeFile>nuget-topo.md</PackageReadmeFile>
 	</PropertyGroup>
 
