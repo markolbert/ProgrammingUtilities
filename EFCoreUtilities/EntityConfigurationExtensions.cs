@@ -25,12 +25,11 @@ namespace J4JSoftware.EFCoreUtilities
 {
     public static class EntityConfigurationExtensions
     {
-        public static void ConfigureEntities( this ModelBuilder modelBuilder, Assembly assemblyToScan )
+        public static void ConfigureEntities( this ModelBuilder modelBuilder, Assembly? assemblyToScan = null )
         {
-            if( assemblyToScan == null )
-                return;
+            assemblyToScan ??= Assembly.GetCallingAssembly();
 
-            // scan current assembly for types decorated with EntityConfigurationAttribute
+            // scan assembly for types decorated with EntityConfigurationAttribute and configure them
             foreach( var entityType in assemblyToScan.DefinedTypes
                                                      .Where( t => t.GetCustomAttribute<EntityConfigurationAttribute>()
                                                                   != null ) )
