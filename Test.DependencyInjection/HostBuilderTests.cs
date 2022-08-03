@@ -3,7 +3,6 @@ using System.IO;
 using FluentAssertions;
 using J4JSoftware.Configuration.CommandLine;
 using J4JSoftware.DependencyInjection;
-using J4JSoftware.DependencyInjection.host;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
