@@ -29,11 +29,22 @@ namespace J4JSoftware.EFCoreUtilities;
 public abstract class DesignTimeFactory<TDbContext> : IDesignTimeDbContextFactory<TDbContext>
     where TDbContext : DbContext
 {
-    protected static string? GetDatabaseProjectDirectory( [ CallerFilePath ] string? callerFilePath = null ) =>
-        Path.GetDirectoryName( callerFilePath );
+    // this function returns the directory of the source code file from which it is called
+    protected static string GetSourceCodeDirectoryOfClass( [ CallerFilePath ] string? callerFilePath = null ) =>
+        Path.GetDirectoryName( callerFilePath )!;
 
-    protected DesignTimeFactory()
+    private readonly string _srcCodeDir;
+
+    // the parameter srcCodeDir defines the directory where the derived DesignTimeFactory class is defined
+    // this is typically within a separate assembly devoted to defining a DbContext and its entities
+    // the value cannot be calculated in this class because this source code file is in its own library,
+    // which isn't likely to be located anywhere near where the database is being defined.
+    protected DesignTimeFactory(
+        string srcCodeDir
+        )
     {
+        _srcCodeDir = srcCodeDir;
+
         var genOptionsType = typeof( DbContextOptions<> );
         var optionsType = genOptionsType.MakeGenericType( typeof( TDbContext ) );
 
@@ -53,18 +64,16 @@ public abstract class DesignTimeFactory<TDbContext> : IDesignTimeDbContextFactor
 
     public TDbContext CreateDbContext( string[] args )
     {
-        var dbDir = args.Length == 0 ? GetDatabaseProjectDirectory() : args[ 0 ];
+        var dbPath = args.Length == 0
+            ? _srcCodeDir
+            : Path.IsPathRooted( args[ 0 ] )
+                ? args[ 0 ]
+                : Path.Combine( _srcCodeDir, args[ 0 ] );
 
-        if( string.IsNullOrEmpty( dbDir ) )
-            throw new ArgumentException(
-                $"{GetType().Name}::CreateDbContext() -- Database directory is undefined" );
-
-        if( !Directory.Exists( dbDir ) )
-            throw new ArgumentException(
-                $"{GetType().Name}::CreateDbContext() -- directory '{dbDir}' does not exist or is not accessible" );
+        dbPath = Path.GetFullPath( dbPath );
 
         var optionsBuilder = new DbContextOptionsBuilder<TDbContext>();
-        ConfigureOptionsBuilder( optionsBuilder, dbDir );
+        ConfigureOptionsBuilder( optionsBuilder, dbPath );
 
         var retVal = (TDbContext?) Activator.CreateInstance( typeof( TDbContext ), optionsBuilder.Options );
 
@@ -75,5 +84,5 @@ public abstract class DesignTimeFactory<TDbContext> : IDesignTimeDbContextFactor
             $"{GetType().Name}::CreateDbContext() -- failed to create instance of {typeof( TDbContext )}" );
     }
 
-    protected abstract void ConfigureOptionsBuilder( DbContextOptionsBuilder<TDbContext> builder, string dbDirectory );
+    protected abstract void ConfigureOptionsBuilder( DbContextOptionsBuilder<TDbContext> builder, string dbPath );
 }
