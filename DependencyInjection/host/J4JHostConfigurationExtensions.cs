@@ -95,21 +95,6 @@ namespace J4JSoftware.DependencyInjection
             return config;
         }
 
-        //public static J4JHostConfiguration SetApplicationConfigurationFolder(
-        //    this J4JHostConfiguration config,
-        //    AppEnvironment appEnv
-        //)
-        //{
-        //    config.ApplicationConfigurationFolder = appEnv switch
-        //    {
-        //        AppEnvironment.UnpackagedWinApp => AppContext.BaseDirectory,
-        //        AppEnvironment.WpfDesignMode => AppContext.BaseDirectory,
-        //        _ => Environment.CurrentDirectory
-        //    };
-
-        //    return config;
-        //}
-
         public static J4JHostConfiguration AddApplicationConfigurationFile( this J4JHostConfiguration config,
                                                                             string filePath,
                                                                             bool optional = true,

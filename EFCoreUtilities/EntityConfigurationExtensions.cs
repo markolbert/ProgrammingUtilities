@@ -17,6 +17,7 @@
 
 #endregion
 
+using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +33,7 @@ namespace J4JSoftware.EFCoreUtilities
             // scan assembly for types decorated with EntityConfigurationAttribute and configure them
             foreach( var entityType in assemblyToScan.DefinedTypes
                                                      .Where( t => t.GetCustomAttribute<EntityConfigurationAttribute>()
-                                                                  != null ) )
+                                                              != null ) )
             {
                 var attr = entityType.GetCustomAttribute<EntityConfigurationAttribute>();
 
