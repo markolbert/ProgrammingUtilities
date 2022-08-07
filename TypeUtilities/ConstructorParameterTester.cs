@@ -24,17 +24,17 @@ using System.Reflection;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public class ConstructorTester<T> : ConstructorTesterBase<T>
+    public class ConstructorParameterTester<T> : ConstructorTesterBase<T>
         where T : class
     {
         private readonly List<Type> _reqdParameters;
 
-        public ConstructorTester( params Type[] reqdParameters )
+        public ConstructorParameterTester( params Type[] reqdParameters )
             :this( reqdParameters.AsEnumerable())
         {
         }
 
-        public ConstructorTester( IEnumerable<Type> reqdParameters )
+        public ConstructorParameterTester( IEnumerable<Type> reqdParameters )
         {
             _reqdParameters = reqdParameters.ToList();
         }
@@ -43,6 +43,9 @@ namespace J4JSoftware.DependencyInjection
         {
             if( !base.MeetsRequirements( toCheck ) )
                 return false;
+
+            if( !_reqdParameters.Any() )
+                return true;
 
             var ctors = toCheck.GetConstructors( BindingFlags.Instance
                                                  | BindingFlags.Public

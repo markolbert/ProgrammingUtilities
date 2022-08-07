@@ -6,7 +6,7 @@ using J4JSoftware.Logging;
 
 namespace J4JSoftware.DependencyInjection
 {
-    public static class TUExtensions
+    public static class TypeTestExtensions
     {
         public static IEnumerable<Type> MeetRequirements<T>( this IEnumerable<Type> types,
                                                              params ITypeTester[] tests )
@@ -40,11 +40,11 @@ namespace J4JSoftware.DependencyInjection
                 switch ( test )
                 {
                     case PredefinedTypeTests.ParameterlessConstructor:
-                        retVal.Add( new ConstructorTester<T>() );
+                        retVal.Add( new ConstructorParameterTester<T>() );
                         break;
 
                     case PredefinedTypeTests.OnlyJ4JLoggerRequired:
-                        retVal.Add( new ConstructorTester<T>( typeof( IJ4JLogger ) ) );
+                        retVal.Add( new ConstructorParameterTester<T>( typeof( IJ4JLogger ) ) );
                         break;
 
                     case PredefinedTypeTests.NonAbstract:
