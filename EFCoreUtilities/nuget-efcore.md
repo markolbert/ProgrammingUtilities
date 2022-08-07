@@ -26,6 +26,11 @@ Debugging a `DbContext` can be complicated if things like the location of the da
 ```csharp
 public class QbDbDesignTimeFactory : DesignTimeFactory<QbDbContext>
 {
+    public QbDbDesignTimeFactory()
+        : base( GetSourceCodeDirectoryOfClass() )
+    {
+    }
+
     protected override void ConfigureOptionsBuilder( DbContextOptionsBuilder<QbDbContext> builder, string dbDirectory )
     {
         var connBuilder = new SqliteConnectionStringBuilder()
@@ -38,10 +43,16 @@ public class QbDbDesignTimeFactory : DesignTimeFactory<QbDbContext>
 }
 ```
 
-All the derived class does is define the path to the database via a connection string.
-You could make other changes to the connection string at this point, too.
+All the derived class does is call the base constructor with the directory the 
+derived design time factory is defined in, and then define the path to the 
+database via a connection string. You could make other changes to the connection string at this point, too.
 
-You use this with the **ef tools** like this:
+**The easiest way to get the source code directory of the derived design time
+factory is by calling the protected method `GetSourceCodeDirectoryOfClass()`
+method, as shown in the example.** Otherwise you'd end up hardcoding the path,
+which is not a good idea.
+
+You use this with the **ef tools package** like this:
 
 - within the *Package Manager Console*, move into the directory where your database
 assembly is defined
