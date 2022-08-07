@@ -22,11 +22,11 @@ public class TypeTests<T> : IEnumerable<ITypeTester>
             switch (curItem)
             {
                 case PredefinedTypeTests.ParameterlessConstructor:
-                    _tests.Add(new ConstructorTester<T>());
+                    _tests.Add(new ConstructorParameterTester<T>());
                     break;
 
                 case PredefinedTypeTests.OnlyJ4JLoggerRequired:
-                    _tests.Add(new ConstructorTester<T>(typeof(IJ4JLogger)));
+                    _tests.Add(new ConstructorParameterTester<T>(typeof(IJ4JLogger)));
                     break;
 
                 case PredefinedTypeTests.NonAbstract:
@@ -51,7 +51,7 @@ public class TypeTests<T> : IEnumerable<ITypeTester>
 
     public TypeTests<T> HasRequiredConstructor( IEnumerable<Type> ctorParameters )
     {
-        _tests.Add(new ConstructorTester<T>(ctorParameters)  );
+        _tests.Add(new ConstructorParameterTester<T>(ctorParameters)  );
 
         return this;
     }
