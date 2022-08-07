@@ -51,12 +51,15 @@ namespace J4JSoftware.DependencyInjection
                 ? AppContext.BaseDirectory
                 : Environment.CurrentDirectory;
 
-            ConfigurationInitializers.Add( SetupConfiguration );
+            ConfigurationInitializers.Add( CoreApplicationJsonConfiguration );
+            ConfigurationInitializers.Add( CoreUserJsonConfiguration );
 
-            DependencyInjectionInitializers.Add( SetupDependencyInjection );
-            DependencyInjectionInitializers.Add( SetupLogging );
+            DependencyInjectionInitializers.Add( CoreDataProtectionDependencyInjection );
+            DependencyInjectionInitializers.Add( CoreCommandLineDependencyInjection );
+            DependencyInjectionInitializers.Add( CoreHostDependencyInjection );
+            DependencyInjectionInitializers.Add( CoreLoggingDependencyInjection );
 
-            ServicesInitializers.Add( SetupServices );
+            ServicesInitializers.Add( CoreDataProtectionServices );
         }
 
         // used to capture log events during the host building process,
@@ -212,30 +215,25 @@ namespace J4JSoftware.DependencyInjection
             }
         }
 
-        private void SetupConfiguration( IConfigurationBuilder builder )
+        private void CoreApplicationJsonConfiguration( IConfigurationBuilder builder )
         {
             foreach( var configFile in ApplicationConfigurationFiles
                         .Distinct( CaseSensitiveFileSystem
                                        ? ConfigurationFile.CaseSensitiveComparer
                                        : ConfigurationFile.CaseInsensitiveComparer ) )
             {
-                //var filePath = Path.IsPathRooted( configFile.FilePath )
-                //                   ? configFile.FilePath
-                //                   : Path.Combine( ApplicationConfigurationFolder, configFile.FilePath );
-
                 builder.AddJsonFile( configFile.FilePath, configFile.Optional, configFile.ReloadOnChange );
             }
+        }
 
-            foreach ( var configFile in UserConfigurationFiles
-                         .Distinct( CaseSensitiveFileSystem
-                                        ? ConfigurationFile.CaseSensitiveComparer
-                                        : ConfigurationFile.CaseInsensitiveComparer ) )
+        private void CoreUserJsonConfiguration(IConfigurationBuilder builder)
+        {
+            foreach (var configFile in UserConfigurationFiles
+                        .Distinct(CaseSensitiveFileSystem
+                                      ? ConfigurationFile.CaseSensitiveComparer
+                                      : ConfigurationFile.CaseInsensitiveComparer))
             {
-                //var filePath = Path.IsPathRooted( configFile.FilePath )
-                //                   ? configFile.FilePath
-                //                   : Path.Combine( UserConfigurationFolder, configFile.FilePath );
-
-                builder.AddJsonFile( configFile.FilePath, configFile.Optional, configFile.ReloadOnChange );
+                builder.AddJsonFile(configFile.FilePath, configFile.Optional, configFile.ReloadOnChange);
             }
         }
 
@@ -279,7 +277,7 @@ namespace J4JSoftware.DependencyInjection
             _options.FinishConfiguration();
         }
 
-        private void SetupDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
+        private void CoreDataProtectionDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
         {
             builder.RegisterType<DataProtection>()
                    .As<IDataProtection>()
@@ -301,21 +299,27 @@ namespace J4JSoftware.DependencyInjection
                               } )
                    .As<IJ4JProtection>()
                    .SingleInstance();
+        }
 
+        private void CoreCommandLineDependencyInjection(HostBuilderContext hbc, ContainerBuilder builder)
+        {
             // expose IOptionCollection when J4JCommandLine subsystem is being used
-            if( _options != null )
-                builder.Register( c => _options )
+            if (_options != null)
+                builder.Register(c => _options)
                        .AsSelf()
                        .SingleInstance();
+        }
 
+        private void CoreHostDependencyInjection(HostBuilderContext hbc, ContainerBuilder builder)
+        {
             // register the IJ4JHost which will get built
-            if( RegisterJ4JHost )
-                builder.Register( c => Host! )
+            if (RegisterJ4JHost)
+                builder.Register(c => Host!)
                        .As<IJ4JHost>()
                        .SingleInstance();
         }
 
-        private void SetupLogging( HostBuilderContext hbc, ContainerBuilder builder )
+        private void CoreLoggingDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
         {
             builder.Register( c =>
                               {
@@ -339,7 +343,7 @@ namespace J4JSoftware.DependencyInjection
                    .SingleInstance();
         }
 
-        private void SetupServices( HostBuilderContext hbc, IServiceCollection services )
+        private void CoreDataProtectionServices( HostBuilderContext hbc, IServiceCollection services )
         {
             services.AddDataProtection();
         }
