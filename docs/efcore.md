@@ -33,10 +33,14 @@ public class QbDbDesignTimeFactory : DesignTimeFactory<QbDbContext>
 
     protected override void ConfigureOptionsBuilder( DbContextOptionsBuilder<QbDbContext> builder, string dbDirectory )
     {
-        var connBuilder = new SqliteConnectionStringBuilder()
-        {
-            DataSource = Path.Combine(dbDirectory, "QbDatabase.db")
-        };
+        dbPath = Path.EndsInDirectorySeparator( dbPath )
+            ? Path.Combine( dbPath, "QbDatabase.db" )
+            : dbPath;
+
+        if( File.Exists( dbPath ) )
+            File.Delete( dbPath );
+
+        var connBuilder = new SqliteConnectionStringBuilder() { DataSource = dbPath };
 
         builder.UseSqlite(connBuilder.ConnectionString);
     }
