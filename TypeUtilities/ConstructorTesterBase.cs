@@ -19,15 +19,14 @@
 
 using System;
 
-namespace J4JSoftware.DependencyInjection
-{
-    public abstract class ConstructorTesterBase<T> : ITypeTester
-        where T : class
-    {
-        protected ConstructorTesterBase()
-        {
-        }
+namespace J4JSoftware.DependencyInjection;
 
-        public virtual bool MeetsRequirements( Type toCheck )=> typeof( T ).IsAssignableFrom( toCheck );
+public abstract class ConstructorTesterBase<T> : ITypeTester
+    where T : class
+{
+    protected ConstructorTesterBase()
+    {
     }
+
+    public virtual bool MeetsRequirements( Type toCheck )=> typeof( T ).IsAssignableFrom( toCheck );
 }

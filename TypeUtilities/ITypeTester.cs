@@ -19,10 +19,9 @@
 
 using System;
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+public interface ITypeTester
 {
-    public interface ITypeTester
-    {
-        bool MeetsRequirements( Type toTest );
-    }
+    bool MeetsRequirements( Type toTest );
 }

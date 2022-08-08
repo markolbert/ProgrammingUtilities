@@ -22,58 +22,57 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+public class ConstructorParameterTester<T> : ConstructorTesterBase<T>
+    where T : class
 {
-    public class ConstructorParameterTester<T> : ConstructorTesterBase<T>
-        where T : class
+    private readonly List<Type> _reqdParameters;
+
+    public ConstructorParameterTester( params Type[] reqdParameters )
+        :this( reqdParameters.AsEnumerable())
     {
-        private readonly List<Type> _reqdParameters;
+    }
 
-        public ConstructorParameterTester( params Type[] reqdParameters )
-            :this( reqdParameters.AsEnumerable())
+    public ConstructorParameterTester( IEnumerable<Type> reqdParameters )
+    {
+        _reqdParameters = reqdParameters.ToList();
+    }
+
+    public override bool MeetsRequirements( Type toCheck )
+    {
+        if( !base.MeetsRequirements( toCheck ) )
+            return false;
+
+        if( !_reqdParameters.Any() )
+            return true;
+
+        var ctors = toCheck.GetConstructors( BindingFlags.Instance
+                                           | BindingFlags.Public
+                                           | BindingFlags.CreateInstance );
+
+        foreach ( var ctor in ctors )
         {
-        }
+            var ctorParameters = ctor.GetParameters();
 
-        public ConstructorParameterTester( IEnumerable<Type> reqdParameters )
-        {
-            _reqdParameters = reqdParameters.ToList();
-        }
+            if( ctorParameters.Length != _reqdParameters.Count )
+                continue;
 
-        public override bool MeetsRequirements( Type toCheck )
-        {
-            if( !base.MeetsRequirements( toCheck ) )
-                return false;
+            var allOkay = true;
 
-            if( !_reqdParameters.Any() )
-                return true;
-
-            var ctors = toCheck.GetConstructors( BindingFlags.Instance
-                                                 | BindingFlags.Public
-                                                 | BindingFlags.CreateInstance );
-
-            foreach ( var ctor in ctors )
+            for( var idx = 0; idx < ctorParameters.Length; idx++ )
             {
-                var ctorParameters = ctor.GetParameters();
-
-                if( ctorParameters.Length != _reqdParameters.Count )
+                if( ctorParameters[ idx ].ParameterType.IsAssignableFrom( _reqdParameters[ idx ] ) )
                     continue;
 
-                var allOkay = true;
-
-                for( var idx = 0; idx < ctorParameters.Length; idx++ )
-                {
-                    if( ctorParameters[ idx ].ParameterType.IsAssignableFrom( _reqdParameters[ idx ] ) )
-                        continue;
-
-                    allOkay = false;
-                    break;
-                }
-
-                if( allOkay )
-                    return true;
+                allOkay = false;
+                break;
             }
 
-            return false;
+            if( allOkay )
+                return true;
         }
+
+        return false;
     }
 }

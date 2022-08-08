@@ -17,13 +17,12 @@
 
 #endregion
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+public enum PredefinedTypeTests
 {
-    public enum PredefinedTypeTests
-    {
-        NonAbstract,
-        NonGeneric,
-        ParameterlessConstructor,
-        OnlyJ4JLoggerRequired
-    }
+    NonAbstract,
+    NonGeneric,
+    ParameterlessConstructor,
+    OnlyJ4JLoggerRequired
 }

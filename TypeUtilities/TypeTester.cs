@@ -19,29 +19,28 @@
 
 using System;
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+public class TypeTester : ITypeTester
 {
-    public class TypeTester : ITypeTester
+    public static TypeTester NonAbstract { get; } = new( x => !x.IsAbstract );
+    public static TypeTester NonGeneric { get; } = new( x => !x.IsGenericType );
+
+    private readonly Func<Type, bool>[] _testers;
+
+    public TypeTester( params Func<Type, bool>[] testers )
     {
-        public static TypeTester NonAbstract { get; } = new( x => !x.IsAbstract );
-        public static TypeTester NonGeneric { get; } = new( x => !x.IsGenericType );
+        _testers = testers;
+    }
 
-        private readonly Func<Type, bool>[] _testers;
-
-        public TypeTester( params Func<Type, bool>[] testers )
+    public bool MeetsRequirements( Type toTest )
+    {
+        foreach( var tester in _testers )
         {
-            _testers = testers;
+            if( !tester.Invoke( toTest ) )
+                return false;
         }
 
-        public bool MeetsRequirements( Type toTest )
-        {
-            foreach( var tester in _testers )
-            {
-                if( !tester.Invoke( toTest ) )
-                    return false;
-            }
-
-            return true;
-        }
+        return true;
     }
 }
