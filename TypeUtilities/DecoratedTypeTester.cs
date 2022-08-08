@@ -8,29 +8,23 @@ public class DecoratedTypeTester<T> : ConstructorTesterBase<T>
     where T : class
 {
     private readonly bool _allowInherited;
-    private readonly List<Type> _requiredAttributes;
+    private readonly Type? _requiredAttribute;
 
-    public DecoratedTypeTester(bool allowInherited, params Type[] requiredAttributes )
+    public DecoratedTypeTester( bool allowInherited, Type requiredAttribute )
     {
         _allowInherited = allowInherited;
 
-        _requiredAttributes = requiredAttributes.Where( t => typeof( Attribute ).IsAssignableFrom( t ) )
-                                                .ToList();
+        _requiredAttribute = typeof(Attribute).IsAssignableFrom(requiredAttribute) ? requiredAttribute : null;
     }
 
     public override bool MeetsRequirements( Type toCheck )
     {
-        if( !base.MeetsRequirements( toCheck ) )
+        if( !base.MeetsRequirements( toCheck ) || _requiredAttribute == null )
             return false;
 
         var typeAttributes = toCheck.GetCustomAttributes( _allowInherited );
 
-        foreach( var attributeType in _requiredAttributes )
-        {
-            if( !typeAttributes.Any( x => attributeType.IsAssignableFrom( x.GetType() ) ) )
-                return false;
-        }
-
-        return true;
+        // ReSharper disable once UseMethodIsInstanceOfType
+        return typeAttributes.Any( x => _requiredAttribute.IsAssignableFrom( x.GetType() ) );
     }
 }
