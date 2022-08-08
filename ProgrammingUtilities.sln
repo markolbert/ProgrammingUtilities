@@ -46,6 +46,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{7DFBF69A-5
 		docs\mahappsmatdesign.md = docs\mahappsmatdesign.md
 		README.md = README.md
 		docs\topo-sort.md = docs\topo-sort.md
+		docs\type-utils.md = docs\type-utils.md
 		docs\visual-utils.md = docs\visual-utils.md
 		docs\wpf-utilities.md = docs\wpf-utilities.md
 	EndProjectSection
@@ -89,7 +90,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{B38D3ED3
 	ProjectSection(SolutionItems) = preProject
 		docs\nuget\nuget-console.md = docs\nuget\nuget-console.md
 		docs\nuget\nuget-dependency.md = docs\nuget\nuget-dependency.md
-		docs\nuget\nuget-efcore.md = docs\nuget\nuget-efcore.md
 		docs\nuget\nuget-excelexport.md = docs\nuget\nuget-excelexport.md
 		docs\nuget\nuget-mahapps.md = docs\nuget\nuget-mahapps.md
 		docs\nuget\nuget-misc.md = docs\nuget\nuget-misc.md
@@ -100,7 +100,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{B38D3ED3
 		docs\nuget\nuget-wpf-utilities.md = docs\nuget\nuget-wpf-utilities.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeusEx", "DeusEx\DeusEx.csproj", "{C7A985E1-AE32-4132-AEA7-8FFAC2002758}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeusEx", "DeusEx\DeusEx.csproj", "{C7A985E1-AE32-4132-AEA7-8FFAC2002758}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
