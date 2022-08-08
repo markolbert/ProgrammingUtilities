@@ -20,15 +20,14 @@
 using System;
 using FluentAssertions;
 
-namespace Test.MiscellaneousUtilities
+namespace Test.MiscellaneousUtilities;
+
+public record RoundedDecimal( decimal Value, int SignificantDigits = -1 )
 {
-    public record RoundedDecimal( decimal Value, int SignificantDigits = -1 )
+    public void CheckValue( decimal value )
     {
-        public void CheckValue( decimal value )
-        {
-            if( SignificantDigits < 0 )
-                value.Should().Be( Value );
-            else Math.Round( value, SignificantDigits ).Should().Be( Value );
-        }
+        if( SignificantDigits < 0 )
+            value.Should().Be( Value );
+        else Math.Round( value, SignificantDigits ).Should().Be( Value );
     }
 }

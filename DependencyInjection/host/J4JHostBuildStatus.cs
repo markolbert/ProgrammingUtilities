@@ -17,13 +17,12 @@
 
 #endregion
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+public enum J4JHostBuildStatus
 {
-    public enum J4JHostBuildStatus
-    {
-        NotInitialized,
-        NotBuilt,
-        Aborted,
-        Built
-    }
+    NotInitialized,
+    NotBuilt,
+    Aborted,
+    Built
 }

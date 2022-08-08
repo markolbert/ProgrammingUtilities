@@ -24,32 +24,31 @@ using System.IO;
 using System.Text.Json;
 using FluentAssertions;
 
-namespace Test.MiscellaneousUtilities
+namespace Test.MiscellaneousUtilities;
+
+public class TestDataBase<T> : IEnumerable<object[]>
 {
-    public class TestDataBase<T> : IEnumerable<object[]>
+    private readonly string _filePath;
+
+    protected TestDataBase( string fileName )
     {
-        private readonly string _filePath;
+        _filePath = Path.Combine( Environment.CurrentDirectory, "test-data", fileName );
+        File.Exists( _filePath ).Should().BeTrue();
+    }
 
-        protected TestDataBase( string fileName )
+    public IEnumerator<object[]> GetEnumerator()
+    {
+        var parsed = JsonSerializer.Deserialize<List<T>>( File.ReadAllText( _filePath ) );
+        parsed.Should().NotBeNull();
+
+        foreach( var unitData in parsed! )
         {
-            _filePath = Path.Combine( Environment.CurrentDirectory, "test-data", fileName );
-            File.Exists( _filePath ).Should().BeTrue();
+            yield return new object[] { unitData! };
         }
+    }
 
-        public IEnumerator<object[]> GetEnumerator()
-        {
-            var parsed = JsonSerializer.Deserialize<List<T>>( File.ReadAllText( _filePath ) );
-            parsed.Should().NotBeNull();
-
-            foreach( var unitData in parsed! )
-            {
-                yield return new object[] { unitData! };
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

@@ -19,15 +19,14 @@
 
 using System;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public record NumericRange( int TickSize,
+    decimal MinorValue,
+    decimal MajorValue,
+    decimal RangeStart,
+    decimal RangeEnd,
+    double Coverage )
 {
-    public record NumericRange( int TickSize,
-                                decimal MinorValue,
-                                decimal MajorValue,
-                                decimal RangeStart,
-                                decimal RangeEnd,
-                                double Coverage )
-    {
-        public double MinorFrequency => Convert.ToDouble( MajorValue ) / Convert.ToDouble( MinorValue );
-    }
+    public double MinorFrequency => Convert.ToDouble( MajorValue ) / Convert.ToDouble( MinorValue );
 }

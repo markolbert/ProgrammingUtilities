@@ -20,17 +20,16 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace J4JSoftware.Utilities
-{
-    public interface ISelectableEntity<TEntity, TKey> : INotifyPropertyChanged
-        where TEntity : class, ISelectableEntity<TEntity, TKey>
-    {
-        TEntity Entity { get; }
-        TEntity? Parent { get; }
-        IEnumerable<TEntity> Children { get; }
-        TKey Key { get; }
+namespace J4JSoftware.Utilities;
 
-        string DisplayName { get; }
-        bool IsSelected { get; set; }
-    }
+public interface ISelectableEntity<TEntity, TKey> : INotifyPropertyChanged
+    where TEntity : class, ISelectableEntity<TEntity, TKey>
+{
+    TEntity Entity { get; }
+    TEntity? Parent { get; }
+    IEnumerable<TEntity> Children { get; }
+    TKey Key { get; }
+
+    string DisplayName { get; }
+    bool IsSelected { get; set; }
 }

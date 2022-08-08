@@ -19,17 +19,16 @@
 
 using System;
 
-namespace J4JSoftware.DependencyInjection
-{
-    [ Flags ]
-    public enum J4JHostRequirements
-    {
-        Publisher = 1 << 0,
-        ApplicationName = 1 << 1,
-        AvailableTokens = 1 << 2,
-        OptionsGenerator = 1 << 3,
-        OptionsInitializer = 1 << 4,
+namespace J4JSoftware.DependencyInjection;
 
-        AllMet = 0
-    }
+[ Flags ]
+public enum J4JHostRequirements
+{
+    Publisher = 1 << 0,
+    ApplicationName = 1 << 1,
+    AvailableTokens = 1 << 2,
+    OptionsGenerator = 1 << 3,
+    OptionsInitializer = 1 << 4,
+
+    AllMet = 0
 }

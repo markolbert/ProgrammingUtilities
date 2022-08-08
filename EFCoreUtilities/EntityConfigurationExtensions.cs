@@ -22,23 +22,22 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 
-namespace J4JSoftware.EFCoreUtilities
+namespace J4JSoftware.EFCoreUtilities;
+
+public static class EntityConfigurationExtensions
 {
-    public static class EntityConfigurationExtensions
+    public static void ConfigureEntities( this ModelBuilder modelBuilder, Assembly? assemblyToScan = null )
     {
-        public static void ConfigureEntities( this ModelBuilder modelBuilder, Assembly? assemblyToScan = null )
+        assemblyToScan ??= Assembly.GetCallingAssembly();
+
+        // scan assembly for types decorated with EntityConfigurationAttribute and configure them
+        foreach( var entityType in assemblyToScan.DefinedTypes
+                                                 .Where( t => t.GetCustomAttribute<EntityConfigurationAttribute>()
+                                                          != null ) )
         {
-            assemblyToScan ??= Assembly.GetCallingAssembly();
+            var attr = entityType.GetCustomAttribute<EntityConfigurationAttribute>();
 
-            // scan assembly for types decorated with EntityConfigurationAttribute and configure them
-            foreach( var entityType in assemblyToScan.DefinedTypes
-                                                     .Where( t => t.GetCustomAttribute<EntityConfigurationAttribute>()
-                                                              != null ) )
-            {
-                var attr = entityType.GetCustomAttribute<EntityConfigurationAttribute>();
-
-                attr?.GetConfigurator().Configure( modelBuilder );
-            }
+            attr?.GetConfigurator().Configure( modelBuilder );
         }
     }
 }

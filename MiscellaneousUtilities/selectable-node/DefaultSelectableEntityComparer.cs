@@ -20,23 +20,22 @@
 using System;
 using System.Collections.Generic;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public class DefaultSelectableEntityComparer<TEntity, TKey> : IComparer<TEntity>
+    where TEntity : class, ISelectableEntity<TEntity, TKey>
 {
-    public class DefaultSelectableEntityComparer<TEntity, TKey> : IComparer<TEntity>
-        where TEntity : class, ISelectableEntity<TEntity, TKey>
+    public int Compare( TEntity? x, TEntity? y )
     {
-        public int Compare( TEntity? x, TEntity? y )
-        {
-            if( x == null && y == null )
-                return 0;
+        if( x == null && y == null )
+            return 0;
 
-            if( x == null )
-                return 1;
+        if( x == null )
+            return 1;
 
-            if( y == null )
-                return -1;
+        if( y == null )
+            return -1;
 
-            return string.Compare( x.DisplayName, y.DisplayName, StringComparison.Ordinal );
-        }
+        return string.Compare( x.DisplayName, y.DisplayName, StringComparison.Ordinal );
     }
 }

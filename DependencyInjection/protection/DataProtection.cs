@@ -20,29 +20,28 @@
 using System;
 using Microsoft.AspNetCore.DataProtection;
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+public class DataProtection : IDataProtection
 {
-    public class DataProtection : IDataProtection
+    private readonly IDataProtectionProvider _provider;
+
+    private IDataProtector? _protector;
+
+    public DataProtection( IDataProtectionProvider provider )
     {
-        private readonly IDataProtectionProvider _provider;
+        _provider = provider;
+    }
 
-        private IDataProtector? _protector;
+    public string Purpose { get; set; } = Guid.NewGuid().ToString();
 
-        public DataProtection( IDataProtectionProvider provider )
+    public IDataProtector Protector
+    {
+        get
         {
-            _provider = provider;
-        }
+            _protector ??= _provider.CreateProtector( Purpose );
 
-        public string Purpose { get; set; } = Guid.NewGuid().ToString();
-
-        public IDataProtector Protector
-        {
-            get
-            {
-                _protector ??= _provider.CreateProtector( Purpose );
-
-                return _protector;
-            }
+            return _protector;
         }
     }
 }

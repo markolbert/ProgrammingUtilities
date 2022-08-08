@@ -21,24 +21,23 @@ using System;
 using System.Collections.Generic;
 using J4JSoftware.Configuration.CommandLine;
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+public class J4JCommandLineConfiguration
 {
-    public class J4JCommandLineConfiguration
+    public J4JCommandLineConfiguration( J4JHostConfiguration hostConfig,
+        CommandLineOperatingSystems operatingSystem )
     {
-        public J4JCommandLineConfiguration( J4JHostConfiguration hostConfig,
-                                            CommandLineOperatingSystems operatingSystem )
-        {
-            HostConfiguration = hostConfig;
-            OperatingSystem = operatingSystem;
-        }
-
-        public J4JHostConfiguration HostConfiguration { get; }
-        internal CommandLineOperatingSystems OperatingSystem { get; }
-
-        internal ILexicalElements? LexicalElements { get; set; }
-        internal ITextConverters? TextConverters { get; set; }
-        internal IOptionsGenerator? OptionsGenerator { get; set; }
-        internal List<ICleanupTokens> CleanupProcessors { get; } = new();
-        internal Action<OptionCollection>? OptionsInitializer { get; set; }
+        HostConfiguration = hostConfig;
+        OperatingSystem = operatingSystem;
     }
+
+    public J4JHostConfiguration HostConfiguration { get; }
+    internal CommandLineOperatingSystems OperatingSystem { get; }
+
+    internal ILexicalElements? LexicalElements { get; set; }
+    internal ITextConverters? TextConverters { get; set; }
+    internal IOptionsGenerator? OptionsGenerator { get; set; }
+    internal List<ICleanupTokens> CleanupProcessors { get; } = new();
+    internal Action<OptionCollection>? OptionsInitializer { get; set; }
 }

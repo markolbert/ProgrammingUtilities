@@ -22,127 +22,126 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using J4JSoftware.Logging;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, TKey>
+    where TKey : notnull
+    where TEntity : class, ISelectableEntity<TEntity, TKey>
 {
-    public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, TKey>
-        where TKey : notnull
-        where TEntity : class, ISelectableEntity<TEntity, TKey>
+    private readonly Dictionary<TKey, TEntity> _masterDict;
+    private readonly IEqualityComparer<TKey> _keyComparer;
+
+    protected SelectableTree(
+        IJ4JLogger? logger,
+        IEqualityComparer<TKey>? keyComparer = null
+    )
     {
-        private readonly Dictionary<TKey, TEntity> _masterDict;
-        private readonly IEqualityComparer<TKey> _keyComparer;
+        _keyComparer = keyComparer ?? EqualityComparer<TKey>.Default;
 
-        protected SelectableTree(
-            IJ4JLogger? logger,
-            IEqualityComparer<TKey>? keyComparer = null
-        )
+        _masterDict = new Dictionary<TKey, TEntity>( keyComparer );
+
+        Logger = logger;
+        Logger?.SetLoggedType( GetType() );
+    }
+
+    protected IJ4JLogger? Logger { get; }
+
+    public bool Load( List<TEntity> entities )
+    {
+        var temp = new Dictionary<TKey, TEntity>();
+
+        foreach( var entity in entities )
         {
-            _keyComparer = keyComparer ?? EqualityComparer<TKey>.Default;
+            if( !temp.ContainsKey( entity.Key ) )
+            {
+                temp.Add( entity.Key, entity );
+                continue;
+            }
 
-            _masterDict = new Dictionary<TKey, TEntity>( keyComparer );
-
-            Logger = logger;
-            Logger?.SetLoggedType( GetType() );
+            Logger?.Error( "Entity ({0}) with duplicate key ({1}) encountered", entity.DisplayName, entity.Key );
+            return false;
         }
 
-        protected IJ4JLogger? Logger { get; }
+        return Load( temp );
+    }
 
-        public bool Load( List<TEntity> entities )
+    public bool Load( Dictionary<TKey, TEntity> entities )
+    {
+        _masterDict.Clear();
+        RootEntities.Clear();
+
+        foreach( var kvp in entities )
         {
-            var temp = new Dictionary<TKey, TEntity>();
+            if( !_masterDict.ContainsKey( kvp.Key ) )
+                _masterDict.Add( kvp.Key, kvp.Value );
 
-            foreach( var entity in entities )
+            if( kvp.Value.Parent == null )
+                RootEntities.Add( kvp.Value );
+        }
+
+        // check for loops
+        var curPath = new List<TKey>();
+
+        foreach( var kvp in _masterDict )
+        {
+            curPath.Clear();
+            var curEntity = kvp.Value;
+
+            while( curEntity.Parent != null )
             {
-                if( !temp.ContainsKey( entity.Key ) )
+                if( !curPath.Any( x => _keyComparer.Equals( x, curEntity.Key ) ) )
                 {
-                    temp.Add( entity.Key, entity );
+                    curPath.Add( curEntity.Key );
+                    curEntity = curEntity.Parent;
+
                     continue;
                 }
 
-                Logger?.Error( "Entity ({0}) with duplicate key ({1}) encountered", entity.DisplayName, entity.Key );
+                Logger?.Error( "Loop detected for entity '{0}' (key: {1}) at '{2}' (key: {3})",
+                               new object[]
+                               {
+                                   kvp.Value.DisplayName, kvp.Key, curEntity.DisplayName, curEntity.Key
+                               } );
+
                 return false;
             }
-
-            return Load( temp );
         }
 
-        public bool Load( Dictionary<TKey, TEntity> entities )
+        return true;
+    }
+
+    public ObservableCollection<TEntity> RootEntities { get; } = new();
+
+    public bool FindEntity( TKey key, out TEntity? result )
+    {
+        result = null;
+
+        if( _masterDict.ContainsKey( key ) )
+            result = _masterDict[ key ];
+
+        return result != null;
+    }
+
+    public IEnumerable<TEntity> SelectedEntities()
+    {
+        foreach( var rootEntity in RootEntities )
         {
-            _masterDict.Clear();
-            RootEntities.Clear();
-
-            foreach( var kvp in entities )
+            foreach( var child in rootEntity.DescendantEntitiesAndSelf<TEntity, TKey>())
             {
-                if( !_masterDict.ContainsKey( kvp.Key ) )
-                    _masterDict.Add( kvp.Key, kvp.Value );
-
-                if( kvp.Value.Parent == null )
-                    RootEntities.Add( kvp.Value );
-            }
-
-            // check for loops
-            var curPath = new List<TKey>();
-
-            foreach( var kvp in _masterDict )
-            {
-                curPath.Clear();
-                var curEntity = kvp.Value;
-
-                while( curEntity.Parent != null )
-                {
-                    if( !curPath.Any( x => _keyComparer.Equals( x, curEntity.Key ) ) )
-                    {
-                        curPath.Add( curEntity.Key );
-                        curEntity = curEntity.Parent;
-
-                        continue;
-                    }
-
-                    Logger?.Error( "Loop detected for entity '{0}' (key: {1}) at '{2}' (key: {3})",
-                                  new object[]
-                                  {
-                                      kvp.Value.DisplayName, kvp.Key, curEntity.DisplayName, curEntity.Key
-                                  } );
-
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public ObservableCollection<TEntity> RootEntities { get; } = new();
-
-        public bool FindEntity( TKey key, out TEntity? result )
-        {
-            result = null;
-
-            if( _masterDict.ContainsKey( key ) )
-                result = _masterDict[ key ];
-
-            return result != null;
-        }
-
-        public IEnumerable<TEntity> SelectedEntities()
-        {
-            foreach( var rootEntity in RootEntities )
-            {
-                foreach( var child in rootEntity.DescendantEntitiesAndSelf<TEntity, TKey>())
-                {
-                    if( child.IsSelected  )
-                        yield return child;
-                }
+                if( child.IsSelected  )
+                    yield return child;
             }
         }
+    }
 
-        public IEnumerable<TEntity> UnselectedEntities()
+    public IEnumerable<TEntity> UnselectedEntities()
+    {
+        foreach (var rootEntity in RootEntities)
         {
-            foreach (var rootEntity in RootEntities)
+            foreach (var child in rootEntity.DescendantEntitiesAndSelf<TEntity, TKey>())
             {
-                foreach (var child in rootEntity.DescendantEntitiesAndSelf<TEntity, TKey>())
-                {
-                    if (!child.IsSelected)
-                        yield return child;
-                }
+                if (!child.IsSelected)
+                    yield return child;
             }
         }
     }

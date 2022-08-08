@@ -20,11 +20,10 @@
 using System;
 using System.Collections.Generic;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public interface ITopologicalSortFactory
 {
-    public interface ITopologicalSortFactory
-    {
-        bool CreateSortedList<T>( IEnumerable<T> toSort, out List<T>? result )
-            where T : class, IEquatable<T>;
-    }
+    bool CreateSortedList<T>( IEnumerable<T> toSort, out List<T>? result )
+        where T : class, IEquatable<T>;
 }

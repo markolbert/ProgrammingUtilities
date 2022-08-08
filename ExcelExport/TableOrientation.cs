@@ -17,11 +17,10 @@
 
 #endregion
 
-namespace J4JSoftware.Excel
+namespace J4JSoftware.Excel;
+
+public enum TableOrientation
 {
-    public enum TableOrientation
-    {
-        ColumnHeaders,
-        RowHeaders
-    }
+    ColumnHeaders,
+    RowHeaders
 }

@@ -20,16 +20,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace J4JSoftware.EFCoreUtilities
-{
-    public abstract class EntityConfigurator<TEntity> : IEntityConfiguration<TEntity>
-        where TEntity : class
-    {
-        void IEntityConfiguration.Configure( ModelBuilder builder )
-        {
-            Configure( builder.Entity<TEntity>() );
-        }
+namespace J4JSoftware.EFCoreUtilities;
 
-        protected abstract void Configure( EntityTypeBuilder<TEntity> builder );
+public abstract class EntityConfigurator<TEntity> : IEntityConfiguration<TEntity>
+    where TEntity : class
+{
+    void IEntityConfiguration.Configure( ModelBuilder builder )
+    {
+        Configure( builder.Entity<TEntity>() );
     }
+
+    protected abstract void Configure( EntityTypeBuilder<TEntity> builder );
 }

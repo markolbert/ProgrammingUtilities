@@ -21,86 +21,85 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public class FactorInfo
 {
-    public class FactorInfo
+    public static List<FactorInfo> GetFactors( int number )
     {
-        public static List<FactorInfo> GetFactors( int number )
-        {
-            if( number < 0 )
-                number = -number;
+        if( number < 0 )
+            number = -number;
 
-            return number switch
-                   {
-                       0 => new List<FactorInfo>(),
-                       1 => new List<FactorInfo>() { new FactorInfo( 1 ) },
-                       _ => GetFactorsInternal( number )
-                   };
+        return number switch
+        {
+            0 => new List<FactorInfo>(),
+            1 => new List<FactorInfo>() { new FactorInfo( 1 ) },
+            _ => GetFactorsInternal( number )
+        };
+    }
+
+    private static List<FactorInfo> GetFactorsInternal( int number )
+    {
+        var retVal = new List<FactorInfo>() { new FactorInfo( 1 ) };
+
+        while( number > 1 )
+        {
+            var factor = GetLargestFactor( number );
+
+            var factorInfo = retVal.FirstOrDefault( x => x.Factor == factor );
+            if( factorInfo == null )
+                retVal.Add( new FactorInfo( factor ) );
+            else factorInfo.Frequency++;
+
+            if( factor == 1 )
+                break;
+
+            number /= factor;
         }
 
-        private static List<FactorInfo> GetFactorsInternal( int number )
+        return retVal.OrderBy( x => x.Factor ).ToList();
+    }
+
+    private static int GetLargestFactor( int value )
+    {
+        var maxFactor = Convert.ToInt32( Math.Ceiling( Math.Sqrt( Convert.ToDouble( value ) ) ) );
+
+        for ( var factor = maxFactor; factor > 1; factor-- )
         {
-            var retVal = new List<FactorInfo>() { new FactorInfo( 1 ) };
-
-            while( number > 1 )
-            {
-                var factor = GetLargestFactor( number );
-
-                var factorInfo = retVal.FirstOrDefault( x => x.Factor == factor );
-                if( factorInfo == null )
-                    retVal.Add( new FactorInfo( factor ) );
-                else factorInfo.Frequency++;
-
-                if( factor == 1 )
-                    break;
-
-                number /= factor;
-            }
-
-            return retVal.OrderBy( x => x.Factor ).ToList();
+            if ( value % factor == 0 )
+                return factor;
         }
 
-        private static int GetLargestFactor( int value )
+        return value;
+    }
+
+    private int _frequency;
+
+    public FactorInfo( int factor,
+        int frequency = 1 )
+    {
+        if( factor <= 0 )
+            throw new ArgumentException( $"{nameof( factor )} cannot be <= 0" );
+
+        if ( frequency <= 0 )
+            throw new ArgumentException( $"{nameof( frequency )} cannot be <= 0" );
+
+        Factor = factor;
+        _frequency = frequency;
+    }
+
+    public int Factor { get; }
+
+    public int Frequency
+    {
+        get => _frequency;
+
+        set
         {
-            var maxFactor = Convert.ToInt32( Math.Ceiling( Math.Sqrt( Convert.ToDouble( value ) ) ) );
+            if( value == 0 )
+                throw new ArgumentException( $"{nameof( value )} cannot be <= 0" );
 
-            for ( var factor = maxFactor; factor > 1; factor-- )
-            {
-                if ( value % factor == 0 )
-                    return factor;
-            }
-
-            return value;
-        }
-
-        private int _frequency;
-
-        public FactorInfo( int factor,
-                           int frequency = 1 )
-        {
-            if( factor <= 0 )
-                throw new ArgumentException( $"{nameof( factor )} cannot be <= 0" );
-
-            if ( frequency <= 0 )
-                throw new ArgumentException( $"{nameof( frequency )} cannot be <= 0" );
-
-            Factor = factor;
-            _frequency = frequency;
-        }
-
-        public int Factor { get; }
-
-        public int Frequency
-        {
-            get => _frequency;
-
-            set
-            {
-                if( value == 0 )
-                    throw new ArgumentException( $"{nameof( value )} cannot be <= 0" );
-
-                _frequency = value;
-            }
+            _frequency = value;
         }
     }
 }

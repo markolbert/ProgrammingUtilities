@@ -19,25 +19,24 @@
 
 using System;
 
-namespace J4JSoftware.EFCoreUtilities
+namespace J4JSoftware.EFCoreUtilities;
+
+[ AttributeUsage( AttributeTargets.Class, Inherited = false ) ]
+public class EntityConfigurationAttribute : Attribute
 {
-    [ AttributeUsage( AttributeTargets.Class, Inherited = false ) ]
-    public class EntityConfigurationAttribute : Attribute
+    private readonly Type _configType;
+
+    public EntityConfigurationAttribute( Type configType )
     {
-        private readonly Type _configType;
+        _configType = configType ?? throw new NullReferenceException( nameof( configType ) );
 
-        public EntityConfigurationAttribute( Type configType )
-        {
-            _configType = configType ?? throw new NullReferenceException( nameof( configType ) );
+        if( !typeof( IEntityConfiguration ).IsAssignableFrom( configType ) )
+            throw new
+                ArgumentException( $"Database entity configuration type is not {nameof( IEntityConfiguration )}" );
+    }
 
-            if( !typeof( IEntityConfiguration ).IsAssignableFrom( configType ) )
-                throw new
-                    ArgumentException( $"Database entity configuration type is not {nameof( IEntityConfiguration )}" );
-        }
-
-        public IEntityConfiguration GetConfigurator()
-        {
-            return (IEntityConfiguration) Activator.CreateInstance( _configType )!;
-        }
+    public IEntityConfiguration GetConfigurator()
+    {
+        return (IEntityConfiguration) Activator.CreateInstance( _configType )!;
     }
 }

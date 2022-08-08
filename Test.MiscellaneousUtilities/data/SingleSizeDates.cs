@@ -17,13 +17,12 @@
 
 #endregion
 
-namespace Test.MiscellaneousUtilities
+namespace Test.MiscellaneousUtilities;
+
+public class SingleSizeDates : TestDataBase<SingleDates>
 {
-    public class SingleSizeDates : TestDataBase<SingleDates>
+    public SingleSizeDates()
+        : base( "single-date.json" )
     {
-        public SingleSizeDates()
-            : base( "single-date.json" )
-        {
-        }
     }
 }

@@ -17,11 +17,10 @@
 
 #endregion
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public enum TickSizePreference
 {
-    public enum TickSizePreference
-    {
-        Smallest,
-        Largest
-    }
+    Smallest,
+    Largest
 }

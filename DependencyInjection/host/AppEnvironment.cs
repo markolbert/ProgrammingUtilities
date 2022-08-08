@@ -1,11 +1,10 @@
-﻿namespace J4JSoftware.DependencyInjection
+﻿namespace J4JSoftware.DependencyInjection;
+
+public enum AppEnvironment
 {
-    public enum AppEnvironment
-    {
-        Console,
-        WpfDesignMode,
-        Wpf,
-        UnpackagedWinApp,
-        PackagedWinApp
-    }
+    Console,
+    WpfDesignMode,
+    Wpf,
+    UnpackagedWinApp,
+    PackagedWinApp
 }

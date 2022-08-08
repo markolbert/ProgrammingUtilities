@@ -21,122 +21,121 @@ using System.Collections.Generic;
 using System.Linq;
 using J4JSoftware.Logging;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public abstract class SortedCollection<T> : ISortedCollection<T>
+    where T : class, ISortable<T>
 {
-    public abstract class SortedCollection<T> : ISortedCollection<T>
-        where T : class, ISortable<T>
+    private readonly List<int> _activatedIndices = new();
+    private readonly List<T> _items = new();
+
+    private List<T>? _sorted;
+
+    protected SortedCollection( IJ4JLogger? logger = null )
     {
-        private readonly List<int> _activatedIndices = new();
-        private readonly List<T> _items = new();
+        Logger = logger;
+        Logger?.SetLoggedType( GetType() );
+    }
 
-        private List<T>? _sorted;
+    protected IJ4JLogger? Logger { get; }
+    protected List<T> Available { get; } = new();
 
-        protected SortedCollection( IJ4JLogger? logger = null )
+    public List<T> SortedSequence
+    {
+        get
         {
-            Logger = logger;
-            Logger?.SetLoggedType( GetType() );
-        }
-
-        protected IJ4JLogger? Logger { get; }
-        protected List<T> Available { get; } = new();
-
-        public List<T> SortedSequence
-        {
-            get
-            {
-                if( _sorted != null )
-                    return _sorted;
-
-                _sorted = SortItems();
-
+            if( _sorted != null )
                 return _sorted;
-            }
+
+            _sorted = SortItems();
+
+            return _sorted;
         }
+    }
 
-        protected abstract bool SetPredecessors();
+    protected abstract bool SetPredecessors();
 
-        public void Add( T item )
-        {
-            _items.Add( item );
-            _sorted = null;
-        }
+    public void Add( T item )
+    {
+        _items.Add( item );
+        _sorted = null;
+    }
 
-        public void AddRange( IEnumerable<T> items )
-        {
-            _items.AddRange( items );
-            _sorted = null;
-        }
+    public void AddRange( IEnumerable<T> items )
+    {
+        _items.AddRange( items );
+        _sorted = null;
+    }
 
-        private List<T> SortItems()
-        {
-            var retVal = new List<T>();
+    private List<T> SortItems()
+    {
+        var retVal = new List<T>();
 
-            Available.Clear();
-            Available.AddRange( _items );
+        Available.Clear();
+        Available.AddRange( _items );
 
-            if( !SetPredecessors() )
-                return retVal;
-
-            // remove the items that were activated. there should
-            // be only one item left, the root item, afterwards
-            foreach( var idx in _activatedIndices.OrderByDescending( x => x ) ) Available.RemoveAt( idx );
-
-            switch( Available.Count )
-            {
-                case 0:
-                    Logger?.Error( "No root {0} defined", typeof( T ) );
-                    break;
-
-                case 1:
-                    // should already be null, but just in case...
-                    Available[ 0 ].Predecessor = null;
-
-                    _items.Add( Available[ 0 ] );
-
-                    if( TopologicalSorter.Sort( _items, out var result ) )
-                        SortedSequence.AddRange( result! );
-                    else
-                        Logger?.Error( "Couldn't create execution sequence for {0}", typeof( T ) );
-
-                    break;
-
-                default:
-                    Logger?.Error( "Multiple root {0} objects defined", typeof( T ) );
-                    break;
-            }
-
+        if( !SetPredecessors() )
             return retVal;
-        }
 
-        protected bool SetPredecessor<TNode, TPredecessorNode>()
-            where TNode : T
-            where TPredecessorNode : T
+        // remove the items that were activated. there should
+        // be only one item left, the root item, afterwards
+        foreach( var idx in _activatedIndices.OrderByDescending( x => x ) ) Available.RemoveAt( idx );
+
+        switch( Available.Count )
         {
-            var nodeType = typeof( TNode );
-            var predecessorType = typeof( TPredecessorNode );
+            case 0:
+                Logger?.Error( "No root {0} defined", typeof( T ) );
+                break;
 
-            var selectedIdx = Available.FindIndex( x => x.GetType() == nodeType );
+            case 1:
+                // should already be null, but just in case...
+                Available[ 0 ].Predecessor = null;
 
-            if( selectedIdx < 0 )
-            {
-                Logger?.Error( "Couldn't find '{nodeType}'", nodeType );
-                return false;
-            }
+                _items.Add( Available[ 0 ] );
 
-            var predecessor = Available.FirstOrDefault( x => x.GetType() == predecessorType );
+                if( TopologicalSorter.Sort( _items, out var result ) )
+                    SortedSequence.AddRange( result! );
+                else
+                    Logger?.Error( "Couldn't create execution sequence for {0}", typeof( T ) );
 
-            if( predecessor == null )
-            {
-                Logger?.Error( $"Couldn't find '{predecessorType}'", predecessorType );
-                return false;
-            }
+                break;
 
-            Available[ selectedIdx ].Predecessor = predecessor;
-
-            _items.Add( Available[ selectedIdx ] );
-            _activatedIndices.Add( selectedIdx );
-
-            return true;
+            default:
+                Logger?.Error( "Multiple root {0} objects defined", typeof( T ) );
+                break;
         }
+
+        return retVal;
+    }
+
+    protected bool SetPredecessor<TNode, TPredecessorNode>()
+        where TNode : T
+        where TPredecessorNode : T
+    {
+        var nodeType = typeof( TNode );
+        var predecessorType = typeof( TPredecessorNode );
+
+        var selectedIdx = Available.FindIndex( x => x.GetType() == nodeType );
+
+        if( selectedIdx < 0 )
+        {
+            Logger?.Error( "Couldn't find '{nodeType}'", nodeType );
+            return false;
+        }
+
+        var predecessor = Available.FirstOrDefault( x => x.GetType() == predecessorType );
+
+        if( predecessor == null )
+        {
+            Logger?.Error( $"Couldn't find '{predecessorType}'", predecessorType );
+            return false;
+        }
+
+        Available[ selectedIdx ].Predecessor = predecessor;
+
+        _items.Add( Available[ selectedIdx ] );
+        _activatedIndices.Add( selectedIdx );
+
+        return true;
     }
 }

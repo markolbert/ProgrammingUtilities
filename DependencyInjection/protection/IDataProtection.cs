@@ -19,10 +19,9 @@
 
 using Microsoft.AspNetCore.DataProtection;
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+public interface IDataProtection
 {
-    public interface IDataProtection
-    {
-        IDataProtector Protector { get; }
-    }
+    IDataProtector Protector { get; }
 }

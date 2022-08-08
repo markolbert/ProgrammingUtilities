@@ -19,25 +19,24 @@
 
 using System;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public record NumericTick
 {
-    public record NumericTick
+    public NumericTick( uint ticksPer10 )
     {
-        public NumericTick( uint ticksPer10 )
+        if ( ticksPer10 == 0 || ticksPer10 > 10 )
+            throw new ArgumentException( $"{nameof( ticksPer10 )} must be a positive number <= 10" );
+
+        TicksPer10 = ticksPer10;
+        NormalizedSize = 1M / ticksPer10;
+
+        while( NormalizedSize < 1 )
         {
-            if ( ticksPer10 == 0 || ticksPer10 > 10 )
-                throw new ArgumentException( $"{nameof( ticksPer10 )} must be a positive number <= 10" );
-
-            TicksPer10 = ticksPer10;
-            NormalizedSize = 1M / ticksPer10;
-
-            while( NormalizedSize < 1 )
-            {
-                NormalizedSize *= 10;
-            }
+            NormalizedSize *= 10;
         }
-
-        public uint TicksPer10 { get; }
-        public decimal NormalizedSize { get; }
     }
+
+    public uint TicksPer10 { get; }
+    public decimal NormalizedSize { get; }
 }

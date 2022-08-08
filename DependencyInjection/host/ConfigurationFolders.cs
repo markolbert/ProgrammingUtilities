@@ -20,20 +20,19 @@
 using System;
 using System.IO;
 
-namespace J4JSoftware.DependencyInjection
-{
-    public record ConfigurationFolders( string Publisher,
-                                        string ApplicationName,
-                                        Func<bool>? InDesignMode )
-    {
-        public string ApplicationConfigurationFolder =>
-            InDesignMode?.Invoke() ?? false
-                ? AppContext.BaseDirectory
-                : Environment.CurrentDirectory;
+namespace J4JSoftware.DependencyInjection;
 
-        public string UserConfigurationFolder =>
-            Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
-                         Publisher,
-                         ApplicationName );
-    }
+public record ConfigurationFolders( string Publisher,
+    string ApplicationName,
+    Func<bool>? InDesignMode )
+{
+    public string ApplicationConfigurationFolder =>
+        InDesignMode?.Invoke() ?? false
+            ? AppContext.BaseDirectory
+            : Environment.CurrentDirectory;
+
+    public string UserConfigurationFolder =>
+        Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
+                      Publisher,
+                      ApplicationName );
 }

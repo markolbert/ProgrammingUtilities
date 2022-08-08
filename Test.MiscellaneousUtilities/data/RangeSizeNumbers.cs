@@ -17,13 +17,12 @@
 
 #endregion
 
-namespace Test.MiscellaneousUtilities
+namespace Test.MiscellaneousUtilities;
+
+public class RangeSizeNumbers : TestDataBase<RangeOfNumbers>
 {
-    public class RangeSizeNumbers : TestDataBase<RangeOfNumbers>
+    public RangeSizeNumbers()
+        : base( "range-numeric.json" )
     {
-        public RangeSizeNumbers()
-            : base( "range-numeric.json" )
-        {
-        }
     }
 }

@@ -17,10 +17,9 @@
 
 #endregion
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public class ActionsContext
 {
-    public class ActionsContext
-    {
-        public bool StopOnFirstError { get; set; }
-    }
+    public bool StopOnFirstError { get; set; }
 }

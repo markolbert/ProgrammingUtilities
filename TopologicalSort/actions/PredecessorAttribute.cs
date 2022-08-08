@@ -1,17 +1,16 @@
 ﻿using System;
 
-namespace J4JSoftware.Utilities
-{
-    [ AttributeUsage( AttributeTargets.Class, AllowMultiple = false, Inherited = false ) ]
-    public class PredecessorAttribute : Attribute
-    {
-        public PredecessorAttribute(
-            Type? predecessor
-        )
-        {
-            Predecessor = predecessor;
-        }
+namespace J4JSoftware.Utilities;
 
-        public Type? Predecessor { get; }
+[ AttributeUsage( AttributeTargets.Class, AllowMultiple = false, Inherited = false ) ]
+public class PredecessorAttribute : Attribute
+{
+    public PredecessorAttribute(
+        Type? predecessor
+    )
+    {
+        Predecessor = predecessor;
     }
+
+    public Type? Predecessor { get; }
 }

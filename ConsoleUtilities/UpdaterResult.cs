@@ -17,13 +17,12 @@
 
 #endregion
 
-namespace J4JSoftware.ConsoleUtilities
+namespace J4JSoftware.ConsoleUtilities;
+
+public enum UpdaterResult
 {
-    public enum UpdaterResult
-    {
-        OriginalOkay,
-        Changed,
-        InvalidValidator,
-        InvalidUserInput
-    }
+    OriginalOkay,
+    Changed,
+    InvalidValidator,
+    InvalidUserInput
 }

@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public interface ISelectableTree<TEntity, TKey>
+    where TEntity : class, ISelectableEntity<TEntity, TKey>
+    where TKey : notnull
 {
-    public interface ISelectableTree<TEntity, TKey>
-        where TEntity : class, ISelectableEntity<TEntity, TKey>
-        where TKey : notnull
-    {
-        ObservableCollection<TEntity> RootEntities { get; }
+    ObservableCollection<TEntity> RootEntities { get; }
 
-        bool Load( List<TEntity> entities );
-        bool Load( Dictionary<TKey, TEntity> entities );
+    bool Load( List<TEntity> entities );
+    bool Load( Dictionary<TKey, TEntity> entities );
 
-        IEnumerable<TEntity> SelectedEntities();
-        IEnumerable<TEntity> UnselectedEntities();
+    IEnumerable<TEntity> SelectedEntities();
+    IEnumerable<TEntity> UnselectedEntities();
 
-        bool FindEntity( TKey key, out TEntity? result );
-    }
+    bool FindEntity( TKey key, out TEntity? result );
 }

@@ -17,19 +17,18 @@
 
 #endregion
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public interface ITickRangeConfig
 {
-    public interface ITickRangeConfig
-    {
-    }
+}
 
-    public interface INumericTickRangeConfig : ITickRangeConfig
-    {
-        TickSizePreference TickSizePreference { get; }
-    }
+public interface INumericTickRangeConfig : ITickRangeConfig
+{
+    TickSizePreference TickSizePreference { get; }
+}
 
-    public interface IDateTimeTickRangeConfig : ITickRangeConfig
-    {
-        bool TraditionalMonthsPerMinorOnly { get; }
-    }
+public interface IDateTimeTickRangeConfig : ITickRangeConfig
+{
+    bool TraditionalMonthsPerMinorOnly { get; }
 }

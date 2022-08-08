@@ -20,11 +20,10 @@
 using System;
 using System.Collections.Generic;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public interface ISortedCollection<TNode>
+    where TNode : IEquatable<TNode>
 {
-    public interface ISortedCollection<TNode>
-        where TNode : IEquatable<TNode>
-    {
-        public List<TNode> SortedSequence { get; }
-    }
+    public List<TNode> SortedSequence { get; }
 }

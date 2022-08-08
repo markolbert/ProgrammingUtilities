@@ -1,26 +1,25 @@
 ﻿using System;
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+[ Obsolete( "Use J4JHostConfiguration IHostBuilder instead" ) ]
+public abstract class XamlRoot : CompositionRoot
 {
-    [ Obsolete( "Use J4JHostConfiguration IHostBuilder instead" ) ]
-    public abstract class XamlRoot : CompositionRoot
+    private readonly Func<bool> _inDesignMode;
+
+    protected XamlRoot( string publisher,
+        string appName,
+        Func<bool> inDesignMode,
+        string? dataProtectionPurpose = null,
+        string osName = "Windows",
+        Func<Type?, string, int, string, string>? filePathTrimmer = null )
+        : base( publisher, appName, dataProtectionPurpose, osName, filePathTrimmer )
     {
-        private readonly Func<bool> _inDesignMode;
-
-        protected XamlRoot( string publisher,
-                            string appName,
-                            Func<bool> inDesignMode,
-                            string? dataProtectionPurpose = null,
-                            string osName = "Windows",
-                            Func<Type?, string, int, string, string>? filePathTrimmer = null )
-            : base( publisher, appName, dataProtectionPurpose, osName, filePathTrimmer )
-        {
-            _inDesignMode = inDesignMode;
-        }
-
-        public bool InDesignMode => _inDesignMode();
-
-        public override string ApplicationConfigurationFolder =>
-            InDesignMode ? AppContext.BaseDirectory : Environment.CurrentDirectory;
+        _inDesignMode = inDesignMode;
     }
+
+    public bool InDesignMode => _inDesignMode();
+
+    public override string ApplicationConfigurationFolder =>
+        InDesignMode ? AppContext.BaseDirectory : Environment.CurrentDirectory;
 }

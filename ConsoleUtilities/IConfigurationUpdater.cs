@@ -17,16 +17,15 @@
 
 #endregion
 
-namespace J4JSoftware.ConsoleUtilities
-{
-    public interface IConfigurationUpdater
-    {
-        bool Update( object config );
-    }
+namespace J4JSoftware.ConsoleUtilities;
 
-    public interface IConfigurationUpdater<in TConfig> : IConfigurationUpdater
-        where TConfig : class
-    {
-        bool Update( TConfig config );
-    }
+public interface IConfigurationUpdater
+{
+    bool Update( object config );
+}
+
+public interface IConfigurationUpdater<in TConfig> : IConfigurationUpdater
+    where TConfig : class
+{
+    bool Update( TConfig config );
 }

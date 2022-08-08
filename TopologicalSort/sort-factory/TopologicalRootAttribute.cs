@@ -19,10 +19,9 @@
 
 using System;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+[ AttributeUsage( AttributeTargets.Class, AllowMultiple = false, Inherited = false ) ]
+public class TopologicalRootAttribute : Attribute
 {
-    [ AttributeUsage( AttributeTargets.Class, AllowMultiple = false, Inherited = false ) ]
-    public class TopologicalRootAttribute : Attribute
-    {
-    }
 }

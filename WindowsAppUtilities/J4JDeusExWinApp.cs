@@ -1,18 +1,17 @@
 ﻿using System.IO;
 using J4JSoftware.DependencyInjection;
 
-namespace J4JSoftware.WindowsAppUtilities
+namespace J4JSoftware.WindowsAppUtilities;
+
+public abstract class J4JDeusExWinApp : J4JDeusExHosted
 {
-    public abstract class J4JDeusExWinApp : J4JDeusExHosted
+    protected override string GetCrashFilePath( J4JHostConfiguration hostConfig, string crashFileName = "crashFile.txt" )
     {
-        protected override string GetCrashFilePath( J4JHostConfiguration hostConfig, string crashFileName = "crashFile.txt" )
-        {
-            var fileName = Path.GetFileName(crashFileName);
+        var fileName = Path.GetFileName(crashFileName);
 
-            if (string.IsNullOrEmpty(fileName))
-                fileName = "crashFile.txt";
+        if (string.IsNullOrEmpty(fileName))
+            fileName = "crashFile.txt";
 
-            return Path.Combine( Windows.Storage.ApplicationData.Current.LocalFolder.Path, fileName );
-        }
+        return Path.Combine( Windows.Storage.ApplicationData.Current.LocalFolder.Path, fileName );
     }
 }

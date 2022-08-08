@@ -2,53 +2,52 @@
 using J4JSoftware.Utilities;
 using Xunit;
 
-namespace Test.MiscellaneousUtilities
+namespace Test.MiscellaneousUtilities;
+
+public class NumericTest
 {
-    public class NumericTest
+    [ Theory ]
+    [ ClassData( typeof( SingleSizeNumbers ) ) ]
+    public void SingleTickSize( SingleNumbers info )
     {
-        [ Theory ]
-        [ ClassData( typeof( SingleSizeNumbers ) ) ]
-        public void SingleTickSize( SingleNumbers info )
-        {
-            var ranger = new NumericTickRange();
+        var ranger = new NumericTickRange();
 
-            ranger.GetRange( info.ControlSize,
-                            info.TickSize,
-                            info.Minimum,
-                            info.Maximum,
-                            out var result )
-                  .Should()
-                  .BeTrue();
+        ranger.GetRange( info.ControlSize,
+                         info.TickSize,
+                         info.Minimum,
+                         info.Maximum,
+                         out var result )
+              .Should()
+              .BeTrue();
 
-            result.Should().NotBeNull();
+        result.Should().NotBeNull();
 
-            info.RangeStart.CheckValue( result!.RangeStart );
-            info.RangeEnd.CheckValue( result.RangeEnd );
+        info.RangeStart.CheckValue( result!.RangeStart );
+        info.RangeEnd.CheckValue( result.RangeEnd );
 
-            info.MinorTick.CheckValue( result.MinorValue );
-            info.MajorTick.CheckValue( result.MajorValue );
-        }
+        info.MinorTick.CheckValue( result.MinorValue );
+        info.MajorTick.CheckValue( result.MajorValue );
+    }
 
-        [ Theory ]
-        [ ClassData( typeof( RangeSizeNumbers ) ) ]
-        public void RangeOfTickSizes( RangeOfNumbers info )
-        {
-            var ranger = new NumericTickRange();
+    [ Theory ]
+    [ ClassData( typeof( RangeSizeNumbers ) ) ]
+    public void RangeOfTickSizes( RangeOfNumbers info )
+    {
+        var ranger = new NumericTickRange();
 
-            ranger.GetRange( info.ControlSize,
-                            info.Minimum,
-                            info.Maximum,
-                            out var result )
-                  .Should()
-                  .BeTrue();
+        ranger.GetRange( info.ControlSize,
+                         info.Minimum,
+                         info.Maximum,
+                         out var result )
+              .Should()
+              .BeTrue();
 
-            result.Should().NotBeNull();
+        result.Should().NotBeNull();
 
-            info.RangeStart.CheckValue( result!.RangeStart );
-            info.RangeEnd.CheckValue( result.RangeEnd );
+        info.RangeStart.CheckValue( result!.RangeStart );
+        info.RangeEnd.CheckValue( result.RangeEnd );
 
-            info.MinorTick.CheckValue( result.MinorValue );
-            info.MajorTick.CheckValue( result.MajorValue );
-        }
+        info.MinorTick.CheckValue( result.MinorValue );
+        info.MajorTick.CheckValue( result.MajorValue );
     }
 }

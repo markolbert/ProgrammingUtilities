@@ -20,26 +20,25 @@
 using System;
 using System.Collections.Generic;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public interface ITickRange
 {
-    public interface ITickRange
-    {
-        bool IsSupported( Type toCheck );
-        bool IsSupported<T>();
+    bool IsSupported( Type toCheck );
+    bool IsSupported<T>();
 
-        bool Configure( ITickRangeConfig config );
+    bool Configure( ITickRangeConfig config );
 
-        bool GetRange( double controlSize, object minValue, object maxValue, out object? result );
-        List<object> GetRanges( double controlSize, object minValue, object maxValue );
-        bool GetRange( double controlSize, int tickSize, object minValue, object maxValue, out object? result );
-    }
+    bool GetRange( double controlSize, object minValue, object maxValue, out object? result );
+    List<object> GetRanges( double controlSize, object minValue, object maxValue );
+    bool GetRange( double controlSize, int tickSize, object minValue, object maxValue, out object? result );
+}
 
-    public interface ITickRange<in TValue, TResult> : ITickRange
-        where TValue : IComparable
-        where TResult : class
-    {
-        bool GetRange( double controlSize, TValue minValue, TValue maxValue, out TResult? result );
-        List<TResult> GetRanges( double controlSize, TValue minValue, TValue maxValue );
-        bool GetRange( double controlSize, int tickSize, TValue minValue, TValue maxValue, out TResult? result );
-    }
+public interface ITickRange<in TValue, TResult> : ITickRange
+    where TValue : IComparable
+    where TResult : class
+{
+    bool GetRange( double controlSize, TValue minValue, TValue maxValue, out TResult? result );
+    List<TResult> GetRanges( double controlSize, TValue minValue, TValue maxValue );
+    bool GetRange( double controlSize, int tickSize, TValue minValue, TValue maxValue, out TResult? result );
 }

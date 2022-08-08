@@ -19,11 +19,10 @@
 
 using System;
 
-namespace J4JSoftware.Utilities
+namespace J4JSoftware.Utilities;
+
+public interface ISortable<TNode> : IEquatable<TNode>
+    where TNode : class
 {
-    public interface ISortable<TNode> : IEquatable<TNode>
-        where TNode : class
-    {
-        TNode? Predecessor { get; set; }
-    }
+    TNode? Predecessor { get; set; }
 }

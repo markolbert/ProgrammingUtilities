@@ -19,15 +19,14 @@
 
 using System;
 
-namespace J4JSoftware.Utilities
-{
-    public interface IAction
-    {
-        bool Process( object src );
-    }
+namespace J4JSoftware.Utilities;
 
-    public interface IAction<TSource> : IAction, IEquatable<IAction<TSource>>
-    {
-        bool Process( TSource src );
-    }
+public interface IAction
+{
+    bool Process( object src );
+}
+
+public interface IAction<TSource> : IAction, IEquatable<IAction<TSource>>
+{
+    bool Process( TSource src );
 }

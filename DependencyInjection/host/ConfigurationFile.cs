@@ -21,82 +21,81 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+public class ConfigurationFile
 {
-    public class ConfigurationFile
+    private sealed class FilePathEqualityComparer : IEqualityComparer<ConfigurationFile>
     {
-        private sealed class FilePathEqualityComparer : IEqualityComparer<ConfigurationFile>
+        private readonly StringComparison _textComparison;
+
+        public FilePathEqualityComparer( StringComparison textComparison )
         {
-            private readonly StringComparison _textComparison;
-
-            public FilePathEqualityComparer( StringComparison textComparison )
-            {
-                _textComparison = textComparison;
-            }
-
-            public bool Equals( ConfigurationFile? x, ConfigurationFile? y )
-            {
-                if( ReferenceEquals( x, y ) ) return true;
-                if( ReferenceEquals( x, null ) ) return false;
-                if( ReferenceEquals( y, null ) ) return false;
-                if( x.GetType() != y.GetType() ) return false;
-
-                return string.Equals( x.FilePath, y.FilePath, _textComparison );
-            }
-
-            public int GetHashCode( ConfigurationFile obj )
-            {
-                return obj.FilePath.GetHashCode();
-            }
+            _textComparison = textComparison;
         }
 
-        public static IEqualityComparer<ConfigurationFile> CaseSensitiveComparer { get; } =
-            new FilePathEqualityComparer( StringComparison.Ordinal );
-
-        public static IEqualityComparer<ConfigurationFile> CaseInsensitiveComparer { get; } =
-            new FilePathEqualityComparer( StringComparison.OrdinalIgnoreCase );
-
-        private readonly J4JHostConfiguration _hostConfig;
-        private readonly ConfigurationFileType _configType;
-        private readonly string _filePath;
-
-        public ConfigurationFile(
-            J4JHostConfiguration hostConfig,
-            ConfigurationFileType configType,
-            string filePath,
-            bool optional = true,
-            bool reloadOnChange = false
-        )
+        public bool Equals( ConfigurationFile? x, ConfigurationFile? y )
         {
-            _hostConfig = hostConfig;
-            _configType = configType;
+            if( ReferenceEquals( x, y ) ) return true;
+            if( ReferenceEquals( x, null ) ) return false;
+            if( ReferenceEquals( y, null ) ) return false;
+            if( x.GetType() != y.GetType() ) return false;
 
-            _filePath = filePath;
-            Optional = optional;
-            ReloadOnChange = reloadOnChange;
+            return string.Equals( x.FilePath, y.FilePath, _textComparison );
         }
 
-        public string FilePath
+        public int GetHashCode( ConfigurationFile obj )
         {
-            get
-            {
-                if( string.IsNullOrEmpty( _filePath ) )
-                    return string.Empty;
-
-                if( Path.IsPathRooted(_filePath))
-                    return _filePath;
-
-                var folder = _configType == ConfigurationFileType.Application
-                    ? _hostConfig.ApplicationConfigurationFolder
-                    : _hostConfig.UserConfigurationFolder;
-
-                return Path.Combine( folder, _filePath );
-            }
+            return obj.FilePath.GetHashCode();
         }
-
-        public bool Optional { get; }
-        public bool ReloadOnChange { get; }
-
-        public bool FilePathIsRooted => Path.IsPathRooted( FilePath );
     }
+
+    public static IEqualityComparer<ConfigurationFile> CaseSensitiveComparer { get; } =
+        new FilePathEqualityComparer( StringComparison.Ordinal );
+
+    public static IEqualityComparer<ConfigurationFile> CaseInsensitiveComparer { get; } =
+        new FilePathEqualityComparer( StringComparison.OrdinalIgnoreCase );
+
+    private readonly J4JHostConfiguration _hostConfig;
+    private readonly ConfigurationFileType _configType;
+    private readonly string _filePath;
+
+    public ConfigurationFile(
+        J4JHostConfiguration hostConfig,
+        ConfigurationFileType configType,
+        string filePath,
+        bool optional = true,
+        bool reloadOnChange = false
+    )
+    {
+        _hostConfig = hostConfig;
+        _configType = configType;
+
+        _filePath = filePath;
+        Optional = optional;
+        ReloadOnChange = reloadOnChange;
+    }
+
+    public string FilePath
+    {
+        get
+        {
+            if( string.IsNullOrEmpty( _filePath ) )
+                return string.Empty;
+
+            if( Path.IsPathRooted(_filePath))
+                return _filePath;
+
+            var folder = _configType == ConfigurationFileType.Application
+                ? _hostConfig.ApplicationConfigurationFolder
+                : _hostConfig.UserConfigurationFolder;
+
+            return Path.Combine( folder, _filePath );
+        }
+    }
+
+    public bool Optional { get; }
+    public bool ReloadOnChange { get; }
+
+    public bool FilePathIsRooted => Path.IsPathRooted( FilePath );
 }

@@ -20,38 +20,37 @@
 using System;
 using J4JSoftware.Utilities;
 
-namespace Test.MiscellaneousUtilities
+namespace Test.MiscellaneousUtilities;
+
+public class RangeOfNumbers
 {
-    public class RangeOfNumbers
-    {
-        public int ControlSize { get; set; }
-        public decimal Minimum { get; set; }
-        public decimal Maximum { get; set; }
-        public RoundedDecimal MinorTick { get; set; } = new( 0 );
-        public RoundedDecimal MajorTick { get; set; } = new( 0 );
-        public RoundedDecimal RangeStart { get; set; } = new( 0 );
-        public RoundedDecimal RangeEnd { get; set; } = new( 0 );
-    }
+    public int ControlSize { get; set; }
+    public decimal Minimum { get; set; }
+    public decimal Maximum { get; set; }
+    public RoundedDecimal MinorTick { get; set; } = new( 0 );
+    public RoundedDecimal MajorTick { get; set; } = new( 0 );
+    public RoundedDecimal RangeStart { get; set; } = new( 0 );
+    public RoundedDecimal RangeEnd { get; set; } = new( 0 );
+}
 
-    public class SingleNumbers : RangeOfNumbers
-    {
-        public int TickSize { get; set; }
-    }
+public class SingleNumbers : RangeOfNumbers
+{
+    public int TickSize { get; set; }
+}
 
-    public class RangeOfDates : IDateTimeTickRangeConfig
-    {
-        public bool TraditionalMonthsPerMinorOnly { get; set; }
-        public int ControlSize { get; set; }
-        public DateTime Minimum { get; set; }
-        public DateTime Maximum { get; set; }
-        public int MinorTick { get; set; }
-        public int MajorTick { get; set; }
-        public DateTime RangeStart { get; set; }
-        public DateTime RangeEnd { get; set; }
-    }
+public class RangeOfDates : IDateTimeTickRangeConfig
+{
+    public bool TraditionalMonthsPerMinorOnly { get; set; }
+    public int ControlSize { get; set; }
+    public DateTime Minimum { get; set; }
+    public DateTime Maximum { get; set; }
+    public int MinorTick { get; set; }
+    public int MajorTick { get; set; }
+    public DateTime RangeStart { get; set; }
+    public DateTime RangeEnd { get; set; }
+}
 
-    public class SingleDates : RangeOfDates
-    {
-        public int TickSize { get; set; }
-    }
+public class SingleDates : RangeOfDates
+{
+    public int TickSize { get; set; }
 }

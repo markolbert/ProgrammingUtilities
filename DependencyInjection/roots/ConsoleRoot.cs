@@ -20,34 +20,33 @@
 using System;
 using Microsoft.Extensions.Hosting;
 
-namespace J4JSoftware.DependencyInjection
+namespace J4JSoftware.DependencyInjection;
+
+[ Obsolete( "Use J4JHostConfiguration IHostBuilder instead" ) ]
+public class ConsoleRoot : CompositionRoot
 {
-    [ Obsolete( "Use J4JHostConfiguration IHostBuilder instead" ) ]
-    public class ConsoleRoot : CompositionRoot
+    protected ConsoleRoot( string publisher,
+        string appName,
+        bool useConsoleLifetime = true,
+        string? dataProtectionPurpose = null,
+        string osName = "Windows",
+        Func<Type?, string, int, string, string>? filePathTrimmer = null )
+        : base( publisher, appName, dataProtectionPurpose, osName, filePathTrimmer )
     {
-        protected ConsoleRoot( string publisher,
-                               string appName,
-                               bool useConsoleLifetime = true,
-                               string? dataProtectionPurpose = null,
-                               string osName = "Windows",
-                               Func<Type?, string, int, string, string>? filePathTrimmer = null )
-            : base( publisher, appName, dataProtectionPurpose, osName, filePathTrimmer )
-        {
-            UseConsoleLifetime = useConsoleLifetime;
-        }
+        UseConsoleLifetime = useConsoleLifetime;
+    }
 
-        public bool UseConsoleLifetime { get; }
-        public override string ApplicationConfigurationFolder => Environment.CurrentDirectory;
+    public bool UseConsoleLifetime { get; }
+    public override string ApplicationConfigurationFolder => Environment.CurrentDirectory;
 
-        protected override bool Build()
-        {
-            // we need to update HostBuilder >>before<< the build actually takes place
-            // because after the host is built HostBuilder will be null. That's why
-            // we don't call the base method first
-            if ( UseConsoleLifetime )
-                HostBuilder!.UseConsoleLifetime();
+    protected override bool Build()
+    {
+        // we need to update HostBuilder >>before<< the build actually takes place
+        // because after the host is built HostBuilder will be null. That's why
+        // we don't call the base method first
+        if ( UseConsoleLifetime )
+            HostBuilder!.UseConsoleLifetime();
 
-            return base.Build();
-        }
+        return base.Build();
     }
 }
