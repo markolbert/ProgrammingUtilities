@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace J4JSoftware.DependencyInjection;
 
-public class DecoratedTypeTester<T> : ConstructorTesterBase<T>
+public class DecoratedTypeTester<T> : ITypeTester
     where T : class
 {
     private readonly bool _allowInherited;
@@ -17,9 +17,9 @@ public class DecoratedTypeTester<T> : ConstructorTesterBase<T>
         _requiredAttribute = typeof(Attribute).IsAssignableFrom(requiredAttribute) ? requiredAttribute : null;
     }
 
-    public override bool MeetsRequirements( Type toCheck )
+    public bool MeetsRequirements( Type toCheck )
     {
-        if( !base.MeetsRequirements( toCheck ) || _requiredAttribute == null )
+        if( _requiredAttribute == null )
             return false;
 
         var typeAttributes = toCheck.GetCustomAttributes( _allowInherited );

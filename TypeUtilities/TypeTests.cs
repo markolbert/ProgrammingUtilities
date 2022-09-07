@@ -16,6 +16,9 @@ public class TypeTests<T> : IEnumerable<ITypeTester>
 
     public IEnumerator<ITypeTester> GetEnumerator()
     {
+        // always start by checking if the type being tested is assignable from type T
+        yield return new IsAssignableFrom<T>();
+
         foreach( var test in Tests )
         {
             yield return test;

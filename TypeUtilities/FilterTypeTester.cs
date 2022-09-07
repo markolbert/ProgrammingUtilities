@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace J4JSoftware.DependencyInjection;
 
-public class FilterTypeTester<T> : ConstructorTesterBase<T>
+public class FilterTypeTester<T> : ITypeTester
     where T : class
 {
     private readonly Func<Type, bool> _filter;
@@ -16,5 +16,5 @@ public class FilterTypeTester<T> : ConstructorTesterBase<T>
         _filter = filter;
     }
 
-    public override bool MeetsRequirements( Type toCheck ) => base.MeetsRequirements( toCheck ) && _filter( toCheck );
+    public bool MeetsRequirements( Type toCheck ) => _filter( toCheck );
 }

@@ -24,7 +24,7 @@ using System.Reflection;
 
 namespace J4JSoftware.DependencyInjection;
 
-public class ConstructorParameterTester<T> : ConstructorTesterBase<T>
+public class ConstructorParameterTester<T> : ITypeTester
     where T : class
 {
     private readonly List<Type> _reqdParameters;
@@ -39,11 +39,8 @@ public class ConstructorParameterTester<T> : ConstructorTesterBase<T>
         _reqdParameters = reqdParameters.ToList();
     }
 
-    public override bool MeetsRequirements( Type toCheck )
+    public bool MeetsRequirements( Type toCheck )
     {
-        if( !base.MeetsRequirements( toCheck ) )
-            return false;
-
         if( !_reqdParameters.Any() )
             return true;
 
