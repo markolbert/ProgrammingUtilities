@@ -69,11 +69,7 @@ public static class TypeTesterExtensions
         assemblyList.Add( typeof( T ).Assembly );
 
         var temp = builder.RegisterAssemblyTypes( assemblyList.Distinct().ToArray() )
-                          .Where( t => tests.All( x =>
-                           {
-                               var retVal = x.MeetsRequirements( t );
-                               return retVal;
-                           } ) )
+                          .Where( t => tests.All( x => x.MeetsRequirements( t ) ) )
                           .AsImplementedInterfaces();
 
         if ( registerAsSelf )
