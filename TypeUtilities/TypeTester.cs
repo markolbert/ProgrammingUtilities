@@ -18,6 +18,7 @@
 #endregion
 
 using System;
+using System.Linq;
 
 namespace J4JSoftware.DependencyInjection;
 
@@ -25,6 +26,7 @@ public class TypeTester : ITypeTester
 {
     public static TypeTester NonAbstract { get; } = new( x => !x.IsAbstract );
     public static TypeTester NonGeneric { get; } = new( x => !x.IsGenericType );
+    public static TypeTester PublicConstructors { get; } = new( x => x.GetConstructors().Any() );
 
     private readonly Func<Type, bool>[] _testers;
 

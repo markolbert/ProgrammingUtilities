@@ -19,6 +19,8 @@ public class TypeTests<T> : IEnumerable<ITypeTester>
         // always start by checking if the type being tested is assignable from type T
         yield return new IsAssignableFrom<T>();
 
+        yield return new HasPublicConstructors<T>();
+
         foreach( var test in Tests )
         {
             yield return test;
