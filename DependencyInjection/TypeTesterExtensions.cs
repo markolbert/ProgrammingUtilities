@@ -57,10 +57,12 @@ public static class TypeTesterExtensions
     }
 
 
-    public static ContainerBuilder RegisterTypeAssemblies<T>( this ContainerBuilder builder,
+    public static ContainerBuilder RegisterTypeAssemblies<T>(
+        this ContainerBuilder builder,
         IEnumerable<Assembly> assemblies,
         bool registerAsSelf,
-        params ITypeTester[] tests )
+        params ITypeTester[] tests
+    )
         where T : class
     {
         var assemblyList = assemblies.ToList();
@@ -72,7 +74,7 @@ public static class TypeTesterExtensions
                           .Where( t => tests.All( x => x.MeetsRequirements( t ) ) )
                           .AsImplementedInterfaces();
 
-        if ( registerAsSelf )
+        if( registerAsSelf )
             temp.AsSelf();
 
         return builder;

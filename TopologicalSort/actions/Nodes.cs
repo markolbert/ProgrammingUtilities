@@ -41,21 +41,10 @@ public class Nodes<T>
         _dependencies.Clear();
     }
 
-    public bool ValuesAreEqual( T x, T y )
-    {
-        if( _comparer == null )
-            return x.Equals( y );
+    public bool ValuesAreEqual( T x, T y ) => _comparer?.Equals( x, y ) ?? x.Equals( y );
 
-        return _comparer.Equals( x, y );
-    }
-
-    public bool NodesAreEqual( Node<T> x, Node<T> y )
-    {
-        if( _comparer == null )
-            return x.Value.Equals( y.Value );
-
-        return _comparer.Equals( x.Value, y.Value );
-    }
+    public bool NodesAreEqual( Node<T> x, Node<T> y ) =>
+        _comparer?.Equals( x.Value, y.Value ) ?? x.Value.Equals( y.Value );
 
     public bool DependenciesAreEqual( NodeDependency<T> x, NodeDependency<T> y )
     {
