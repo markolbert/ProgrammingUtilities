@@ -11,7 +11,6 @@ namespace J4JSoftware.QB2LGL;
 public class ImportDataLayer : IImportDataLayer
 {
     private readonly DbContext _dbContext;
-    private readonly DbExtensions.HashContext _hashContext = new();
     private readonly IJ4JLogger _logger;
 
     public ImportDataLayer(
