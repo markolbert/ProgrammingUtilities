@@ -26,6 +26,7 @@ using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Configuration.CommandLine;
+using J4JSoftware.Configuration.CommandLine.Deprecated;
 using J4JSoftware.DependencyInjection.host;
 using J4JSoftware.Logging;
 using J4JSoftware.Utilities;
@@ -273,17 +274,17 @@ public static class J4JHostConfigurationExtensions
             return null;
         }
 
-        var cmdLinePath = GetCommandLinePaths( config );
+        var cmdLinePath = GetCommandLinePath(config);
 
-        if( cmdLinePath != null )
+        if (cmdLinePath != null)
         {
             config.ApplicationConfigurationFiles.Clear();
 
-            config.ApplicationConfigurationFiles.Add( new ConfigurationFile( config,
+            config.ApplicationConfigurationFiles.Add(new ConfigurationFile(config,
                                                                              ConfigurationFileType.Application,
                                                                              cmdLinePath.Path,
                                                                              cmdLinePath.IsRequired,
-                                                                             cmdLinePath.ReloadOnChange ) );
+                                                                             cmdLinePath.ReloadOnChange));
         }
 
         foreach ( var configurator in config.EnvironmentInitializers )
@@ -323,33 +324,57 @@ public static class J4JHostConfigurationExtensions
         return config.Host;
     }
 
-    private static CommandLinePath? GetCommandLinePaths( J4JHostConfiguration config )
+    // we have to parse the command line from scratch so we don't interfere with
+    // the IConfiguration subsystem, which doesn't like parsing command lines twice
+    private static CommandLinePath? GetCommandLinePath( J4JHostConfiguration hostConfig )
     {
-        if( config.CommandLineConfiguration is not { CommandLineConfigurationFile: {} cmdConfig } )
+        if( hostConfig.CommandLineConfiguration is not {} cmdConfig )
             return null;
 
-        // build a temporary IConfigurationRoot to extract the configuration file path
-        // from the command line, if one exists
-        var configBuilder = new ConfigurationBuilder();
-        config.SetupCommandLineParsing( configBuilder );
-        var configRoot = configBuilder.Build();
+        if( cmdConfig.OptionsInitializer == null )
+            return null;
 
-        try
+        // we create default values for missing required parameters, sometimes based on the 
+        // type of operating system specified
+        var textConverters = cmdConfig.TextConverters ?? new TextConverters();
+
+        var options = new OptionCollection( hostConfig.CommandLineTextComparison,
+                                            textConverters,
+                                            hostConfig.Logger );
+
+        cmdConfig.OptionsInitializer( options );
+        options.FinishConfiguration();
+
+        var optionsGenerator = new OptionsGenerator( options, hostConfig.CommandLineTextComparison, hostConfig.Logger );
+
+        var lexicalElements = cmdConfig.OperatingSystem switch
         {
-            var configObj = configRoot.Get( cmdConfig.ConfigurationObjectType );
-            var propValue = cmdConfig.Property.GetValue( configObj );
+            CommandLineOperatingSystems.Windows =>
+                new WindowsLexicalElements(hostConfig.Logger),
+            CommandLineOperatingSystems.Linux =>
+                new LinuxLexicalElements(hostConfig.Logger),
+            _ => (LexicalElements?) null
+        };
 
-            if( propValue is string filePath )
-                return new CommandLinePath( filePath, cmdConfig.IsRequired, cmdConfig.ReloadOnChange );
+        if( lexicalElements == null )
+            return null;
 
-            config.Logger.Error(
-                "Command line configuration file path option is not a string" );
-        }
-        catch( Exception ex )
-        {
-            config.Logger.Error<string>( "Could not parse command line, message was '{0}'", ex.Message );
-        }
+        var parsingTable = new ParsingTable( optionsGenerator, hostConfig.Logger );
+        var tokenizer = new Tokenizer( lexicalElements, hostConfig.Logger );
 
-        return null;
+        var parser = new Parser( options, parsingTable, tokenizer, hostConfig.Logger );
+
+        var rawCmdLine = new RawCommandLine().GetRawCommandLine();
+
+        if( !parser.Parse( rawCmdLine ) )
+            return null;
+
+        var path = options[ "c" ]?.Values.FirstOrDefault();
+        if( string.IsNullOrEmpty(path))
+            return null;
+
+        return new CommandLinePath( path,
+                                    cmdConfig.CommandLineConfigurationFile!.IsRequired,
+                                    cmdConfig.CommandLineConfigurationFile.ReloadOnChange );
     }
 }
