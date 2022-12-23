@@ -26,7 +26,6 @@ using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Configuration.CommandLine;
-using J4JSoftware.Configuration.CommandLine.Deprecated;
 using J4JSoftware.DependencyInjection.host;
 using J4JSoftware.Logging;
 using J4JSoftware.Utilities;
@@ -349,16 +348,24 @@ public static class J4JHostConfigurationExtensions
 
         var parser = new Parser( optionCollection, parsingTable, tokenizer, hostConfig.Logger );
 
-        var rawCmdLine = new RawCommandLine().GetRawCommandLine();
-
-        if( !parser.Parse( rawCmdLine ) )
-            return null;
-
-        var retVal = new List<CommandLinePath>();
-
         var pathComparer = hostConfig.CaseSensitiveFileSystem
             ? StringComparison.Ordinal
             : StringComparison.OrdinalIgnoreCase;
+
+        // grab the command line
+        // we don't want the name of the executable so we need to remove it
+        // it's the first argument in what gets returned by Environment.GetCommandLineArgs()
+        var temp = Environment.GetCommandLineArgs();
+        var cmdLine = Environment.CommandLine;
+
+        cmdLine = cmdLine.IndexOf(temp[0], pathComparer) == 0
+            ? cmdLine.Replace(temp[0], string.Empty)
+            : cmdLine;
+
+        if( !parser.Parse( cmdLine ) )
+            return null;
+
+        var retVal = new List<CommandLinePath>();
 
         foreach( var cmdKey in fileKeys.CommandLineKeys )
         {
