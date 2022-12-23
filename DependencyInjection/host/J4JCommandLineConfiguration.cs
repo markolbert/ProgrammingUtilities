@@ -35,6 +35,8 @@ public class J4JCommandLineConfiguration
     public J4JHostConfiguration HostConfiguration { get; }
     internal CommandLineOperatingSystems OperatingSystem { get; }
 
+    internal CommandLineConfigurationFile? CommandLineConfigurationFile { get; set; }
+
     internal ILexicalElements? LexicalElements { get; set; }
     internal ITextConverters? TextConverters { get; set; }
     internal IOptionsGenerator? OptionsGenerator { get; set; }

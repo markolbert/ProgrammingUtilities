@@ -18,13 +18,17 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Configuration.CommandLine;
 using J4JSoftware.DependencyInjection.host;
 using J4JSoftware.Logging;
+using J4JSoftware.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -34,6 +38,8 @@ namespace J4JSoftware.DependencyInjection;
 
 public static class J4JHostConfigurationExtensions
 {
+    private record CommandLinePath(string Path, bool IsRequired, bool ReloadOnChange);
+
     public static string ToText( this J4JHostRequirements requirements )
     {
         var sb = new StringBuilder();
@@ -211,8 +217,10 @@ public static class J4JHostConfigurationExtensions
         return config;
     }
 
-    public static J4JCommandLineConfiguration OptionsInitializer( this J4JCommandLineConfiguration config,
-        Action<OptionCollection> initializer )
+    public static J4JCommandLineConfiguration OptionsInitializer(
+        this J4JCommandLineConfiguration config,
+        Action<OptionCollection> initializer
+    )
     {
         config.OptionsInitializer = initializer;
         config.HostConfiguration.ConfigurationInitializers.Add( config.HostConfiguration.SetupCommandLineParsing );
@@ -220,16 +228,63 @@ public static class J4JHostConfigurationExtensions
         return config;
     }
 
+    public static J4JCommandLineConfiguration CommandLineConfigurationFile<TConfig>(
+        this J4JCommandLineConfiguration config,
+        Expression<Func<TConfig, string>> selector,
+        bool isRequired = true,
+        bool reloadOnChange = false
+    )
+        where TConfig : class, new()
+    {
+        PropertyInfo? propInfo = null;
+
+        try
+        {
+            propInfo = selector.GetPropertyInfo();
+        }
+        catch( Exception ex )
+        {
+            config.HostConfiguration.Logger.Error( ex.Message );
+            config.CommandLineConfigurationFile = null;
+
+            return config;
+        }
+
+        config.CommandLineConfigurationFile =
+            new CommandLineConfigurationFile( propInfo, typeof( TConfig ), isRequired, reloadOnChange );
+
+        return config;
+    }
+
     public static IJ4JHost? Build( this J4JHostConfiguration config )
     {
-        if ( config.MissingRequirements != J4JHostRequirements.AllMet )
+        if( config.MissingRequirements != J4JHostRequirements.AllMet )
+        {
+            config.Logger.Fatal("J4JHostConfiguration: some or all requirements not met");
             return null;
+        }
 
         var hostBuilder = new HostBuilder()
            .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
 
-        if ( hostBuilder == null )
+        if( hostBuilder == null )
+        {
+            config.Logger.Fatal( "Failed to create HostBuilder using the AutofacServiceProviderFactory" );
             return null;
+        }
+
+        var cmdLinePath = GetCommandLinePaths( config );
+
+        if( cmdLinePath != null )
+        {
+            config.ApplicationConfigurationFiles.Clear();
+
+            config.ApplicationConfigurationFiles.Add( new ConfigurationFile( config,
+                                                                             ConfigurationFileType.Application,
+                                                                             cmdLinePath.Path,
+                                                                             cmdLinePath.IsRequired,
+                                                                             cmdLinePath.ReloadOnChange ) );
+        }
 
         foreach ( var configurator in config.EnvironmentInitializers )
         {
@@ -266,5 +321,35 @@ public static class J4JHostConfigurationExtensions
         };
 
         return config.Host;
+    }
+
+    private static CommandLinePath? GetCommandLinePaths( J4JHostConfiguration config )
+    {
+        if( config.CommandLineConfiguration is not { CommandLineConfigurationFile: {} cmdConfig } )
+            return null;
+
+        // build a temporary IConfigurationRoot to extract the configuration file path
+        // from the command line, if one exists
+        var configBuilder = new ConfigurationBuilder();
+        config.SetupCommandLineParsing( configBuilder );
+        var configRoot = configBuilder.Build();
+
+        try
+        {
+            var configObj = configRoot.Get( cmdConfig.ConfigurationObjectType );
+            var propValue = cmdConfig.Property.GetValue( configObj );
+
+            if( propValue is string filePath )
+                return new CommandLinePath( filePath, cmdConfig.IsRequired, cmdConfig.ReloadOnChange );
+
+            config.Logger.Error(
+                "Command line configuration file path option is not a string" );
+        }
+        catch( Exception ex )
+        {
+            config.Logger.Error<string>( "Could not parse command line, message was '{0}'", ex.Message );
+        }
+
+        return null;
     }
 }
