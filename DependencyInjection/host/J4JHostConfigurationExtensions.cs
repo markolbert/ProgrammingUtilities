@@ -229,31 +229,14 @@ public static class J4JHostConfigurationExtensions
         return config;
     }
 
-    public static J4JCommandLineConfiguration CommandLineConfigurationFile<TConfig>(
+    public static J4JCommandLineConfiguration ConfigurationFileKeys(
         this J4JCommandLineConfiguration config,
-        Expression<Func<TConfig, string>> selector,
-        bool isRequired = true,
-        bool reloadOnChange = false
+        bool required,
+        bool reloadOnChange,
+        params string[] optionKeys
     )
-        where TConfig : class, new()
     {
-        PropertyInfo? propInfo = null;
-
-        try
-        {
-            propInfo = selector.GetPropertyInfo();
-        }
-        catch( Exception ex )
-        {
-            config.HostConfiguration.Logger.Error( ex.Message );
-            config.CommandLineConfigurationFile = null;
-
-            return config;
-        }
-
-        config.CommandLineConfigurationFile =
-            new CommandLineConfigurationFile( propInfo, typeof( TConfig ), isRequired, reloadOnChange );
-
+        config.ConfigurationFileKeys = new ConfigurationFileKeys( required, reloadOnChange, optionKeys );
         return config;
     }
 
@@ -274,17 +257,20 @@ public static class J4JHostConfigurationExtensions
             return null;
         }
 
-        var cmdLinePath = GetCommandLinePath(config);
+        var cmdLinePaths = GetCommandLinePaths(config);
 
-        if (cmdLinePath != null)
+        if (cmdLinePaths != null)
         {
             config.ApplicationConfigurationFiles.Clear();
 
-            config.ApplicationConfigurationFiles.Add(new ConfigurationFile(config,
-                                                                             ConfigurationFileType.Application,
-                                                                             cmdLinePath.Path,
-                                                                             cmdLinePath.IsRequired,
-                                                                             cmdLinePath.ReloadOnChange));
+            foreach( var cmdLinePath in cmdLinePaths)
+            {
+                config.ApplicationConfigurationFiles.Add(new ConfigurationFile(config,
+                                                                            ConfigurationFileType.Application,
+                                                                            cmdLinePath.Path,
+                                                                            cmdLinePath.IsRequired,
+                                                                            cmdLinePath.ReloadOnChange));
+            }
         }
 
         foreach ( var configurator in config.EnvironmentInitializers )
@@ -326,26 +312,25 @@ public static class J4JHostConfigurationExtensions
 
     // we have to parse the command line from scratch so we don't interfere with
     // the IConfiguration subsystem, which doesn't like parsing command lines twice
-    private static CommandLinePath? GetCommandLinePath( J4JHostConfiguration hostConfig )
+    private static List<CommandLinePath>? GetCommandLinePaths( J4JHostConfiguration hostConfig )
     {
-        if( hostConfig.CommandLineConfiguration is not {} cmdConfig )
-            return null;
-
-        if( cmdConfig.OptionsInitializer == null )
+        if( hostConfig.CommandLineConfiguration is not {} cmdConfig 
+           || cmdConfig.OptionsInitializer == null 
+           || cmdConfig.ConfigurationFileKeys is not {} fileKeys )
             return null;
 
         // we create default values for missing required parameters, sometimes based on the 
         // type of operating system specified
         var textConverters = cmdConfig.TextConverters ?? new TextConverters();
 
-        var options = new OptionCollection( hostConfig.CommandLineTextComparison,
+        var optionCollection = new OptionCollection( hostConfig.CommandLineTextComparison,
                                             textConverters,
                                             hostConfig.Logger );
 
-        cmdConfig.OptionsInitializer( options );
-        options.FinishConfiguration();
+        cmdConfig.OptionsInitializer( optionCollection );
+        optionCollection.FinishConfiguration();
 
-        var optionsGenerator = new OptionsGenerator( options, hostConfig.CommandLineTextComparison, hostConfig.Logger );
+        var optionsGenerator = new OptionsGenerator( optionCollection, hostConfig.CommandLineTextComparison, hostConfig.Logger );
 
         var lexicalElements = cmdConfig.OperatingSystem switch
         {
@@ -362,19 +347,54 @@ public static class J4JHostConfigurationExtensions
         var parsingTable = new ParsingTable( optionsGenerator, hostConfig.Logger );
         var tokenizer = new Tokenizer( lexicalElements, hostConfig.Logger );
 
-        var parser = new Parser( options, parsingTable, tokenizer, hostConfig.Logger );
+        var parser = new Parser( optionCollection, parsingTable, tokenizer, hostConfig.Logger );
 
         var rawCmdLine = new RawCommandLine().GetRawCommandLine();
 
         if( !parser.Parse( rawCmdLine ) )
             return null;
 
-        var path = options[ "c" ]?.Values.FirstOrDefault();
-        if( string.IsNullOrEmpty(path))
-            return null;
+        var retVal = new List<CommandLinePath>();
 
-        return new CommandLinePath( path,
-                                    cmdConfig.CommandLineConfigurationFile!.IsRequired,
-                                    cmdConfig.CommandLineConfigurationFile.ReloadOnChange );
+        var pathComparer = hostConfig.CaseSensitiveFileSystem
+            ? StringComparison.Ordinal
+            : StringComparison.OrdinalIgnoreCase;
+
+        foreach( var cmdKey in fileKeys.CommandLineKeys )
+        {
+            if( optionCollection[cmdKey] is not {} curOption )
+                continue;
+
+            if( !curOption.GetValue(out var curPath ))
+                continue;
+
+            switch( curPath )
+            {
+                case string singlePath:
+                    var newCmdLinePath = new CommandLinePath( singlePath, fileKeys.Required, fileKeys.ReloadOnChange );
+                    if( !retVal.Any( x => string.Equals(x.Path, newCmdLinePath.Path, pathComparer ) ) )
+                        retVal.Add( newCmdLinePath );
+
+                    break;
+
+                case IEnumerable<string> multiplePaths:
+                    foreach( var filePath in multiplePaths )
+                    {
+                        var newCmdLinePath2 = new CommandLinePath(filePath, fileKeys.Required, fileKeys.ReloadOnChange);
+                        if (!retVal.Any(x => string.Equals(x.Path, newCmdLinePath2.Path, pathComparer)))
+                            retVal.Add(newCmdLinePath2);
+                    }
+
+                    break;
+
+                default:
+                    hostConfig.Logger.Warning<string>(
+                        "Command line option for '{0}' is not a string or an IEnumerable<string>",
+                        cmdKey );
+                    break;
+            }
+        }
+
+        return retVal;
     }
 }
