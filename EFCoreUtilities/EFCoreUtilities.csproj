@@ -19,7 +19,7 @@
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<PackageReleaseNotes>updated to net7, see changes.md</PackageReleaseNotes>
-		<PackageReleaseNotes>readme.md</PackageReleaseNotes>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
