@@ -19,10 +19,12 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Versioning;
 
 namespace J4JSoftware.Utilities;
 
-public interface ISelectableEntity<TEntity, TKey> : INotifyPropertyChanged
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
+public interface ISelectableEntity<out TEntity, out TKey> : INotifyPropertyChanged
     where TEntity : class, ISelectableEntity<TEntity, TKey>
 {
     TEntity Entity { get; }

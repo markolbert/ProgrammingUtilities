@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.Utilities;
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public class TickRanges
 {
     private readonly List<ITickRange> _rangers;

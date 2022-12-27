@@ -19,9 +19,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 
 namespace J4JSoftware.Utilities;
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public class DefaultSelectableEntityComparer<TEntity, TKey> : IComparer<TEntity>
     where TEntity : class, ISelectableEntity<TEntity, TKey>
 {

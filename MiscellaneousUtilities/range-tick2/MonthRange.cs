@@ -18,9 +18,11 @@
 #endregion
 
 using System;
+using System.Runtime.Versioning;
 
 namespace J4JSoftware.Utilities;
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public record MonthRange( int TickSize,
     int MinorValue,
     int MajorValue,

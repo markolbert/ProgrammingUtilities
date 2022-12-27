@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.Utilities;
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public class NumericTickRange : ITickRange<decimal, NumericRange>
 {
     public static List<NumericTick> NumericTicks { get; } = new List<NumericTick>();

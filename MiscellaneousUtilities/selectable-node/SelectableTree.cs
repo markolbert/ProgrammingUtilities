@@ -20,10 +20,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.Versioning;
 using J4JSoftware.Logging;
 
 namespace J4JSoftware.Utilities;
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, TKey>
     where TKey : notnull
     where TEntity : class, ISelectableEntity<TEntity, TKey>

@@ -19,9 +19,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 
 namespace J4JSoftware.Utilities;
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public interface ITickRange
 {
     bool IsSupported( Type toCheck );
@@ -34,6 +36,7 @@ public interface ITickRange
     bool GetRange( double controlSize, int tickSize, object minValue, object maxValue, out object? result );
 }
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public interface ITickRange<in TValue, TResult> : ITickRange
     where TValue : IComparable
     where TResult : class

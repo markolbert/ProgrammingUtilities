@@ -17,17 +17,22 @@
 
 #endregion
 
+using System.Runtime.Versioning;
+
 namespace J4JSoftware.Utilities;
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public interface ITickRangeConfig
 {
 }
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public interface INumericTickRangeConfig : ITickRangeConfig
 {
     TickSizePreference TickSizePreference { get; }
 }
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public interface IDateTimeTickRangeConfig : ITickRangeConfig
 {
     bool TraditionalMonthsPerMinorOnly { get; }

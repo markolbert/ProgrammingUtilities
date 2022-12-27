@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.Versioning;
 
 namespace J4JSoftware.Utilities;
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public static class SelectableEntityExtensions
 {
     public static void SetTree<TEntity, TKey>( this ISelectableTree<TEntity, TKey> tree )

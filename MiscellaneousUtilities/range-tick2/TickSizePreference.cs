@@ -17,8 +17,11 @@
 
 #endregion
 
+using System.Runtime.Versioning;
+
 namespace J4JSoftware.Utilities;
 
+[RequiresPreviewFeatures("Experimental, subject to change or removal")]
 public enum TickSizePreference
 {
     Smallest,
