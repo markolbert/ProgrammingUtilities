@@ -8,7 +8,7 @@ This assembly provides:
 
 This assembly targets Net 7 and has nullability enabled.
 
-The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/docs/topo-sort.md).
+The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/TopologicalSort/docs/readme.md).
 
 The change log is [available here](changes.md).
 

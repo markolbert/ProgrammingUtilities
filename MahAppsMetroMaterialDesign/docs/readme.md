@@ -4,7 +4,7 @@ My recent WPF apps have generally used [MahApps.Metro](https://mahapps.com/) and
 
 This assembly targets Net 7 and has nullability enabled.
 
-The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/docs/mahappsmatdesign.md).
+The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/MahAppsMetroMaterialDesign/docs/readme.md).
 
 The change log is [available here](changes.md).
 

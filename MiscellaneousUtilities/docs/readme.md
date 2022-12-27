@@ -1,6 +1,6 @@
 # J4JSoftware.MiscellaneousUtilities
 
-The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/docs/miscutils/miscutils.md).
+The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/MiscellaneousUtilities/docs/readme.md).
 
 The change log is [available here](changes.md).
 

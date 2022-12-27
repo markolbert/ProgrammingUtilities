@@ -10,7 +10,7 @@ Provides a customized `IHostBuilder`-based system for producing an `IHost` insta
 
 This assembly targets Net 7 and has nullability enabled.
 
-The repository is available online at [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/docs/dependency/dependency.md).
+The repository is available online at [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/DependencyInjection/docs/readme.md).
 
 - [Changes](changes.md)
 - [Usage](usage.md)

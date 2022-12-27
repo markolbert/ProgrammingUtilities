@@ -4,7 +4,7 @@ Enables run-time editing of configuration parameters in console apps on an as-ne
 
 This assembly targets Net 7 and has nullability enabled.
 
-The library's repository is available on [github](https://github.com/markolbert/ProgrammingUtilities).
+The library's repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/ConsoleUtilities/docs/readme.md).
 
 The Net `IConfiguration` system is highly flexible and can assemble configuration information from many sources. However, when it's done some values needed by a console app may still be undefined or invalid. `ConfigurationUpdater<>` allows you to set updating rules for such parameters and prompt the user for missing or replacement values.
 

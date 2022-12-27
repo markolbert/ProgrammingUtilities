@@ -7,7 +7,9 @@ This assembly provides two capabilities to simplify using Entity Frameowork Core
 
 This assembly targets Net 7 and has nullability enabled.
 
-The library's repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/docs/efcore.md).
+The library's repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/EFCoreUtilities/docs/readme.md).
+
+The change log is [available here](changes.md).
 
 ## Design-time factory
 

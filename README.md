@@ -18,6 +18,7 @@ All the assemblies are licensed under the GNU GPL-v3 (or later). See the [licens
 |[MahAppsMaterialDesign](MahAppsMetroMaterialDesign/docs/readme.md)|add-ons for MahApps Material Design|[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.WPFUtilities.MaterialDesign?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.WPFUtilities.MaterialDesign/)|
 |[MiscellaneousUtilities](MiscellaneousUtilities/docs/readme.md)|various relatively small APIs|[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.VisualUtilities?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.VisualUtilities/)|
 |[TopologicalSort](TopologicalSort/docs/readme.md)|implementation of topological sort|[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.TopologicalSort?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.TopologicalSort/)|
+|[TypeUtilities](TypeUtilities/docs/readme.md)|utilities for filtering types supporting my dependency injection library||
 |[VisualUtilities](VisualUtilities/docs/readme.md)|utilities for dealing with images, media, etc.|[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.VisualUtilities?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.VisualUtilities/)|
 |[WindowsAppUtilities](WindowsAppUtilities/docs/readme.md)|utilities supporting Win3 apps||
 |[WPFUtilities](WPFUtilities/docs/readme.md)|utilities for WPF applications|[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.WPFUtilities?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.WPFUtilities/)|
