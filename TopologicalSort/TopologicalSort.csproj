@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<AssemblyName>J4JSoftware.TopologicalSort</AssemblyName>
 		<RootNamespace>J4JSoftware.Utilities</RootNamespace>
 		<Nullable>enable</Nullable>
@@ -12,13 +12,13 @@
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Version>1.0.1.0</Version>
-		<AssemblyVersion>1.0.1.0</AssemblyVersion>
+		<Version>1.1.0.0</Version>
+		<AssemblyVersion>1.1.0.0</AssemblyVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageDescription>a topological sort implementation, suitable for enforcing dependencies</PackageDescription>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>updated packages</PackageReleaseNotes>
+		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
 		<PackageReadmeFile>nuget-topo.md</PackageReadmeFile>
 	</PropertyGroup>
 

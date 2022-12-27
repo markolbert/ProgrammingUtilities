@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<AssemblyName>J4JSoftware.ExcelExport</AssemblyName>
 		<RootNamespace>J4JSoftware.Excel</RootNamespace>
 		<Nullable>enable</Nullable>
@@ -12,19 +12,19 @@
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Version>1.1.1.0</Version>
-		<AssemblyVersion>1.1.1.0</AssemblyVersion>
+		<Version>1.2.0.0</Version>
+		<AssemblyVersion>1.2.0.0</AssemblyVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageDescription>a utility framework to simplify working with Excel spreadsheets</PackageDescription>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>updated packages</PackageReleaseNotes>
+		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
 		<PackageReadmeFile>nuget-excelexport.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Autofac" Version="6.4.0" />
-		<PackageReference Include="NPOI" Version="2.5.6" />
+		<PackageReference Include="Autofac" Version="6.5.0" />
+		<PackageReference Include="NPOI" Version="2.6.0" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0-windows</TargetFramework>
+		<TargetFramework>net7.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<AssemblyName>J4JSoftware.WPFUtilities.MaterialDesign</AssemblyName>
 		<RootNamespace>J4JSoftware.WPFUtilities</RootNamespace>
@@ -16,16 +16,16 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
-		<Version>1.1.0.0</Version>
-		<AssemblyVersion>1.1.0.0</AssemblyVersion>
-		<PackageReleaseNotes>updated to Net 6</PackageReleaseNotes>
+		<Version>1.2.0.0</Version>
+		<AssemblyVersion>1.2.0.0</AssemblyVersion>
+		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="MahApps.Metro" Version="2.4.9" />
-		<PackageReference Include="MaterialDesignColors" Version="2.0.6" />
-		<PackageReference Include="MaterialDesignThemes" Version="4.5.0" />
-		<PackageReference Include="MaterialDesignThemes.MahApps" Version="0.2.2" />
+		<PackageReference Include="MaterialDesignColors" Version="2.0.9" />
+		<PackageReference Include="MaterialDesignThemes" Version="4.6.1" />
+		<PackageReference Include="MaterialDesignThemes.MahApps" Version="0.2.5" />
 		<PackageReference Include="MaterialDesignThemes.Wpf" Version="1.0.1" />
 	</ItemGroup>
 
