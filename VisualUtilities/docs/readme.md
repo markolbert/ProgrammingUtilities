@@ -2,7 +2,7 @@
 
 The change log is [available here](changes.md).
 
-The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/docs/visual-utils.md).
+The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/VisualUtilities/docs/readme.md).
 
 This assembly is focused on functions needed to work with various kinds of media objects.
 

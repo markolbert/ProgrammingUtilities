@@ -2,7 +2,7 @@
 
 Provides mechanisms for filtering types during dependency injection registration. While developed to work with [Autofac](https://www.autofac.org) the filtering routines should work with other DI frameworks as well.
 
-The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities).
+The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/TypeUtilities/docs/readme.md).
 
 That same link also provides documentation of how these utilities are used by my Autofac-based DI/`IHost` library.
 

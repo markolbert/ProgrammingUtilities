@@ -1,6 +1,6 @@
 # J4JSoftware.WindowsAppUtilities
 
-The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities).
+The library repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/WindowsAppUtilities/docs/readme.md).
 
 The change log is [available here](changes.md).
 
