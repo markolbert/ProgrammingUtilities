@@ -19,7 +19,7 @@
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<PackageReleaseNotes>updated to net7, see changes.md</PackageReleaseNotes>
-		<PackageReleaseNotes>nuget-efcore.md</PackageReleaseNotes>
+		<PackageReleaseNotes>readme.md</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -37,7 +37,8 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="../docs/nuget/nuget-efcore.md" Pack="true" PackagePath="/" />
+		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
+		<None Include="../LICENSE.md"/>
 	</ItemGroup>
 
 	<ItemGroup>

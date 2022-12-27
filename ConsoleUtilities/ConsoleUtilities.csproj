@@ -19,7 +19,7 @@
 		<PackageDescription>utilities for console applications</PackageDescription>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
-		<PackageReadmeFile>nuget-console.md</PackageReadmeFile>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -31,7 +31,8 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="../docs/nuget/nuget-console.md" Pack="true" PackagePath="/" />
+		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
+		<None Include="../LICENSE.md" />
 	</ItemGroup>
 
 	<ItemGroup>

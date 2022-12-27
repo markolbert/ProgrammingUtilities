@@ -18,8 +18,8 @@
 		<PackageDescription>provides customized IHostBuilder and IHost classes for simplified configuration</PackageDescription>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
-		<PackageReadmeFile>nuget-dependency.md</PackageReadmeFile>
+		<PackageReleaseNotes>updated to net7, change app config files via command line</PackageReleaseNotes>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -47,6 +47,7 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="../docs/nuget/nuget-dependency.md" Pack="true" PackagePath="/" />
+		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
+		<None Include="../LICENSE.md"/>
 	</ItemGroup>
 </Project>

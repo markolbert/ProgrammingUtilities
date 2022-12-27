@@ -19,8 +19,8 @@
 		<PackageDescription>support classes not tied to a particular UI or focus</PackageDescription>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
-		<PackageReadmeFile>nuget-misc.md</PackageReadmeFile>
+		<PackageReleaseNotes>updated to net7, added additional methods</PackageReleaseNotes>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -42,7 +42,8 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="../docs/nuget/nuget-misc.md" Pack="true" PackagePath="/" />
+		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
+		<None Include="../LICENSE.md"/>
 	</ItemGroup>
 
 	<ItemGroup>

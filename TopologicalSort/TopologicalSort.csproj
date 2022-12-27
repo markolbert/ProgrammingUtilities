@@ -19,7 +19,7 @@
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
-		<PackageReadmeFile>nuget-topo.md</PackageReadmeFile>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -27,7 +27,8 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="../docs/nuget/nuget-topo.md" Pack="true" PackagePath="/" />
+		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
+		<None Include="../LICENSE.md"/>
 	</ItemGroup>
 
 	<ItemGroup>

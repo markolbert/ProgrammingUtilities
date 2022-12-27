@@ -20,7 +20,7 @@
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
-		<PackageReadmeFile>nuget-deusex.md</PackageReadmeFile>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -33,7 +33,8 @@
 			<PackagePath></PackagePath>
 		</None>
 
-		<None Include="../docs/nuget/nuget-deusex.md" Pack="true" PackagePath="/" />
+		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
+		<None Include="../LICENSE.md"/>
 
 	</ItemGroup>
 </Project>
