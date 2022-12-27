@@ -23,6 +23,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="J4JSoftware.Logging" Version="4.2.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.1">
 			<PrivateAssets>all</PrivateAssets>
@@ -38,7 +39,7 @@
 			<PackagePath></PackagePath>
 		</None>
 		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md"/>
+		<None Include="../LICENSE.md" />
 	</ItemGroup>
 
 	<ItemGroup>

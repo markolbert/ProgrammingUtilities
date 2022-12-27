@@ -28,7 +28,11 @@
 			<PackagePath></PackagePath>
 		</None>
 		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md"/>
+		<None Include="../LICENSE.md" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="J4JSoftware.Logging" Version="4.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>

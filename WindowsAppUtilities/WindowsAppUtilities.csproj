@@ -26,6 +26,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="J4JSoftware.DependencyInjection" Version="2.3.0" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.221209.1" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.755" />
 	</ItemGroup>
@@ -36,7 +37,7 @@
 			<PackagePath></PackagePath>
 		</None>
 		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md"/>
+		<None Include="../LICENSE.md" />
 	</ItemGroup>
 
 	<ItemGroup>

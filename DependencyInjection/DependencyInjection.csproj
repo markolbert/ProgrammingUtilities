@@ -26,6 +26,11 @@
 		<PackageReference Include="Autofac" Version="6.5.0" />
 		<PackageReference Include="Autofac.Configuration" Version="6.0.0" />
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="J4JSoftware.Configuration.CommandLine" Version="4.2.0" />
+		<PackageReference Include="J4JSoftware.DeusEx" Version="1.0.0" />
+		<PackageReference Include="J4JSoftware.Logging" Version="4.2.0" />
+		<PackageReference Include="J4JSoftware.MiscellaneousUtilities" Version="2.1.0" />
+		<PackageReference Include="J4JSoftware.TypeUtilities" Version="1.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
@@ -48,6 +53,6 @@
 			<PackagePath></PackagePath>
 		</None>
 		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md"/>
+		<None Include="../LICENSE.md" />
 	</ItemGroup>
 </Project>
