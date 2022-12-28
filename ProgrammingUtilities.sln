@@ -29,68 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TypeUtilities", "TypeUtilit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JCommandLine", "..\J4JCommandLine\J4JCommandLine\J4JCommandLine.csproj", "{69333E18-667C-48FF-B398-5F6A75C66D4A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}"
-	ProjectSection(SolutionItems) = preProject
-		docs\console-util.md = docs\console-util.md
-		docs\efcore.md = docs\efcore.md
-		docs\excel-export.md = docs\excel-export.md
-		LICENSE.md = LICENSE.md
-		docs\mahappsmatdesign.md = docs\mahappsmatdesign.md
-		README.md = README.md
-		docs\topo-sort.md = docs\topo-sort.md
-		docs\type-utils.md = docs\type-utils.md
-		docs\visual-utils.md = docs\visual-utils.md
-		docs\wpf-utilities.md = docs\wpf-utilities.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{CB3428CE-8706-4D9A-8452-86E578B457B1}"
-	ProjectSection(SolutionItems) = preProject
-		docs\assets\topo-actions.png = docs\assets\topo-actions.png
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependency", "dependency", "{5237DC45-ECD8-4481-98A1-938EFEECD0CE}"
-	ProjectSection(SolutionItems) = preProject
-		docs\dependency\basic.md = docs\dependency\basic.md
-		docs\dependency\changes.md = docs\dependency\changes.md
-		docs\dependency\console-app-example.md = docs\dependency\console-app-example.md
-		docs\dependency\dependency.md = docs\dependency\dependency.md
-		docs\dependency\iconfiguration.md = docs\dependency\iconfiguration.md
-		docs\dependency\j4jcmdline.md = docs\dependency\j4jcmdline.md
-		docs\dependency\j4jlogging.md = docs\dependency\j4jlogging.md
-		docs\dependency\usage.md = docs\dependency\usage.md
-		docs\dependency\wpf-app-example.md = docs\dependency\wpf-app-example.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "miscutils", "miscutils", "{7EA3AFA3-3374-4A8E-992C-38864BE6B909}"
-	ProjectSection(SolutionItems) = preProject
-		docs\miscutils\miscutils.md = docs\miscutils\miscutils.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "range-tick", "range-tick", "{3859C037-FE05-4118-A5A0-FBCBD8C77CC6}"
-	ProjectSection(SolutionItems) = preProject
-		docs\miscutils\range-tick\intro.md = docs\miscutils\range-tick\intro.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "selectable", "selectable", "{8E4E12A3-A698-44EB-8F81-94BB72E2EB72}"
-	ProjectSection(SolutionItems) = preProject
-		docs\miscutils\selectable\intro.md = docs\miscutils\selectable\intro.md
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsAppUtilities", "WindowsAppUtilities\WindowsAppUtilities.csproj", "{896CEB8F-5763-47A5-A284-3749876A956A}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{B38D3ED3-4DFA-4BD2-B264-0FE6407C4C3B}"
-	ProjectSection(SolutionItems) = preProject
-		docs\nuget\nuget-console.md = docs\nuget\nuget-console.md
-		docs\nuget\nuget-dependency.md = docs\nuget\nuget-dependency.md
-		docs\nuget\nuget-excelexport.md = docs\nuget\nuget-excelexport.md
-		docs\nuget\nuget-mahapps.md = docs\nuget\nuget-mahapps.md
-		docs\nuget\nuget-misc.md = docs\nuget\nuget-misc.md
-		docs\nuget\nuget-topo.md = docs\nuget\nuget-topo.md
-		docs\nuget\nuget-type-utils.md = docs\nuget\nuget-type-utils.md
-		docs\nuget\nuget-visual-utils.md = docs\nuget\nuget-visual-utils.md
-		docs\nuget\nuget-winapp.md = docs\nuget\nuget-winapp.md
-		docs\nuget\nuget-wpf-utilities.md = docs\nuget\nuget-wpf-utilities.md
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeusEx", "DeusEx\DeusEx.csproj", "{C7A985E1-AE32-4132-AEA7-8FFAC2002758}"
 EndProject
@@ -189,12 +128,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{BF7C19D5-2FB6-4B94-B73C-337880DF5582} = {D8043E93-B428-4A53-A8FD-B5057D43A005}
 		{69333E18-667C-48FF-B398-5F6A75C66D4A} = {D8043E93-B428-4A53-A8FD-B5057D43A005}
-		{CB3428CE-8706-4D9A-8452-86E578B457B1} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
-		{5237DC45-ECD8-4481-98A1-938EFEECD0CE} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
-		{7EA3AFA3-3374-4A8E-992C-38864BE6B909} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
-		{3859C037-FE05-4118-A5A0-FBCBD8C77CC6} = {7EA3AFA3-3374-4A8E-992C-38864BE6B909}
-		{8E4E12A3-A698-44EB-8F81-94BB72E2EB72} = {7EA3AFA3-3374-4A8E-992C-38864BE6B909}
-		{B38D3ED3-4DFA-4BD2-B264-0FE6407C4C3B} = {7DFBF69A-5284-4B8E-A94E-8FCDA8319CDA}
 		{ADDE517B-1C55-4A43-B87D-A665C7DBB8EC} = {B3D5EEAA-FFD8-476F-9DE7-81AE07CD3B2D}
 		{6B81186A-0FEF-46A0-BDE9-E888D7469AB8} = {B3D5EEAA-FFD8-476F-9DE7-81AE07CD3B2D}
 		{65175E48-ED15-49D0-8828-A4A2CD02B93B} = {B3D5EEAA-FFD8-476F-9DE7-81AE07CD3B2D}

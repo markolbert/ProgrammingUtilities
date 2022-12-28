@@ -1,3 +1,0 @@
-# Selectable Node
-
-*Stay tuned...*
