@@ -4,8 +4,190 @@ The library repository is available on [github](https://github.com/markolbert/Pr
 
 The change log is [available here](changes.md).
 
-`DeusEx` is an abstraction of dependency injection which provides a static DI resolver. By including it in a program and configuring it you can use the `IServiceProvider` interface anywhere in your code, access an `IJ4JLogger` logging facility during program startup, etc.
+`J4JDeusEx` is an abstraction of dependency injection which provides a static DI resolver. By including it in a program and configuring it you can use the `IServiceProvider` interface anywhere in your code, access an `IJ4JLogger` logging facility during program startup, etc.
 
-`DeusEx` is designed to work with `J4JHostBuilder`, my implementation of the `IHostBuilder`/`IHost` system. For details on `J4JHostBuilder` please refer to its [documentation](https://github.com/markolbert/ProgrammingUtilities/blob/master/DependencyInjection/docs/readme.md).
+`J4JDeusEx` is designed to work with `J4JHostConfiguration`, my implementation/extension of the `IHostBuilder`/`IHost` system. For details on `J4JHostConfiguration` please refer to its [documentation](https://github.com/markolbert/ProgrammingUtilities/blob/master/DependencyInjection/docs/readme.md).
 
-*Documentation pending...*
+- [Background](#background)
+- [How It Works](#how-it-works)
+- Essential Derived Classes
+  - [J4JDeusExHosted: Console Apps](#j4jdeusexhosted)
+  - [J4JDeusExWinApp: Windows 3 Apps](#j4jdeusexwinapp)
+- Examples:
+  - [Console App](#example-console-app)
+  - [Windows 3 App](#example-windows-application)
+
+## Background
+
+When using dependency injection you always need to have a "root" resolver, a component which gives you access to the automagic creation that dependency injection enables.
+
+In many modern frameworks this functionality is built-in. You don't need to worry about it, you just request objects (usually via constructor injection) and everything just works.
+
+For older frameworks or frameworks built on older frameworks -- WPF, Windows Applications v3 in its current iteration, console apps, etc. -- that built-in functionality doesn't exist. It needs to be made explicitly available. Hence things like the **ViewModelLocator** pattern.
+
+`J4JDeusEx` is an approach I developed to make adding this functionality to such frameworks a bit more straightforward.
+
+The name **J4JDeusEx**, by the way, is a play on the phrase "deus ex machina", literally "god in the machine", an approach lazy story writers use to work their way out of complex plot traps: you just invoke some miraculous power or event and, voila!, the story is suddenly reasonable again.
+
+## How It Works
+
+In order to be universally available `J4JDeusEx` is accessed through static properties and methods. For example, to create an instance of a service you've defined via dependency injection you'd do something like this:
+
+```csharp
+var fooBar = J4JDeusEx.ServiceProvider.GetRequiredService<IFooBar>();
+```
+
+`ServiceProvider` is not nullable...so if something goes wrong in setting up `J4JDeusEx`, you'll get a `J4JDeuxExException` (and perhaps a log message as well, depending on what state `J4JDeusEx` is in).
+
+But how is `J4JDeusEx` configured? How does it have access to the underlying `IServiceProvider` it returns?
+
+## J4JDeusExHosted
+
+The answer is it's initialized from within derived classes which set the static `ServiceProvider` property via a protected setter.
+
+How that's done depends on how you handle your app's startup. Since I wrote my `J4JHostConfiguration` API to handle the way I like to start up my apps there's a derived class, `J4JDeusExHosted`, which works closely with the `J4JHostConfiguration` system.
+
+`J4JDeusExHosted` is a relatively simple abstract class:
+
+```csharp
+public abstract class J4JDeusExHosted : J4JDeusEx
+{
+    protected abstract J4JHostConfiguration? GetHostConfiguration();
+
+    protected virtual string GetCrashFilePath( 
+        J4JHostConfiguration hostConfig, 
+        string crashFileName = "crashFile.txt" )
+    {
+        var fileName = Path.GetFileName( crashFileName );
+
+        if( string.IsNullOrEmpty( fileName ) )
+            fileName = "crashFile.txt";
+
+        return Path.Combine( hostConfig.ApplicationConfigurationFolder, fileName );
+    }
+
+    public bool Initialize( 
+        string crashFileName = "crashFile.txt" )
+    {
+        var hostConfig = GetHostConfiguration();
+
+        if( hostConfig == null )
+            throw new J4JDeusExException( $"Undefined {typeof( J4JHostConfiguration )}" );
+
+        CrashFilePath = GetCrashFilePath( hostConfig, crashFileName );
+
+        if (hostConfig.MissingRequirements != J4JHostRequirements.AllMet)
+        {
+            OutputFatalMessage(
+                $"Missing {typeof( J4JHostConfiguration )} items: {hostConfig.MissingRequirements}",
+                hostConfig.Logger );
+
+            return false;
+        }
+
+        Logger = hostConfig.Logger;
+
+        var host = hostConfig.Build();
+
+        if( host != null )
+        {
+            ServiceProvider = host.Services;
+
+            var runTimeLogger = host.Services.GetService<IJ4JLogger>();
+            runTimeLogger?.OutputCache( hostConfig.Logger );
+
+            Logger = runTimeLogger;
+
+            IsInitialized = true;
+
+            return true;
+        }
+
+        Logger = null;
+
+        OutputFatalMessage( $"Could not create {typeof( IJ4JHost )}",
+                            hostConfig.Logger );
+
+        return false;
+    }
+}
+```
+
+It has one abstract protected method you must override, `GetHostConfiguration()`, to retrieve an instance of a `J4JHostConfiguration` object which it builds in order to get the `IServiceProvider` object it needs. `J4JDeusEx` is initialized -- it's static properties are set -- by calling `J4JDeusExHosted.Initialize()`.
+
+If something goes wrong with the initialization process the following happens:
+
+- a fatal error message is output to a crash dump file located in the application configuration folder you specified when you configured the `J4JConfigurationBuilder` object; and,
+- the static `IsInitialized` will be set to **false**.
+
+If the initializataion is successful several things will happen:
+
+- a runtime instance of `IJ4JLogger` will be created if one was defined in the `J4JConfigurationBuilder` object and assigned to the static `Logger` property;
+- the static `ServiceProvider` property will be set; and,
+- the static `IsInitialized` will be set to **true**.
+
+## J4JDeusExWinApp
+
+Because Windows Apps (aka Win3 apps) are sandboxed, the crash file location needs to be different than that of a non-sandboxed app. The derived abstract class `J4JDeusExWinApp` in my `J4JSoftware.WindowsAppUtilities` library handles the details. It's an abstract class because the `GetHostConfiguration()` must still be overridden to supply the `J4JHostConfiguration` instance for your app.
+
+## Example: Console App
+
+Here's a complete example of configuring and initializing `J4JDeuxEx` in a console app. First, derive a class from `J4JDeusExHosted` to supply the `J4JHostConfiguration` object associated with your app:
+
+```csharp
+internal partial class DeusEx : J4JDeusExHosted
+{
+    protected override J4JHostConfiguration? GetHostConfiguration()
+    {
+        var hostConfig = new J4JHostConfiguration( AppEnvironment.Console )
+                        .ApplicationName( "WpFormsSurveyProcessor" )
+                        .Publisher( "Jump for Joy Software" )
+                        .LoggerInitializer( ConfigureLogging )
+                        .AddDependencyInjectionInitializers( ConfigureDependencyInjection )
+                        .FilePathTrimmer( FilePathTrimmer );
+
+        var cmdLineConfig = hostConfig.AddCommandLineProcessing( CommandLineOperatingSystems.Windows )
+                                      .OptionsInitializer( SetCommandLineConfiguration )
+                                      .ConfigurationFileKeys( true, false, "c", "config" );
+
+        return hostConfig;
+    }
+
+    // details on configuring logging, dependency injection and the command line omitted
+    // for clarity
+}
+```
+
+The details of how the `J4JHostConfiguration` object is configured depends on what capabilities you want in your app. In this example I've:
+
+- set up logging (using `IJ4JLogger`, and configured through the `ConfigureLogger()` method which isn't shown);
+- set up my dependency injection environment (through the `ConfigureDependencyInjection()` method which isn't shown);
+- arranged to trim file paths when outputting log events with source code annotations; and,
+- configured command line parsing (through the `SetCommandLineConfiguration()` method which isn't shown)
+  
+You can read more about how to set up those configuration methods elsewhere in this documentation.
+
+Having defined my local `DeusEx` class I use it in my program startup code:
+
+```csharp
+internal class Program
+{
+    static void Main( string[] args )
+    {
+        var deusEx = new DeusEx();
+
+        if( !deusEx.Initialize() )
+        {
+            J4JDeusEx.Logger?.Fatal("Could not initialize application");
+            Environment.ExitCode = 1;
+            return;
+        }
+
+        // remaining code not shown for clarity
+```
+
+Once my locally-defined derived class is instantiated I can refer to the static methods and properties of `J4JDeusEx` anywhere in my codebase.
+
+## Example: Windows Application
+
+The only difference when using the `J4JDeusEx` system within a Windows App (aka Win3 app) is that you derive your local deus ex class from `J4JDeusExWinApp`. Everything else regarding using `J4JHostConfiguration` remains the same.
