@@ -1,9 +1,6 @@
 # J4JSoftware.EFCore.Utilities
 
-This assembly provides two capabilities to simplify using Entity Frameowork Core in projects:
-
-- Simplifies setting up a [design-time factory](#design-time-factory) for instances of `DbContext` to use during development.
-- Provides a way of associating [entity configuration information](#entity-configuration-information) with the entity being configured when you're using a fluent design approach.
+This assembly provides several capabilities to simplify using Entity Frameowork Core in projects.
 
 This assembly targets Net 7 and has nullability enabled.
 
@@ -11,7 +8,11 @@ The library's repository is available on [github](https://github.com/markolbert/
 
 The change log is [available here](changes.md).
 
-## Design-time factory
+- [Generalized Design-time Factory](#generalized-design-time-factory)
+- [Configuring EF Classes](#configuring-entity-framework-classes)
+- [Formatting DbUpdateExceptions](#formatting-dbupdateexceptions)
+
+## Generalized Design-time Factory
 
 Debugging a `DbContext` can be complicated if things like the location of the database is different at design time. I often find that's the case in my projects because a configuration class may be defined in its own assembly so it can be shared across multiple projects.
 
@@ -85,7 +86,7 @@ PM>
 If you don't include the path to where you want the database file created it will
 be created in the directory defining the database.
 
-## Entity Configuration Information
+## Configuring Entity Framework Classes
 
 Database entities almost always require you configure the database traits of properties (e.g., is that string nullable or not?), relationships, etc.
 
@@ -142,3 +143,11 @@ internal class QuestionDbConfigurator : EntityConfigurator<QuestionDb>
 `QuestionDbConfigurator` holds the fluent-design configuration information for the entity class `QuestionDb`. It's internal because only the `DbContext`-derived class in the database assembly needs access to it.
 
 The `EntityConfigurationAttribute` attribute decorating `QuestionDb` lets the utility code know where to get the configuration information for `QuestionDb`.
+
+## Formatting DbUpdateExceptions
+
+Figuring out what caused an Entity Framework exception to be thrown can be messy, because many of the details are buried within inner exceptions, the entities involved aren't included in the exception messages, etc.
+
+The `DbUpdateException.FormatDbException()` extension method extracts more detailed information from a `DbUpdateException` and formats it into a string you can log or otherwise display.
+
+If you find additional Entity Framework exception information useful, check out [Entity Framework Exceptions](https://github.com/Giorgi/EntityFramework.Exceptions), which provides even more detailed information.

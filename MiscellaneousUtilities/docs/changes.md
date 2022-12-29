@@ -2,6 +2,7 @@
 
 |Version|Description|
 |:-----:|-----------|
+|2.1.1|Relocated exception formatting extension method `Exception.FormatException()`|
 |2.1.0|Updated to Net 7, updated packages, [see details below](#210)|
 |2.0|breaking changes; updated to Net 6|
 

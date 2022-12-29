@@ -10,4 +10,4 @@
 
 ## 1.3.0
 
-- Added support for detailed SQLite exception reporting using the EntityFrameworkCore.Exceptions.Sqlite library
+- Added detailed formatting for `DbUpdateExceptions`

@@ -12,4 +12,8 @@ Provides support utilities for Windows App (WinUI 3) programs, including a custo
 - command line parsing (via [J4JCommandLine](https://github.com/markolbert/J4JCommandLine))
 - dependency injection (via [Autofac](https://autofac.org/))
 
+The assembly also contains `J4JDeusExWinApp`, a class derived from `J4JDeusExHosted` which provides **ViewModelLocator** functionality in Win3 app programs, and integrates with my `J4JHostConfiguration` API.
+
+For details on my `J4JHostConfiguration` API and `J4JDeusExHosted` please see the [GitHub documentation](https://github.com/markolbert/ProgrammingUtilities/blob/master/DependencyInjection/docs/readme.md).
+
 This assembly targets Net 7 and has nullability enabled.
