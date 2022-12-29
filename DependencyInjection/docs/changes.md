@@ -9,8 +9,7 @@
 
 ## 2.3.0
 
-- Added ability to define application configuration files
-from the command line via `J4JCommandLineConfiguration::ConfigurationFileKeys()`.
+- Added ability to define application configuration files from the command line via `J4JCommandLineConfiguration::ConfigurationFileKeys()`.
 
 ## 2.0.0
 

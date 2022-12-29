@@ -44,33 +44,33 @@ public class J4JDeusEx
     public static string? CrashFilePath { get; protected set; }
     public static IJ4JLogger? Logger { get; protected set; }
 
-    public static IJ4JLogger? GetLogger<T>()
-    {
-        if( ServiceProvider == null )
-            return null;
+    //public static IJ4JLogger? GetLogger<T>()
+    //{
+    //    if( ServiceProvider == null )
+    //        return null;
 
-        var retVal = ServiceProvider.GetService<IJ4JLogger>();
-        retVal?.SetLoggedType<T>();
+    //    var retVal = ServiceProvider.GetService<IJ4JLogger>();
+    //    retVal?.SetLoggedType<T>();
 
-        return retVal;
-    }
+    //    return retVal;
+    //}
 
-    public static bool Initialize(
-        IServiceProvider serviceProvider,
-        string? crashFilePath = null
-    )
-    {
-        CrashFilePath = string.IsNullOrEmpty(crashFilePath)
-            ? Path.Combine(Environment.CurrentDirectory, "crashFile.txt")
-            : crashFilePath;
+    //public static bool Initialize(
+    //    IServiceProvider serviceProvider,
+    //    string? crashFilePath = null
+    //)
+    //{
+    //    CrashFilePath = string.IsNullOrEmpty(crashFilePath)
+    //        ? Path.Combine(Environment.CurrentDirectory, "crashFile.txt")
+    //        : crashFilePath;
 
-        ServiceProvider = serviceProvider;
-        Logger = ServiceProvider.GetService<IJ4JLogger>();
+    //    ServiceProvider = serviceProvider;
+    //    Logger = ServiceProvider.GetService<IJ4JLogger>();
 
-        IsInitialized = true;
+    //    IsInitialized = true;
 
-        return true;
-    }
+    //    return true;
+    //}
 
     public static void OutputFatalMessage( string msg, IJ4JLogger? logger )
     {
