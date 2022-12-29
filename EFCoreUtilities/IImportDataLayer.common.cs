@@ -17,7 +17,7 @@
 
 using System;
 
-namespace J4JSoftware.QB2LGL;
+namespace J4JSoftware.EFCoreUtilities;
 
 public partial interface IImportDataLayer
 {

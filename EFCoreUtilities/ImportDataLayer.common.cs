@@ -19,11 +19,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using J4JSoftware.Logging;
+using J4JSoftware.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable ExplicitCallerInfoArgument
 
-namespace J4JSoftware.QB2LGL;
+namespace J4JSoftware.EFCoreUtilities;
 
 public class ImportDataLayer : IImportDataLayer
 {
