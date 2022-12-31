@@ -248,11 +248,11 @@ public static class J4JHostConfigurationExtensions
         var hostBuilder = new HostBuilder()
            .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
 
-        if( hostBuilder == null )
-        {
-            config.Logger.Fatal( "Failed to create HostBuilder using the AutofacServiceProviderFactory" );
-            return null;
-        }
+        //if( hostBuilder == null )
+        //{
+        //    config.Logger.Fatal( "Failed to create HostBuilder using the AutofacServiceProviderFactory" );
+        //    return null;
+        //}
 
         var cmdLinePaths = GetCommandLinePaths(config);
 

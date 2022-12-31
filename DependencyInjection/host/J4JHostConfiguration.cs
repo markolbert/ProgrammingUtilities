@@ -107,10 +107,10 @@ public class J4JHostConfiguration
             PlatformID.Win32Windows => false,
             PlatformID.WinCE        => false,
             PlatformID.Xbox         => false,
-            _                       => default_sensitivity()
+            _                       => DefaultSensitivity()
         };
 
-        bool default_sensitivity()
+        bool DefaultSensitivity()
         {
             Logger.Warning( "Unsupported operating system, case sensitivity set to false" );
             return false;
@@ -175,8 +175,6 @@ public class J4JHostConfiguration
             throw new NullReferenceException(
                 $"{nameof(UserConfigurationFolder)} is undefined because {nameof(ApplicationName)} is undefined");
     }
-
-    public J4JHostBuildStatus BuildStatus { get; private set; } = J4JHostBuildStatus.NotInitialized;
 
     public void OutputBuildLogger( IJ4JLogger logger ) => logger.OutputCache( Logger );
 

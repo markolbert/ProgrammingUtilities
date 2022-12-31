@@ -26,7 +26,6 @@ public enum J4JHostRequirements
     ApplicationName = 1 << 1,
     AvailableTokens = 1 << 2,
     OptionsGenerator = 1 << 3,
-    OptionsInitializer = 1 << 4,
 
     AllMet = 0
 }
