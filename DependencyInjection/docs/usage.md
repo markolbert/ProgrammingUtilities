@@ -1,82 +1,111 @@
 # J4JSoftware.J4JCommandLine: Usage
 
-- [J4JSoftware.J4JCommandLine: Usage](#j4jsoftwarej4jcommandline-usage)
-  - [Creating the Builder Configuration](#creating-the-builder-configuration)
-  - [Building IHost](#building-ihost)
-  - [Configuring J4JHostConfiguration](#configuring-j4jhostconfiguration)
-    - [Introduction](#introduction)
-    - [Dependency Injection](#dependency-injection)
-    - [Adding Services](#adding-services)
-    - [Build Environment Configuration and Helper Methods](#build-environment-configuration-and-helper-methods)
+- [Creating the Builder Configuration](#creating-the-builder-configuration)
+- [Building IHost](#building-ij4jhost)
+- [Configuring J4JHostConfiguration](#configuring-j4jhostconfiguration)
+  - [Introduction](#introduction)
+  - [Dependency Injection](#dependency-injection)
+  - [Adding Services](#adding-services)
+  - [Build Environment Configuration and Helper Methods](#build-environment-configuration-and-helper-methods)
 
-You create your customized `IHost` by configuring an instance of `J4JHostConfiguration`, calling its `CreateHostBuilder()` method and then calling the `Build()` method on the returned `IHostBuilder`.
+You create a `IJ4JHost` instance by configuring an instance of `J4JHostConfiguration` and calling its `Build()` method.
 
 ## Creating the Builder Configuration
 
-`J4JHostConfiguration` only has two constructors, distinguished by whether or not they accept a `Func<bool>` used to determine whether the `IHost` is being built for something running in *design mode*:
+`J4JHostConfiguration` has a single public constructor taking two parameters, one of which has a default value:
 
 ```csharp
-public J4JHostConfiguration()
-    : this( () => false )
+    public J4JHostConfiguration(
+        AppEnvironment appEnvironment,
+        bool registerJ4JHost = true
+    )
+    {...}
+```
+
+|Parameter|Type|Description|
+|---------|:--:|-----------|
+|appEnvironment|`AppEnvironment`|the environment in which the code is running|
+|registerJ4JHost|`bool`|a flag indicating whether or not the created `IJ4JHost` instance should itself be registered with the dependency injection system, and thereby be available through the `IServiceProvider` interface|
+
+`AppEnvironment` is an enum which can take on one of the following values:
+
+```csharp
+public enum AppEnvironment
 {
+    Console,
+    WpfDesignMode,
+    Wpf,
+    UnpackagedWinApp,
+    PackagedWinApp
 }
-
-public J4JHostConfiguration(
-    Func<bool> inDesignMode
-)
-{ ... }
 ```
 
-*Design mode* is significant for environments like WPF where your code may be running within a visual editor/designer. It shouldn't apply to console apps which don't offer such.
+`UnpackagedWinApp` is currently not utilized and exists for potential future use.
 
-How you specify the `Func<bool>` depends on which design environment you're in. For WPF one way of doing it would be like this:
+`AppEnvironment` affects where the API looks for application configuration files. This applies in the case of WPF apps, which run in both "runtime mode" and "design mode" (within the Visual Studio context).
 
-```csharp
-var builder = new J4JHostConfiguration( 
-    () => DesignerProperties.GetIsInDesignMode( new DependencyObject() ) 
-);
-```
+## Building IJ4JHost
 
-This takes advantage of a static method which can determine if you're in design mode when you call it with a dummy `DependencyObject`. Looks odd but it works.
-
-## Building IHost
-
-A simplified example:
+Building an instance of `IJ4JHost` can be very simple:
 
 ```csharp
 var hostConfig = new J4JHostConfiguraton();
 // configuration steps omitted
 
-var builder = hostConfig.CreateHostBuilder();
-
-// you'd want to check that builder is not null in real code
-var host = builder.Build();
+var host = hostConfig.Build();
 ```
 
-If everything was set up properly you'll get an `IHost` instance. If something went wrong `CreateHostBuilder()` returns `null`, after which you can check various properties of the `J4JHostConfiguration` instance:
+However, it's recommended to check to ensure the `J4JHostConfiguration` object is properly configured before calling `Build()`:
 
-- the `BuildStatus` property tells you at which stage `CreateHostBuilder()` failed. It can have one of the following values:
-  - `NotInitialized`: something failed very early in the process (this is the initial state)
-  - `NotBuilt`: one or more required configuration parameters were not set (see below)
-  - `Aborted`: something in the later stages of construction failed. Currently this indicates a failure in the command line parsing subsystem, so if you haven't set up command line parsing it should not occur.
-  - `Built`: an `IHostBuilder` was returned
-- the `MissingRequirements` property tells you which, if any, required parameters were not set. It's a flag `Enum` which can contain one or more of the following:
-  - `Publisher`: you failed to specify a publisher
-  - `ApplicationName`: you failed to specify a name for the application
-  - `OperatingSystem`: you failed to indicate what operating system the `IHost` is working with
-- the `Logger` property may contain log events of significance emitted during the build process. At this point it's not a terribly useful feature because accessing its contents requires outputting it to an instance of `IJ4JLogger`...and if the build failed you probably won't have one :). I'm working on building a viewer to get access to the log events independently.
+```csharp
+var hostConfig = new J4JHostConfiguraton();
+// configuration steps omitted
+
+IJ4JHost? host = null;
+
+if( hostConfig.MissingRequirements == J4JHostRequirements.AllMet )
+    host = hostConfig.Build();
+else 
+{
+    // take remedial action, abort startup, etc.
+}
+```
+
+`J4JHostRequirements` is a flagged enum which can contain one or more of the following flags:
+
+```csharp
+[ Flags ]
+public enum J4JHostRequirements
+{
+    Publisher = 1 << 0,
+    ApplicationName = 1 << 1,
+    AvailableTokens = 1 << 2,
+    OptionsGenerator = 1 << 3,
+
+    AllMet = 0
+}
+```
+
+The first two flags indicate you failed to define the publisher name, the application name, or both. These are necessary for the data protection system to be configured, and for the configuration file folders to be located in some situations.
+
+The third flag indicates you configured the command line processing subsystem to use specific lexical elements (e.g., the text that demarcates a string value) but failed to provide them.
+
+The fourth flag indicates you configured the command line processing subsystem but failed to define any command line options.
+
+Even if `J4JHostConfiguration` is properly configured, and an `IJ4JHost` instance is returned by `Build()`, it's still possible problems were encountered during the build process. These are logged to `J4JHostConfiguration.Logger`, and can be output to the runtime logger (assuming you configured one) via `J4JHostConfiguration.OutputBuildLogger()`.
 
 ## Configuring J4JHostConfiguration
 
 ### Introduction
 
-You configure an instance of `J4JHostConfiguration`  by calling various extension methods. I've broken these out into groups to explain them.
+You configure an instance of `J4JHostConfiguration` by calling various extension methods. I've broken these out into groups to explain them.
 
-Note that there are a few extension methods you must call. These are outlined under the *Basic Setup* link.
+Note that there are a few extension methods you must call. These are outlined under the **Required Configuration** link.
 
 Click the links for more details.
 
-- [Basic Setup](basics.md)
+- [Required Configuration](required.md)
+- [Dependency Injection Configuration](#dependency-injection)
 - [J4JLogging Subsystem](j4jlogging.md)
 - [IConfiguration Subsystem](iconfiguration.md)
 - [J4JCommandLine Subsystem](j4jcmdline.md)
