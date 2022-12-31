@@ -33,7 +33,6 @@ public class J4JHostConfiguration
 {
     private OptionCollection? _options;
     private StringComparison? _cmdLineTextComparison;
-    private string? _userConfigFolder;
     private string _publisher = string.Empty;
     private string _appName = string.Empty;
 
@@ -44,6 +43,8 @@ public class J4JHostConfiguration
     {
         RegisterJ4JHost = registerJ4JHost;
         AppEnvironment = appEnvironment;
+
+        AutoDetectCaseSensitivity();
 
         ApplicationConfigurationFolder = AppEnvironment == AppEnvironment.WpfDesignMode
             ? AppContext.BaseDirectory
@@ -67,23 +68,13 @@ public class J4JHostConfiguration
     internal string Publisher
     {
         get => _publisher;
-
-        set
-        {
-            _publisher = value;
-            _userConfigFolder = null;
-        }
+        set => _publisher = value;
     }
 
     internal string ApplicationName
     {
         get => _appName;
-
-        set
-        {
-            _appName = value;
-            _userConfigFolder = null;
-        }
+        set => _appName = value;
     }
 
     internal string DataProtectionPurpose { get; set; } = string.Empty;
@@ -94,11 +85,11 @@ public class J4JHostConfiguration
     internal bool RegisterJ4JHost { get; }
     internal IJ4JHost? Host { get; set; }
 
-    internal bool CaseSensitiveFileSystem { get; set; } = false;
+    internal bool FileSystemCaseSensitivity { get; set; } = false;
 
-    internal void AutoDetectCaseSensitivity()
+    private void AutoDetectCaseSensitivity()
     {
-        CaseSensitiveFileSystem = Environment.OSVersion.Platform switch
+        FileSystemCaseSensitivity = Environment.OSVersion.Platform switch
         {
             PlatformID.MacOSX       => true,
             PlatformID.Unix         => true,
@@ -124,7 +115,7 @@ public class J4JHostConfiguration
             if( _cmdLineTextComparison.HasValue )
                 return _cmdLineTextComparison.Value;
 
-            return CaseSensitiveFileSystem ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            return FileSystemCaseSensitivity ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
         }
 
         set => _cmdLineTextComparison = value;
@@ -150,30 +141,23 @@ public class J4JHostConfiguration
 
     public string ApplicationConfigurationFolder { get; protected set; }
 
-    public virtual string UserConfigurationFolder
+    public virtual bool TryGetUserConfigurationFolder(out string? result)
     {
-        get
-        {
-            ValidatePublisherAppName();
+        result = null;
 
-            _userConfigFolder ??= Path.Combine(
-                Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData ),
-                Publisher,
-                ApplicationName );
-
-            return _userConfigFolder;
-        }
-    }
-
-    protected void ValidatePublisherAppName()
-    {
         if (string.IsNullOrEmpty(_publisher))
-            throw new NullReferenceException(
-                $"{nameof(UserConfigurationFolder)} is undefined because {nameof(Publisher)} is undefined");
+            Logger.Error("UserConfigurationFolder is undefined because Publisher is undefined");
 
         if (string.IsNullOrEmpty(_appName))
-            throw new NullReferenceException(
-                $"{nameof(UserConfigurationFolder)} is undefined because {nameof(ApplicationName)} is undefined");
+            Logger.Error("UserConfigurationFolder is undefined because ApplicationName is undefined");
+
+        if (!string.IsNullOrEmpty(_publisher) && !string.IsNullOrEmpty(_appName))
+            result = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                Publisher,
+                ApplicationName);
+
+        return result != null;
     }
 
     public void OutputBuildLogger( IJ4JLogger logger ) => logger.OutputCache( Logger );
@@ -214,7 +198,7 @@ public class J4JHostConfiguration
     private void CoreApplicationJsonConfiguration( IConfigurationBuilder builder )
     {
         foreach( var configFile in ApplicationConfigurationFiles
-                   .Distinct( CaseSensitiveFileSystem
+                   .Distinct( FileSystemCaseSensitivity
                                   ? ConfigurationFile.CaseSensitiveComparer
                                   : ConfigurationFile.CaseInsensitiveComparer ) )
         {
@@ -225,7 +209,7 @@ public class J4JHostConfiguration
     private void CoreUserJsonConfiguration(IConfigurationBuilder builder)
     {
         foreach (var configFile in UserConfigurationFiles
-                    .Distinct(CaseSensitiveFileSystem
+                    .Distinct(FileSystemCaseSensitivity
                                   ? ConfigurationFile.CaseSensitiveComparer
                                   : ConfigurationFile.CaseInsensitiveComparer))
         {

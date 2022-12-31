@@ -84,9 +84,12 @@ public class ConfigurationFile
             if( Path.IsPathRooted(_filePath))
                 return _filePath;
 
+            if (!_hostConfig.TryGetUserConfigurationFolder(out var userConfigFolder))
+                return _filePath;
+
             var folder = _configType == ConfigurationFileType.Application
                 ? _hostConfig.ApplicationConfigurationFolder
-                : _hostConfig.UserConfigurationFolder;
+                : _filePath;
 
             return Path.Combine( folder, _filePath );
         }

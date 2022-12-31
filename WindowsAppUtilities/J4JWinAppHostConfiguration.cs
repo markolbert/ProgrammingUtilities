@@ -29,5 +29,9 @@ public class J4JWinAppHostConfiguration : J4JHostConfiguration
         ApplicationConfigurationFolder = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
     }
 
-    public override string UserConfigurationFolder => ApplicationConfigurationFolder;
+    public override bool TryGetUserConfigurationFolder(out string? result)
+    {
+        result = ApplicationConfigurationFolder;
+        return true;
+    }
 }

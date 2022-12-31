@@ -55,13 +55,19 @@ public static class J4JHostConfigurationExtensions
 
     public static J4JHostConfiguration Publisher( this J4JHostConfiguration config, string publisher )
     {
-        config.Publisher = publisher;
+        if (string.IsNullOrEmpty(publisher))
+            config.Logger.Error("The publisher name cannot be empty");
+        else config.Publisher = publisher;
+
         return config;
     }
 
-    public static J4JHostConfiguration ApplicationName( this J4JHostConfiguration config, string name )
+    public static J4JHostConfiguration ApplicationName( this J4JHostConfiguration config, string appName )
     {
-        config.ApplicationName = name;
+        if (string.IsNullOrEmpty(appName))
+            config.Logger.Error("The application name cannot be empty");
+        else config.ApplicationName = appName;
+        
         return config;
     }
 
@@ -71,23 +77,23 @@ public static class J4JHostConfigurationExtensions
         return config;
     }
 
-    public static J4JHostConfiguration CaseSensitiveFileSystem( this J4JHostConfiguration config )
+    public static J4JHostConfiguration FileSystemCaseSensitivity( this J4JHostConfiguration config, bool caseSensitivity )
     {
-        config.CaseSensitiveFileSystem = true;
+        config.FileSystemCaseSensitivity = caseSensitivity;
         return config;
     }
 
-    public static J4JHostConfiguration CaseInsensitiveFileSystem( this J4JHostConfiguration config )
-    {
-        config.CaseSensitiveFileSystem = false;
-        return config;
-    }
+    //public static J4JHostConfiguration CaseInsensitiveFileSystem( this J4JHostConfiguration config )
+    //{
+    //    config.CaseSensitiveFileSystem = false;
+    //    return config;
+    //}
 
-    public static J4JHostConfiguration AutoDetectFileSystemCaseSensitivity( this J4JHostConfiguration config )
-    {
-        config.AutoDetectCaseSensitivity();
-        return config;
-    }
+    //public static J4JHostConfiguration AutoDetectFileSystemCaseSensitivity( this J4JHostConfiguration config )
+    //{
+    //    config.AutoDetectCaseSensitivity();
+    //    return config;
+    //}
 
     public static J4JHostConfiguration CommandLineTextComparison( this J4JHostConfiguration config,
         StringComparison? comparison )
@@ -245,6 +251,13 @@ public static class J4JHostConfigurationExtensions
             return null;
         }
 
+        // this next call should never fail, but...
+        if (!config.TryGetUserConfigurationFolder(out var userConfigFolder))
+        {
+            config.Logger.Fatal("J4JHostConfiguration: user configuration folder is undefined");
+            return null;
+        }
+
         var hostBuilder = new HostBuilder()
            .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
 
@@ -296,11 +309,11 @@ public static class J4JHostConfigurationExtensions
             CommandLineTextComparison = config.CommandLineTextComparison,
             CommandLineLexicalElements = config.CommandLineConfiguration?.LexicalElements,
             CommandLineSource = config.CommandLineSource,
-            FileSystemIsCaseSensitive = config.CaseSensitiveFileSystem,
+            FileSystemIsCaseSensitive = config.FileSystemCaseSensitivity,
             Publisher = config.Publisher,
             ApplicationConfigurationFolder = config.ApplicationConfigurationFolder,
             ApplicationConfigurationFiles = config.ApplicationConfigurationFiles.Select( x => x.FilePath ).ToList(),
-            UserConfigurationFolder = config.UserConfigurationFolder,
+            UserConfigurationFolder = userConfigFolder!,
             UserConfigurationFiles = config.UserConfigurationFiles.Select( x => x.FilePath ).ToList(),
         };
 
@@ -346,7 +359,7 @@ public static class J4JHostConfigurationExtensions
 
         var parser = new Parser( optionCollection, parsingTable, tokenizer, hostConfig.Logger );
 
-        var pathComparer = hostConfig.CaseSensitiveFileSystem
+        var pathComparer = hostConfig.FileSystemCaseSensitivity
             ? StringComparison.Ordinal
             : StringComparison.OrdinalIgnoreCase;
 
