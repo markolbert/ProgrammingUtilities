@@ -186,10 +186,22 @@ public static class J4JHostConfigurationExtensions
     }
 
     public static J4JCommandLineConfiguration AddCommandLineProcessing( this J4JHostConfiguration config,
-        CommandLineOperatingSystems
-            operatingSystem )
+        CommandLineOperatingSystems? operatingSystem = null )
     {
-        config.CommandLineConfiguration = new J4JCommandLineConfiguration( config, operatingSystem );
+        operatingSystem ??= Environment.OSVersion.Platform switch
+        {
+            PlatformID.MacOSX => CommandLineOperatingSystems.Linux,
+            PlatformID.Unix => CommandLineOperatingSystems.Linux,
+            PlatformID.Win32NT => CommandLineOperatingSystems.Windows,
+            PlatformID.Win32S => CommandLineOperatingSystems.Windows,
+            PlatformID.Win32Windows => CommandLineOperatingSystems.Windows,
+            PlatformID.WinCE => CommandLineOperatingSystems.Windows,
+            PlatformID.Xbox => CommandLineOperatingSystems.Windows,
+            _ => CommandLineOperatingSystems.Linux
+        };
+
+        config.CommandLineConfiguration = new J4JCommandLineConfiguration( config, operatingSystem.Value );
+
         return config.CommandLineConfiguration;
     }
 
