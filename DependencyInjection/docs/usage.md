@@ -3,10 +3,6 @@
 - [Creating the Builder Configuration](#creating-the-builder-configuration)
 - [Building IHost](#building-ij4jhost)
 - [Configuring J4JHostConfiguration](#configuring-j4jhostconfiguration)
-  - [Introduction](#introduction)
-  - [Dependency Injection](#dependency-injection)
-  - [Adding Services](#adding-services)
-  - [Build Environment Configuration and Helper Methods](#build-environment-configuration-and-helper-methods)
 
 You create a `IJ4JHost` instance by configuring an instance of `J4JHostConfiguration` and calling its `Build()` method.
 
@@ -105,15 +101,15 @@ Note that there are a few extension methods you **must** call. These are outline
 Click the links for more details.
 
 - [Basic Configuration](#basic-configuration)
+- [Configuration Files](#adding-configuration-files)
+- [J4JCommandLine Subsystem](j4jcmdline.md)
 - [Dependency Injection Configuration](#dependency-injection)
 - [J4JLogging Subsystem](#configuring-logging)
-  - [Basic Configuration](#basic-configuration)
-  - [Adding a NetEventSink](#adding-a-neteventsink)
-  - [Trimming Source Code File Paths](#trimming-source-code-file-paths)
-- [IConfiguration Subsystem](iconfiguration.md)
-- [J4JCommandLine Subsystem](j4jcmdline.md)
+- [Adding Services](#adding-services)
+- [Other J4JHostConfiguration Extension Methods](#other-j4jhostconfiguration-extension-methods)
+- [Helper Methods](#helper-methods)
 
-## Basic Configuration
+### Basic Configuration
 
 There are two properties which **must** be defined for `J4JHostConfiguration` to be buildable. You can also explicitly set the file system case sensitivity, which affects how the command line processor works, if the automatic detection based on `Environment.OSVersion.Platform` isn't sufficient.
 
@@ -122,6 +118,55 @@ There are two properties which **must** be defined for `J4JHostConfiguration` to
 |Set publisher's name|**required**|Publisher( this J4JHostConfiguration config, string publisher )|
 |Set application name|**required**|ApplicationName( this J4JHostConfiguration config, string name )|
 |Set file system case sensitivity|*optional*, defaults based on the detected operating system|FileSystemCaseSensitivity( this J4JHostConfiguration config, bool caseSensitivity )|
+
+### Adding Configuration Files
+
+`J4JHostConfiguration` includes the concept of user and application configuration files. Conceptually, application configuration files are intended to define run-time behaviors which are independent of any particular user, or apply to all users. User configuration files store information which customizes and application's behavior for a specific user.
+
+While the `IConfiguration` system supports adding various kinds of configuration files, `J4JHostConfiguration` **requires that all configuration files be JSON formatted**.
+
+There are two extension methods for adding configuration files to `J4JHostConfiguration`, one for application configuration files and one for user configuration files:
+
+```csharp
+public static J4JHostConfiguration AddApplicationConfigurationFile( 
+    this J4JHostConfiguration config,
+    string filePath,
+    bool optional = true,
+    bool reloadOnChange = false
+    )
+
+public static J4JHostConfiguration AddUserConfigurationFile(
+    this J4JHostConfiguration config,
+    string filePath,
+    bool optional = true,
+    bool reloadOnChange = false
+        )
+```
+
+You can indicate whether a file is required or optional (the default is optional), and whether or not the configuration system should watch the file and reload it if it changes.
+
+You can add as many of each kind of file as you like.
+
+*Note that the `J4JCommandLine` system allows you to specify application files on the command line. If you take advantage of that functionality, any application configuration files you explicitly add via `AddApplicationConfigurationFile` are ignored*.
+
+### Configuring Command Line Processing
+
+`J4JHostConfiguration` uses my `J4JCommandLine` library to support configuration via the command line. `J4JCommandLine` is designed to integrate with the `IConfiguration` system. You can learn more about its capabilities from its [GitHub documentation](https://github.com/markolbert/J4JCommandLine).
+
+Including command line processing in `J4JHostConfiguration` starts with calling the `AddCommandLineProcessing` extension method:
+
+```csharp
+public static J4JCommandLineConfiguration AddCommandLineProcessing( this J4JHostConfiguration config,
+        CommandLineOperatingSystems? operatingSystem = null )
+```
+
+The optional `CommandLineOperatingSystems` value lets you override the default selection, which is based on `Environment.OSVersion.Platform`. All operating systems from Microsoft, including XBox, are assumed to use Windows-style command line flag delimiters (e.g., '/'). Macintosh and Unix operating systems are assumed to use Linux-style command line flag delimiters (e.g., '-'). Any other operating system uses Linux-style flag delimiters (there aren't any other operating systems defined as of late 2022).
+
+Note that `AddCommandLineProcessing` returns a `J4JCommandLineConfiguration` object rather than a `J4JHostConfiguration` object. That's because there are quite a number of configuration options for `J4JCommandLine`, so including them in `J4JHostConfiguration` directly would make the codebase more complicated than I wanted it to be.
+
+For more information about configuring command line options, please see [this documentation](j4jcmdline.md).
+
+I generally all the `AddCommandLineProcessing` extension method last when configuring `J4JHostConfiguration` so as not to break the "declarative chain" for `J4JHostConfiguration`.
 
 ### Dependency Injection
 
@@ -137,9 +182,7 @@ public static J4JHostConfiguration AddDependencyInjectionInitializers( this J4JH
 
 You can supply as many dependency injection initializer methods as you want, although in most cases I find I only use one.
 
-## Configuring Logging
-
-### Basic J4JLogging Configuration
+### Configuring Logging
 
 `IJ4JHost` uses my [J4JLogging library](https://github.com/markolbert/J4JLogging), which is itself based on my favorite logging library, [Serilog](https://serilog.net/). Including logging is optional, and you configure it using several extension methods.
 
@@ -152,82 +195,11 @@ Action<IConfiguration, J4JHostConfiguration, J4JLoggerConfiguration> initializer
 
 The initializer method receives instances of `IConfiguration`, `J4JHostConfiguration` and `J4JLoggerConfiguration`. Details on how to configure `IJ4JLogger` can be found in the [library's GitHub documentation](https://github.com/markolbert/J4JLogging).
 
-### Adding a NetEventSink
-
-In my Windows desktop apps, I often want to make some or all of the app's log messages available in the UI. `Serilog` doesn't directly support this, so far as I know, so I built it into `J4JLogger` as a custom `Serilog` sink called `NetEventSink`. You can add such a sink to an `IJ4JHost` instance by calling an extension method on `J4JHostConfiguration`:
-
-```csharp
-public static J4JHostConfiguration AddNetEventSinkToLogger(
-    this J4JHostConfiguration config,
-    string? outputTemplate = null,
-    LogEventLevel minimumLevel = LogEventLevel.Verbose
-)
-```
-
-`NetEventSink` allows you to filter what log events get sent to the UI sink based on `LogEventLevel`. It also allows you to define a different `Serilog` template for events sent to the UI sink. These are specified through the optional `outputTemplate` and `minimumLevel` method arguments.
-
-### Trimming Source Code File Paths
-
-One of the main additions to `Serilog` in `IJ4JLogger` (which was, in fact, the reason I wrote it) involves automatically adding source code annotations (e.g., source code file path, line number) to log events. Unfortunately, source code file paths typically get very long very quickly, so I implemented a way to shorten them.
-
-It's done by supplying a method to trim file paths to `J4JHostConfiguration`. That's done by calling the `FilePathTrimmer` extension method:
-
-```csharp
-public static J4JHostConfiguration FilePathTrimmer(
-    this J4JHostConfiguration config, 
-    Func<Type?, string, int, string, string> filePathTrimmer )
-```
-
-The `Func<>` signature shows the parameters passed to the trimming function. There's a reference implementation contained in the `J4JLogging` library (it's defined in the static class `SourceCodeFilePathModifiers`) which I typically copy to each of my projects, and then supply to `J4JHostConfiguration`. It consists of two relatively simple methods, the first of which is the one supplied to `J4JHostConfiguration.FilePathTrimmer`:
-
-```csharp
-// copy these next two methods to the source code file where you configure J4JLogger
-// and then reference FilePathTrimmer as the context converter you
-// want to use
-private static string FilePathTrimmer( Type? loggedType,
-    string callerName,
-    int lineNum,
-    string srcFilePath )
-{
-    return CallingContextEnricher.DefaultFilePathTrimmer( loggedType,
-                                                            callerName,
-                                                            lineNum,
-                                                            CallingContextEnricher.RemoveProjectPath( srcFilePath,
-                                                                GetProjectPath() ) );
-}
-
-private static string GetProjectPath( [ CallerFilePath ] string filePath = "" )
-{
-    // DirectoryInfo will throw an exception when this method is called on a machine
-    // other than the development machine, so just return an empty string in that case
-    try
-    {
-        var dirInfo = new DirectoryInfo(System.IO.Path.GetDirectoryName(filePath)!);
-
-        while (dirInfo.Parent != null)
-        {
-            if (dirInfo.EnumerateFiles("*.csproj").Any())
-                break;
-
-            dirInfo = dirInfo.Parent;
-        }
-
-        return dirInfo.FullName;
-    }
-    catch (Exception)
-    {
-        return string.Empty;
-    }
-}
-```
+Further details about configuring logging can be [found here](j4jlogging.md).
 
 ### Adding Services
 
-The next extension method allows you to add services to the `IServiceCollection` that will be managed by the `IHost` instance you'll create.
-
-Note: the `Autofac`-based dependency injection subsystem automatically includes all registrations as services available through `IHost`.
-
-You add `Action<HostBuilderContext, IServiceCollection>` to the builder by calling this extension method:
+You can add services to `IJ4JHost` by calling the `AddServicesInitializer` extension method:
 
 ```csharp
 public static J4JHostConfiguration AddServicesInitializers(
@@ -235,9 +207,13 @@ public static J4JHostConfiguration AddServicesInitializers(
     params Action<HostBuilderContext, IServiceCollection>[] initializers)
 ```
 
-### Build Environment Configuration and Helper Methods
+Any service you add through the dependency injection initializer is automatically registered as an `IJ4JHost` service, so you don't need to add them separately (in practice, I hardly ever add services explicitly for this very reason).s
 
-You can specify `Action<HostBuilderContext, IConfigurationBuilder>` environment initializer methods by calling:
+### Other J4JHostConfiguration Extension Methods
+
+There are a few lesser-used (at least by me) extension methods available for configuring `J4JHostConfiguration`.
+
+You can specify `Action<HostBuilderContext, IConfigurationBuilder>` environment initializer methods by calling the `AddEnvironmentInitializers` extension method:
 
 ```csharp
 public static J4JHostConfiguration AddEnvironmentInitializers( 
@@ -247,7 +223,19 @@ public static J4JHostConfiguration AddEnvironmentInitializers(
 
 The added actions control or modify the entire build process (i.e., I believe these methods get called very early in the build process).
 
-There is currently also one helper method which may be useful for logging. It converts an instance of `J4JHostRequirements` into a formatted text string:
+You can also add additional `IConfiguration` components to the configuration environment by calling `AddConfigurationInitializers`:
+
+```csharp
+public static J4JHostConfiguration AddConfigurationInitializers(
+    this J4JHostConfiguration config,
+    params Action<IConfigurationBuilder>[] initializers)
+```
+
+You would use this, for example, to add user secrets as a configuration source, or a non-JSON configuration file.
+
+### Helper Methods
+
+There is also a helper method which may be useful for logging. It converts an instance of `J4JHostRequirements` into a formatted text string:
 
 ```csharp
 public static string ToText( this J4JHostRequirements requirements )

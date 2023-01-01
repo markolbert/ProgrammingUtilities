@@ -1,20 +1,58 @@
-# J4JCommandLine Subsystem
+# J4JHostConfiguration: Configuring the Command Line Subsystem
 
-The command line parsing capabilities provided by the API are based on my [J4JCommandLine](https://github.com/markolbert/J4JCommandLine) library. There are various extension methods available for configuring how the subsystem works.
+- [Overview](#overview)
+- [Command Line Application Configuration Files](#command-line-application-configuration-files)
+
+## Overview
+
+The command line parsing capabilities in `J4JHostConfiguration` are based on my [J4JCommandLine](https://github.com/markolbert/J4JCommandLine) library.
+
+Command line processing depends on a number of configuration settings, each of which comes with operating system specific defaults that can be customized if necessary. The settings and the `J4JCommandLineConfiguration` extension methods used to customize them are:
+
+|Setting|Extension Method|Purpose|
+|-------|----------------|-------|
+|Lexical elements|`LexicalElements`|Define the text elements which separate options, demarcate text, signal a new option definition, etc.|
+|Text converters|`TextConverters`|Methods for converting command line text into C# values|
+|Options generator|`OptionsGenerator`|Object that does the actual parsing of command line elements|
+|Token cleaners|`TokenCleaners`|Object that cleans up after certain kinds of tokens are processed|
+|Option definition|`OptionsInitializer`|Method that defines the command line options to be parsed|
+|Command line application configuration file|`ConfigurationFileKeys`|Specifies which command line flag, if any, represents one or more application configuration file paths|
+
+In the vast majority of cases only the last two methods -- `OptionsInitializer` and `ConfigurationFileKeys` -- are used, because the operating system based defaults for everything else are sufficient.
+
+Here are the method signatures of the extension methods:
 
 ```csharp
 public static J4JHostConfiguration OptionsInitializer(
     this J4JHostConfiguration config,
-    Action<IOptionCollection> initializer )
+    Action<IOptionCollection> initializer );
+
+public static J4JCommandLineConfiguration LexicalElements( 
+    this J4JCommandLineConfiguration config,
+    ILexicalElements tokens );
+
+public static J4JCommandLineConfiguration TextConverters( 
+    this J4JCommandLineConfiguration config,
+    ITextConverters converters );
+
+public static J4JCommandLineConfiguration OptionsGenerator( 
+    this J4JCommandLineConfiguration config,
+    IOptionsGenerator generator );
+
+public static J4JCommandLineConfiguration TokenCleaners( 
+    this J4JCommandLineConfiguration config,
+    params ICleanupTokens[] tokenCleaners );
+
+public static J4JCommandLineConfiguration OptionsInitializer(
+    this J4JCommandLineConfiguration config,
+    Action<OptionCollection> initializer );
+
+public static J4JCommandLineConfiguration ConfigurationFileKeys(
+    this J4JCommandLineConfiguration config,
+    bool required,
+    bool reloadOnChange,
+    params string[] optionKeys );
 ```
-
-Allows you to configure the `J4JCommandLine` subsystem, which parses command lines. See the [J4JCommandLine](https://github.com/markolbert/J4JCommandLine) documentation for more details.
-
-```csharp
-public static J4JHostConfiguration AddCommandLineAssemblies( this J4JHostConfiguration config, params Assembly[] cmdLineAssemblies )
-```
-
-Allows you to specify additional assemblies to search for capabilities extending the J4JCommandLine subsystem. If all you're using are the defaults this does not need to be called as the defaults are included automatically.
 
 ## Command Line Application Configuration Files
 

@@ -27,6 +27,9 @@ The repository is available online at [github](https://github.com/markolbert/Pro
 
 - [Changes](changes.md)
 - [Usage](usage.md)
+- [Integration with J4JDeusEx](j4jdeusex.md)
 - Examples
-  - [Console app](console-app-example.md)
-  - [WPF app](wpf-app-example.md)
+  - [Console app (not sandboxed)](console-app-example.md)
+  - [Desktop app (sandboxed and not sandboxed)](wpf-app-example.md)
+
+*Sandboxed* refers to whether or not the app has, potentially, unfettered access to the filesystem. Modern desktop apps (e.g., Windows Application v3 aka WinApp3, and, I think, UWP) are sandboxed, at least so far as storing application data is concerned. Older desktop environments (e.g., Windows Forms, WPF) are not sandboxed.
