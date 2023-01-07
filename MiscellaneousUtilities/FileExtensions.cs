@@ -16,7 +16,9 @@
 // with MiscellaneousUtilities. If not, see <https://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using J4JSoftware.Logging;
 using Serilog.Core;
 
@@ -28,32 +30,65 @@ public static class FileExtensions
         string path,
         out string? result,
         string? reqdExtension = ".json",
-        string? defaultFolder = null,
+        IEnumerable<string>? folders = null,
         bool requireWriteAccess = false,
         IJ4JLogger? logger = null
     )
     {
+        logger?.Verbose<string>("Validating file path '{0}'", path);
+
+        folders ??= Enumerable.Empty<string>();
+
         var extension = Path.GetExtension( path );
         if( reqdExtension != null && !extension.Equals( reqdExtension, StringComparison.OrdinalIgnoreCase ) )
         {
             path = Path.GetFileNameWithoutExtension( path ) + reqdExtension;
-            logger?.Warning<string>( "Added required extension ('{0}') to file", reqdExtension );
+            logger?.Verbose<string>( "Added required extension ('{0}') to file", reqdExtension );
         }
 
-        // add the default target folder path if needed
-        defaultFolder ??= Environment.CurrentDirectory;
+        var fileOkay = requireWriteAccess
+            ? CheckFileCanBeCreated(path, out result, logger)
+            : CheckFileExists(path, out result, logger);
 
-        var fileDirectory = Path.GetDirectoryName( path );
-        if( string.IsNullOrEmpty( fileDirectory ) )
+        if( fileOkay )
+            return true;
+
+        // we didn't find the file based just on its current path, so, if it didn't
+        // have an explicit directory associated with it, look for it in the folders
+        // we were given.
+        if( !string.IsNullOrEmpty( Path.GetDirectoryName( path ) ) )
         {
-            path = Path.Combine( defaultFolder, path );
-            logger?.Information<string>( "Added default folder ('{0}') to file", defaultFolder );
+            logger?.Information<string>( "File '{0}' has a directory path but was not found", path );
+            return false;
         }
 
-        // if only read access is required, confirm the file exists and is accessible
-        return requireWriteAccess
-            ? CheckFileCanBeCreated( path, out result, logger )
-            : CheckFileExists( path, out result, logger );
+        string? pathToCheck = null;
+
+        foreach ( var folder in folders )
+        {
+            logger?.Verbose<string>( "Checking folder '{0}' for the file", folder );
+
+            try
+            {
+                pathToCheck = Path.Combine( folder, path );
+
+                if( requireWriteAccess
+                       ? CheckFileCanBeCreated( pathToCheck, out result, logger )
+                       : CheckFileExists( pathToCheck, out result, logger ) )
+                    return true;
+            }
+            catch ( Exception ex )
+            {
+                logger?.Error<string, string>( "Exception when trying to access '{0}', message was '{1}'",
+                                               pathToCheck!,
+                                               ex.Message );
+                return false;
+            }
+        }
+
+        logger?.Information<string>("Could not find '{0}' in any of the supplied folders", path);
+
+        return false;
     }
 
     private static bool CheckFileExists( string path, out string? result, IJ4JLogger? logger )
@@ -68,7 +103,7 @@ public static class FileExtensions
         }
         catch
         {
-            logger?.Warning("File '{0}' is not accessible");
+            logger?.Verbose<string>("File '{0}' is not accessible", path);
             return false;
         }
 
@@ -78,7 +113,7 @@ public static class FileExtensions
             return true;
         }
 
-        logger?.Warning("File '{0}' does not exist");
+        logger?.Verbose<string>("File '{0}' does not exist", path);
         return false;
     }
 
@@ -101,7 +136,7 @@ public static class FileExtensions
         }
         catch
         {
-            logger?.Warning<string>("Could not access directory '{0}'", directory);
+            logger?.Verbose<string>("Could not access directory '{0}'", directory);
         }
 
         result = canCreate ? path : null;
