@@ -273,15 +273,9 @@ public static class J4JHostConfigurationExtensions
         var hostBuilder = new HostBuilder()
            .UseServiceProviderFactory( new AutofacServiceProviderFactory() );
 
-        //if( hostBuilder == null )
-        //{
-        //    config.Logger.Fatal( "Failed to create HostBuilder using the AutofacServiceProviderFactory" );
-        //    return null;
-        //}
-
         var cmdLinePaths = GetCommandLinePaths(config);
 
-        if (cmdLinePaths != null)
+        if (cmdLinePaths.Any())
         {
             config.ApplicationConfigurationFiles.Clear();
 
@@ -334,12 +328,14 @@ public static class J4JHostConfigurationExtensions
 
     // we have to parse the command line from scratch so we don't interfere with
     // the IConfiguration subsystem, which doesn't like parsing command lines twice
-    private static List<CommandLinePath>? GetCommandLinePaths( J4JHostConfiguration hostConfig )
+    private static List<CommandLinePath> GetCommandLinePaths( J4JHostConfiguration hostConfig )
     {
+        var retVal = new List<CommandLinePath>();
+
         if( hostConfig.CommandLineConfiguration is not {} cmdConfig 
            || cmdConfig.OptionsInitializer == null 
            || cmdConfig.ConfigurationFileKeys is not {} fileKeys )
-            return null;
+            return retVal;
 
         // we create default values for missing required parameters, sometimes based on the 
         // type of operating system specified
@@ -364,7 +360,7 @@ public static class J4JHostConfigurationExtensions
         };
 
         if( lexicalElements == null )
-            return null;
+            return retVal;
 
         var parsingTable = new ParsingTable( optionsGenerator, hostConfig.Logger );
         var tokenizer = new Tokenizer( lexicalElements, hostConfig.Logger );
@@ -386,9 +382,7 @@ public static class J4JHostConfigurationExtensions
             : cmdLine;
 
         if( !parser.Parse( cmdLine ) )
-            return null;
-
-        var retVal = new List<CommandLinePath>();
+            return retVal;
 
         foreach( var cmdKey in fileKeys.CommandLineKeys )
         {
