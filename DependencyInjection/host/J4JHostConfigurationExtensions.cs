@@ -18,15 +18,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
+using System.Threading;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Configuration.CommandLine;
 using J4JSoftware.DependencyInjection.host;
 using J4JSoftware.Logging;
-using J4JSoftware.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -83,18 +81,6 @@ public static class J4JHostConfigurationExtensions
         return config;
     }
 
-    //public static J4JHostConfiguration CaseInsensitiveFileSystem( this J4JHostConfiguration config )
-    //{
-    //    config.CaseSensitiveFileSystem = false;
-    //    return config;
-    //}
-
-    //public static J4JHostConfiguration AutoDetectFileSystemCaseSensitivity( this J4JHostConfiguration config )
-    //{
-    //    config.AutoDetectCaseSensitivity();
-    //    return config;
-    //}
-
     public static J4JHostConfiguration CommandLineTextComparison( this J4JHostConfiguration config,
         StringComparison? comparison )
     {
@@ -105,17 +91,37 @@ public static class J4JHostConfigurationExtensions
         return config;
     }
 
-    public static J4JHostConfiguration AddApplicationConfigurationFile( this J4JHostConfiguration config,
+    public static J4JHostConfiguration AddApplicationConfigurationFile(
+        this J4JHostConfiguration config,
         string filePath,
+        IEnumerable<string>? folders = null,
         bool optional = true,
-        bool reloadOnChange = false )
+        bool reloadOnChange = false
+    )
     {
-        config.ApplicationConfigurationFiles.Add(
-            new ConfigurationFile( config,
-                                   ConfigurationFileType.Application,
-                                   filePath,
-                                   optional,
-                                   reloadOnChange ) );
+        folders ??= FileFolders.Default;
+
+        if( !FileExtensions.ValidateFilePath( filePath, out var revisedPath, folders: folders ) && !optional )
+        {
+            config.Logger.Fatal<string>("Could not locate required application configuration file '{0}'", filePath);
+
+            throw new J4JDependencyInjectionException(
+                $"Could not locate required application configuration file '{filePath}'",
+                config );
+        }
+
+        // if we couldn't find the file but it's optional, revert to the original path
+        if( string.IsNullOrEmpty( revisedPath ) )
+        {
+            config.Logger.Error<string>("Could not locate optional application configuration file '{0}'", filePath);
+            revisedPath = filePath;
+        }
+
+        config.ApplicationConfigurationFiles.Add( new ConfigurationFile( config,
+                                                                         ConfigurationFileType.Application,
+                                                                         revisedPath,
+                                                                         optional,
+                                                                         reloadOnChange ) );
 
         return config;
     }
