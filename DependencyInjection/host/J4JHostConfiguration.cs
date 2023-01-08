@@ -237,7 +237,7 @@ public class J4JHostConfiguration
             CommandLineOperatingSystems.Linux =>
                 new LinuxLexicalElements( Logger ),
             _ => throw new
-                ArgumentException( "Operating system is undefined" )
+                J4JDependencyInjectionException( "Operating system is undefined", this )
         };
 
         var parsingTable = new ParsingTable( CommandLineConfiguration.OptionsGenerator!, Logger );
