@@ -12,13 +12,13 @@
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
-		<Version>2.3.2.0</Version>
-		<AssemblyVersion>2.3.2.0</AssemblyVersion>
+		<Version>2.3.3.0</Version>
+		<AssemblyVersion>2.3.3.0</AssemblyVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageDescription>provides customized IHostBuilder and IHost classes for simplified configuration</PackageDescription>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>fix bug causing app config files to be ignored</PackageReleaseNotes>
+		<PackageReleaseNotes>apply validation/searching functionality when adding application configuration files</PackageReleaseNotes>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 

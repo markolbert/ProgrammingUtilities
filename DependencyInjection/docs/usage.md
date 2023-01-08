@@ -149,6 +149,8 @@ You can add as many of each kind of file as you like.
 
 *Note that the `J4JCommandLine` system allows you to specify application files on the command line. If you take advantage of that functionality, any application configuration files you explicitly add via `AddApplicationConfigurationFile` are ignored*.
 
+#### Searching for Application Configuration Files
+
 ### Configuring Command Line Processing
 
 `J4JHostConfiguration` uses my `J4JCommandLine` library to support configuration via the command line. `J4JCommandLine` is designed to integrate with the `IConfiguration` system. You can learn more about its capabilities from its [GitHub documentation](https://github.com/markolbert/J4JCommandLine).

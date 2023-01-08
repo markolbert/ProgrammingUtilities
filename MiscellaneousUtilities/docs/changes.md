@@ -2,12 +2,19 @@
 
 |Version|Description|
 |:-----:|-----------|
+|2.3.0|moved file validation API to DependencyInjection project, [see details below](#230)|
 |2.2.0|Improved how files are searched for when validating [see details below](#220)|
 |2.1.1|Relocated exception formatting extension method `Exception.FormatException()`|
 |2.1.0|Updated to Net 7, updated packages, [see details below](#210)|
 |2.0|breaking changes; updated to Net 6|
 
+## 2.3.0
+
+The file validation API was moved to my DependencyInjection project because it is needed there and I didn't want to force the inclusion of experimental APIs in such a commonly-used assembly.
+
 ## 2.2.0
+
+*The following API was moved to my [DependencyInjection project](https://github.com/markolbert/ProgrammingUtilities/tree/master/DependencyInjection)*.
 
 `FileExtensions.ValidateFilePath` now accepts an enumerable of paths where the file being validated might be located. It also supports logging via my `IJ4JLogger` system. All log events are set at the Verbose level.
 
