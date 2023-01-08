@@ -12,13 +12,13 @@
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
-		<Version>2.3.1.0</Version>
-		<AssemblyVersion>2.3.1.0</AssemblyVersion>
+		<Version>2.3.2.0</Version>
+		<AssemblyVersion>2.3.2.0</AssemblyVersion>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageDescription>provides customized IHostBuilder and IHost classes for simplified configuration</PackageDescription>
 		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>make file system case sensitivity configurable but set by default</PackageReleaseNotes>
+		<PackageReleaseNotes>fix bug causing app config files to be ignored</PackageReleaseNotes>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 

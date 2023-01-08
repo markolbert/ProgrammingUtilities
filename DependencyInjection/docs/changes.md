@@ -2,6 +2,8 @@
 
 |Version|Description|
 |:-----:|-----------|
+|2.3.2|fix bug causing app config files to be ignored|
+|2.3.1|make file system case sensitivity configurable but set by default|
 |2.3.0|Updated to Net 7, updated packages, [see additional details below](#230)|
 |2.2|simplified creating type tests, register IJ4JHost when creating IJ4JHostConfiguration|
 |2.1|updated to Net 6|
