@@ -21,7 +21,7 @@ using System.IO;
 using System.Linq;
 using J4JSoftware.Logging;
 
-namespace J4JSoftware.Utilities;
+namespace J4JSoftware.DependencyInjection;
 
 public static class FileExtensions
 {
@@ -50,7 +50,10 @@ public static class FileExtensions
             : CheckFileExists(path, out result, logger);
 
         if( fileOkay )
+        {
+            logger?.Verbose<string>( "Found file {0}", result! );
             return true;
+        }
 
         // we didn't find the file based just on its current path, so
         // look for it in the folders we were given. How we do this
@@ -65,13 +68,19 @@ public static class FileExtensions
                                            requireWriteAccess,
                                            out result,
                                            logger ) )
+            {
+                logger?.Verbose<string>("Found file {0}", result!);
                 return true;
+            }
         }
 
         path = Path.GetFileName( path );
 
         if( CheckAlternativeLocations( Path.GetFileName( path ), folderList, requireWriteAccess, out result, logger ) )
+        {
+            logger?.Verbose<string>("Found file {0}", result!);
             return true;
+        }
 
         logger?.Information<string>("Could not find '{0}' in any of the supplied folders", path);
 

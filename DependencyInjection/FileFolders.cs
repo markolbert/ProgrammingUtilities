@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using J4JSoftware.Logging;
 
-namespace J4JSoftware.Utilities;
+namespace J4JSoftware.DependencyInjection;
 
 public class FileFolders : IEnumerable<string>
 {
