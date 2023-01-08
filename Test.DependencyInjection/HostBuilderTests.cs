@@ -119,7 +119,7 @@ public class HostBuilderTests
         var cmdOptions = optConfig.Get<OptionsTest>();
         cmdOptions.Should().NotBeNull();
 
-        cmdOptions.Switch.Should().BeTrue();
+        cmdOptions!.Switch.Should().BeTrue();
         cmdOptions.Text.Should().Be( "hello" );
 
         static void define_options( OptionCollection options )
