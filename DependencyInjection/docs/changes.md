@@ -2,6 +2,7 @@
 
 |Version|Description|
 |:-----:|-----------|
+|2.4.0|added new file locator API (experimental), [see details below](#240)|
 |2.3.3|apply validation/searching functionality when adding application configuration files, [see details below](#233)|
 |2.3.2|fix bug causing app config files to be ignored|
 |2.3.1|make file system case sensitivity configurable but set by default|
@@ -9,6 +10,21 @@
 |2.2|simplified creating type tests, register IJ4JHost when creating IJ4JHostConfiguration|
 |2.1|updated to Net 6|
 |2.0|significant breaking changes; [see details below](#200)|
+
+## 2.4.0
+
+A new/alternative file locator API was added. See [Experimental File Locator](file-locator.md) for details.
+
+A static method for identifying the processes locking a file was added:
+
+```csharp
+public static class FileLocking
+{
+    public static List<Process> WhoIsLocking(string path);
+}
+```
+
+The code was made available on [Slashdot](https://stackoverflow.com/questions/317071/how-do-i-find-out-which-process-is-locking-a-file-using-net) by [Waldemar Gałęzinowski](https://stackoverflow.com/users/5343480/waldemar-ga%c5%82%c4%99zinowski). I modified it to comply with Resharper feedback and my personal protocols.
 
 ## 2.3.3
 
