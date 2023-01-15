@@ -9,7 +9,7 @@ public class PathInfo
     public string Path { get; internal set; } = string.Empty;
     public PathState State { get; internal set; }  = PathState.None;
 
-    public bool MeetsRequirements( FileLocator fileLoc )
+    internal bool MeetsRequirements( FileLocator fileLoc )
     {
         foreach( var required in Enum.GetValues<PathState>() )
         {
