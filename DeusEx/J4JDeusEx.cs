@@ -28,13 +28,11 @@ public class J4JDeusEx
     {
         get
         {
-            if( _serviceProvider == null )
-            {
-                Logger?.Fatal("IServiceProvider is undefined");
-                throw new J4JDeusExException( "IServiceProvider is undefined" );
-            }
+            if( _serviceProvider != null )
+                return _serviceProvider;
 
-            return _serviceProvider;
+            Logger?.Fatal("IServiceProvider is undefined");
+            throw new J4JDeusExException( "IServiceProvider is undefined" );
         }
 
         protected set => _serviceProvider = value;
@@ -43,34 +41,6 @@ public class J4JDeusEx
     public static bool IsInitialized { get; protected set; }
     public static string? CrashFilePath { get; protected set; }
     public static IJ4JLogger? Logger { get; protected set; }
-
-    //public static IJ4JLogger? GetLogger<T>()
-    //{
-    //    if( ServiceProvider == null )
-    //        return null;
-
-    //    var retVal = ServiceProvider.GetService<IJ4JLogger>();
-    //    retVal?.SetLoggedType<T>();
-
-    //    return retVal;
-    //}
-
-    //public static bool Initialize(
-    //    IServiceProvider serviceProvider,
-    //    string? crashFilePath = null
-    //)
-    //{
-    //    CrashFilePath = string.IsNullOrEmpty(crashFilePath)
-    //        ? Path.Combine(Environment.CurrentDirectory, "crashFile.txt")
-    //        : crashFilePath;
-
-    //    ServiceProvider = serviceProvider;
-    //    Logger = ServiceProvider.GetService<IJ4JLogger>();
-
-    //    IsInitialized = true;
-
-    //    return true;
-    //}
 
     public static void OutputFatalMessage( string msg, IJ4JLogger? logger )
     {
@@ -84,6 +54,7 @@ public class J4JDeusEx
         {
             File.AppendAllText( CrashFilePath!, $"{msg}\n" );
         }
+        // ReSharper disable once EmptyGeneralCatchClause
         catch
         {
         }
