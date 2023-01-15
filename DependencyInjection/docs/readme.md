@@ -4,6 +4,7 @@
 |---|-----------|
 |[J4JHostConfiguration](#j4jhostconfiguration)|An extended/enhanced version of the `IHost` interface. It is incorporated into my [J4JDeusEx](j4jdeusex.md) API to provide a *ViewModelLocator* capability for most common Windows runtime environments (e.g., console, WPF, Windows Applications aka WinApp3)|
 |[FileUtilities](#fileutilities)|Provides a static method for searching for and validating files|
+|[FileLocator](file-locator.md)|Declarative API for locating files *experimental*|
 
 ## J4JHostConfiguration
 
