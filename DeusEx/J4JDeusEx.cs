@@ -42,6 +42,22 @@ public class J4JDeusEx
     public static string? CrashFilePath { get; protected set; }
     public static IJ4JLogger? Logger { get; protected set; }
 
+    public static IJ4JLogger? GetLogger() => IsInitialized ? _serviceProvider?.GetService<IJ4JLogger>() : null;
+
+    public static IJ4JLogger? GetLogger<T>() 
+        where T: class
+    {
+        if( !IsInitialized )
+            return null;
+
+        var retVal = _serviceProvider?.GetService<IJ4JLogger>();
+        if( retVal == null )
+            return retVal;
+
+        retVal.SetLoggedType<T>();
+        return retVal;
+    }
+
     public static void OutputFatalMessage( string msg, IJ4JLogger? logger )
     {
         // how we log depends on whether we successfully created the service provider
