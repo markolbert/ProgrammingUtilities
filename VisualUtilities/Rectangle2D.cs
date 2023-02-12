@@ -8,10 +8,6 @@ namespace J4JSoftware.VisualUtilities;
 
 public record Rectangle2D : IEnumerable<Vector3>
 {
-    public const float DefaultComparisonTolerance = 1E-4F;
-
-    private record IndexedPoint( Vector3 Point, int Index );
-
     #region IEquatable...
 
     public virtual bool Equals( Rectangle2D? other )
@@ -41,6 +37,10 @@ public record Rectangle2D : IEnumerable<Vector3>
 
     #endregion
 
+    public const float DefaultComparisonTolerance = 1E-4F;
+
+    private readonly Matrix4x4 _inverseUnitTransform;
+
     private Rectangle2D(
         float minX,
         float maxX,
@@ -54,6 +54,17 @@ public record Rectangle2D : IEnumerable<Vector3>
         LowerRight = new Vector3( maxX, maxY, 0 );
 
         BoundingBox = this;
+    }
+
+    public Rectangle2D(
+        float height,
+        float width,
+        float rotation = 0,
+        Vector3? center = null,
+        float comparisonTolerance = DefaultComparisonTolerance
+    )
+        : this(CreateCorners(height, width, rotation, center), comparisonTolerance)
+    {
     }
 
     public Rectangle2D(
@@ -94,17 +105,18 @@ public record Rectangle2D : IEnumerable<Vector3>
                                      ref pointList );
 
         LowerRight = pointList[ 0 ];
-    }
 
-    public Rectangle2D(
-        float height,
-        float width,
-        float rotation = 0,
-        Vector3? center = null,
-        float comparisonTolerance = DefaultComparisonTolerance
-    )
-        : this( CreateCorners( height, width, rotation, center ), comparisonTolerance )
-    {
+        Height = Vector3.Distance( LowerLeft, UpperLeft );
+        Width = Vector3.Distance( UpperLeft, UpperRight );
+
+        var scaleTransform = Matrix4x4.CreateScale( 1 / Width, 1 / Height, 0 );
+        var translationTransform = Matrix4x4.CreateTranslation( -LowerLeft.X, -LowerRight.Y, 0 );
+        var unitTransform = scaleTransform * translationTransform;
+
+        if( Matrix4x4.Invert( unitTransform, out _inverseUnitTransform ) )
+            return;
+
+        throw new InvalidOperationException( "Could not create inverse unit transform" );
     }
 
     private static Vector3[] CreateCorners(float height, float width, float rotation, Vector3? center)
@@ -147,6 +159,8 @@ public record Rectangle2D : IEnumerable<Vector3>
     public Vector3 UpperRight { get; }
     public Vector3 LowerRight { get; }
 
+    public float Height { get; }
+    public float Width { get; }
     public Rectangle2D BoundingBox { get; }
 
     public Vector3 this[ int idx ] =>
@@ -159,7 +173,7 @@ public record Rectangle2D : IEnumerable<Vector3>
             _ => throw new IndexOutOfRangeException("Index must be >=0 and <= 3")
         };
 
-    public ConvexPolygonPosition Contains( Rectangle2D inner )
+    public RelativePosition2D Contains( Rectangle2D inner )
     {
         // test for identity
         var sameCorners = true;
@@ -174,30 +188,41 @@ public record Rectangle2D : IEnumerable<Vector3>
         }
 
         if( sameCorners )
-            return ConvexPolygonPosition.Same;
+            return RelativePosition2D.Edge;
 
-        foreach( var edge in GetEdges() )
+        var retVal = RelativePosition2D.Inside;
+
+        foreach( var corner in inner )
         {
-            foreach( var point in inner )
-            {
-                if( edge.RelationshipToEdge( point ) != PlanePosition.Left )
-                    return ConvexPolygonPosition.Outside;
-            }
+            retVal = Contains( corner );
+
+            if( retVal == RelativePosition2D.Outside )
+                break;
         }
 
-        return ConvexPolygonPosition.Inside;
+        return retVal;
     }
 
-    public bool Contains( Vector3 point )
+    public RelativePosition2D Contains( Vector3 point )
     {
-        foreach( var edge in GetEdges() )
+        var transformed = Vector3.Transform( point, _inverseUnitTransform );
+
+        if( InRange( transformed.Y, 0, Height ) )
         {
-            if( edge.RelationshipToEdge( point ) != PlanePosition.Left )
-                return false;
+            if( OnEdge( transformed.X, 0 ) || OnEdge( transformed.X, Width ) )
+                return RelativePosition2D.Edge;
+
+            return InRange( transformed.X, 0, Width ) 
+                ? RelativePosition2D.Inside 
+                : RelativePosition2D.Outside;
         }
 
-        return true;
+        return RelativePosition2D.Outside;
     }
+
+    private bool OnEdge( float toCheck, float edgeValue ) => Math.Abs( toCheck - edgeValue ) < ComparisonTolerance;
+
+    private bool InRange( float toCheck, float min, float max ) => toCheck >= min && toCheck <= max;
 
     public IEnumerable<Edge3> GetEdges()
     {
