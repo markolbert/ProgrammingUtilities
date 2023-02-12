@@ -21,7 +21,7 @@ public class Rectangle2DTestData
                       Rotation,
                       Center );
 
-    public record InsideOutsideRectParams( RectParams Outer, RectParams Inner, ConvexPolygonPosition Relationship );
+    public record InsideOutsideRectParams( RectParams Outer, RectParams Inner, RelativePosition2D Relationship );
 
     public static IEnumerable<object?[]> GetTestRectangles()
     {
@@ -97,7 +97,7 @@ public class Rectangle2DTestData
                                                              new Vector3( 128, -128, 0 ),
                                                              new Vector3( -128, -128, 0 )
                                                          } ),
-                                     ConvexPolygonPosition.Inside )
+                                     RelativePosition2D.Inside )
         };
 
         yield return new object?[]
@@ -124,7 +124,7 @@ public class Rectangle2DTestData
                                                              new Vector3( 256, -256, 0 ),
                                                              new Vector3( -256, -256, 0 )
                                                          } ),
-                                     ConvexPolygonPosition.Same )
+                                     RelativePosition2D.Edge )
         };
 
         yield return new object?[]
@@ -151,7 +151,7 @@ public class Rectangle2DTestData
                                                              new Vector3( 128, -128, 0 ),
                                                              new Vector3( -128, -128, 0 )
                                                          } ),
-                                     ConvexPolygonPosition.Outside )
+                                     RelativePosition2D.Outside )
         };
 
     }
