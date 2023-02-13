@@ -109,9 +109,9 @@ public record Rectangle2D : IEnumerable<Vector3>
         Height = Vector3.Distance( LowerLeft, UpperLeft );
         Width = Vector3.Distance( UpperLeft, UpperRight );
 
-        var scaleTransform = Matrix4x4.CreateScale( 1 / Width, 1 / Height, 0 );
-        var translationTransform = Matrix4x4.CreateTranslation( -LowerLeft.X, -LowerRight.Y, 0 );
-        var unitTransform = scaleTransform * translationTransform;
+        var scaleTransform = Matrix4x4.CreateScale(Width, Height, 0 );
+        var translationTransform = Matrix4x4.CreateTranslation( LowerLeft.X, LowerRight.Y, 0 );
+        var unitTransform = translationTransform * scaleTransform;
 
         if( Matrix4x4.Invert( unitTransform, out _inverseUnitTransform ) )
             return;
