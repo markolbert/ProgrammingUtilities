@@ -86,8 +86,8 @@ public class Rectangle2DTestData
                                                              new Vector3( 256, -256, 0 ),
                                                              new Vector3( -256, -256, 0 )
                                                          } ),
-                                     new RectTestParams( 256,
-                                                         256,
+                                     new RectTestParams( 512,
+                                                         512,
                                                          0,
                                                          new Vector3( 0, 0, 0 ),
                                                          new[]
@@ -97,7 +97,7 @@ public class Rectangle2DTestData
                                                              new Vector3( 128, -128, 0 ),
                                                              new Vector3( -128, -128, 0 )
                                                          } ),
-                                     RelativePosition2D.Inside )
+                                     RelativePosition2D.Edge )
         };
 
         yield return new object?[]
@@ -113,8 +113,8 @@ public class Rectangle2DTestData
                                                              new Vector3( 256, -256, 0 ),
                                                              new Vector3( -256, -256, 0 )
                                                          } ),
-                                     new RectTestParams( 512,
-                                                         512,
+                                     new RectTestParams( 256,
+                                                         256,
                                                          0,
                                                          new Vector3( 0, 0, 0 ),
                                                          new[]
@@ -124,7 +124,7 @@ public class Rectangle2DTestData
                                                              new Vector3( 256, -256, 0 ),
                                                              new Vector3( -256, -256, 0 )
                                                          } ),
-                                     RelativePosition2D.Edge )
+                                     RelativePosition2D.Inside )
         };
 
         yield return new object?[]

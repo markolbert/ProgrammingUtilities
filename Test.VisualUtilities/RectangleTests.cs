@@ -1,12 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 using FluentAssertions;
 using J4JSoftware.VisualUtilities;
 using Xunit;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Test.VisualUtilities;
 
