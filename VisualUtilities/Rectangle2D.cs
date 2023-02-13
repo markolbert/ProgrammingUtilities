@@ -207,12 +207,13 @@ public record Rectangle2D : IEnumerable<Vector3>
     {
         var transformed = Vector3.Transform( point, _inverseUnitTransform );
 
-        if( InRange( transformed.Y, 0, Height ) )
+        // range tests are on the unit square
+        if( InRange( transformed.Y, 0, 1 ) )
         {
-            if( OnEdge( transformed.X, 0 ) || OnEdge( transformed.X, Width ) )
+            if( OnEdge( transformed.X, 0 ) || OnEdge( transformed.X, 1 ) )
                 return RelativePosition2D.Edge;
 
-            return InRange( transformed.X, 0, Width ) 
+            return InRange( transformed.X, 0, 1 ) 
                 ? RelativePosition2D.Inside 
                 : RelativePosition2D.Outside;
         }
