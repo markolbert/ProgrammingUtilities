@@ -23,6 +23,7 @@ using System.Numerics;
 
 namespace J4JSoftware.VisualUtilities;
 
+[Obsolete("Migrating assembly to be based on Vector3")]
 public class VectorPolygon
 {
     public static VectorPolygon? Create( params Vector2[] vertices )

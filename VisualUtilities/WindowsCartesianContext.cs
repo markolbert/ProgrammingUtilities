@@ -15,14 +15,11 @@
 // You should have received a copy of the GNU General Public License along 
 // with VisualUtilities. If not, see <https://www.gnu.org/licenses/>.
 
+using System;
+
 namespace J4JSoftware.VisualUtilities;
 
-public record CartesianCenter
-(
-    float CartesianCenterX,
-    float CartesianCenterY
-);
-
+[Obsolete("Migrating assembly to be based on standard cartesian system")]
 public record WindowsCartesianContext(
     float CartesianCenterX,
     float CartesianCenterY,
