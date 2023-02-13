@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
 
 namespace J4JSoftware.VisualUtilities;
+
+public enum CoordinateSystem2D
+{
+    Cartesian,
+    Display
+}
 
 public record Rectangle2D : IEnumerable<Vector3>
 {
@@ -45,7 +52,8 @@ public record Rectangle2D : IEnumerable<Vector3>
         float minX,
         float maxX,
         float minY,
-        float maxY
+        float maxY,
+        CoordinateSystem2D coordinateSystem
     )
     {
         LowerLeft = new Vector3( minX, maxY, 0 );
@@ -61,36 +69,52 @@ public record Rectangle2D : IEnumerable<Vector3>
         float width,
         float rotation = 0,
         Vector3? center = null,
+        CoordinateSystem2D coordinateSystem = CoordinateSystem2D.Cartesian,
         float comparisonTolerance = DefaultComparisonTolerance
     )
-        : this(CreateCorners(height, width, rotation, center), comparisonTolerance)
+        : this(CreateCorners(height, width, rotation, center), coordinateSystem, comparisonTolerance)
     {
     }
 
     public Rectangle2D(
         Vector3[] points,
+        CoordinateSystem2D coordinateSystem = CoordinateSystem2D.Cartesian,
         float comparisonTolerance = DefaultComparisonTolerance
     )
     {
         if( points.Length != 4 )
             throw new ArgumentException( "points array must have length == 4" );
 
+        CoordinateSystem = coordinateSystem;
         ComparisonTolerance = comparisonTolerance;
 
         var pointList = points.ToList();
 
         var minX = points.Min( p => p.X );
-        var minY = points.Min( p => p.Y );
-        var maxX = points.Max( p => p.X );
-        var maxY = points.Max( p => p.Y );
+        var minY = CoordinateSystem switch
+        {
+            CoordinateSystem2D.Cartesian => points.Min( p => p.Y ),
+            CoordinateSystem2D.Display => points.Max( p => p.Y ),
+            _ => throw new InvalidEnumArgumentException(
+                $"Unsupported {nameof( CoordinateSystem )} value '{CoordinateSystem}'" )
+        };
 
-        if( maxX < minX )
+        var maxX = points.Max( p => p.X );
+        var maxY = CoordinateSystem switch
+        {
+            CoordinateSystem2D.Cartesian => points.Max( p => p.Y ),
+            CoordinateSystem2D.Display => points.Min( p => p.Y ),
+            _ => throw new InvalidEnumArgumentException(
+                $"Unsupported {nameof( CoordinateSystem )} value '{CoordinateSystem}'" )
+        };
+
+        if ( maxX < minX )
             ( minX, maxX ) = ( maxX, minX );
 
-        if( maxY < minY )
-            ( minY, maxY ) = ( maxY, minY );
+        if (maxY < minY)
+            (minY, maxY) = (maxY, minY);
 
-        BoundingBox = new Rectangle2D( minX, maxX, minY, maxY );
+        BoundingBox = new Rectangle2D( minX, maxX, minY, maxY, CoordinateSystem );
 
         LowerLeft = GetCornerPoint( p => Math.Abs( p.X - minX ) < ComparisonTolerance,
                                     p => p.Y < maxY,
@@ -100,11 +124,27 @@ public record Rectangle2D : IEnumerable<Vector3>
                                     p => p.X < maxX,
                                     ref pointList );
 
+        ( LowerLeft, UpperLeft ) = CoordinateSystem switch
+        {
+            CoordinateSystem2D.Cartesian => ( LowerLeft, UpperLeft ),
+            CoordinateSystem2D.Display => ( UpperLeft, LowerLeft ),
+            _ => throw new InvalidEnumArgumentException(
+                $"Unsupported {nameof( CoordinateSystem )} value '{CoordinateSystem}'" )
+        };
+
         UpperRight = GetCornerPoint( p => Math.Abs( p.X - maxX ) < ComparisonTolerance,
                                      p => p.Y > minY,
                                      ref pointList );
 
         LowerRight = pointList[ 0 ];
+
+        (LowerRight, UpperRight) = CoordinateSystem switch
+        {
+            CoordinateSystem2D.Cartesian => (LowerRight, UpperRight),
+            CoordinateSystem2D.Display => (UpperRight, LowerRight),
+            _ => throw new InvalidEnumArgumentException(
+                $"Unsupported {nameof(CoordinateSystem)} value '{CoordinateSystem}'")
+        };
 
         Height = Vector3.Distance( LowerLeft, UpperLeft );
         Width = Vector3.Distance( UpperLeft, UpperRight );
@@ -153,6 +193,7 @@ public record Rectangle2D : IEnumerable<Vector3>
     }
 
     public float ComparisonTolerance { get; }
+    public CoordinateSystem2D CoordinateSystem { get; }
 
     public Vector3 LowerLeft { get; }
     public Vector3 UpperLeft { get; }
@@ -173,6 +214,8 @@ public record Rectangle2D : IEnumerable<Vector3>
             _ => throw new IndexOutOfRangeException("Index must be >=0 and <= 3")
         };
 
+    // thanx to Nick Alger for this!
+    // https://math.stackexchange.com/questions/190111/how-to-check-if-a-point-is-inside-a-rectangle/1685315#1685315?newreg=dea69604c07d4329b2944256e006a34f
     public RelativePosition2D Contains( Rectangle2D inner )
     {
         // test for identity
