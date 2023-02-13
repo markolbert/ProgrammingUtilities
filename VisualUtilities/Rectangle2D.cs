@@ -225,12 +225,12 @@ public record Rectangle2D : IEnumerable<Vector3>
 
     private bool InRange( float toCheck, float min, float max ) => toCheck >= min && toCheck <= max;
 
-    public IEnumerable<Edge3> GetEdges()
+    public IEnumerable<Edge2D> GetEdges()
     {
-        yield return new Edge3( LowerLeft, UpperLeft );
-        yield return new Edge3( UpperLeft, UpperRight );
-        yield return new Edge3( UpperRight, LowerRight );
-        yield return new Edge3( LowerRight, LowerLeft );
+        yield return new Edge2D( LowerLeft, UpperLeft );
+        yield return new Edge2D( UpperLeft, UpperRight );
+        yield return new Edge2D( UpperRight, LowerRight );
+        yield return new Edge2D( LowerRight, LowerLeft );
     }
 
     public IEnumerator<Vector3> GetEnumerator()
