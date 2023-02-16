@@ -1,6 +1,6 @@
 ﻿extensions: designer.cs generated.cs
 extensions: .cs .cpp .h
-// Copyright (c) 2021, 2022 Mark A. Olbert 
+// Copyright (c) 2021, 2022, 2023 Mark A. Olbert 
 // 
 // This file is part of ConsoleUtilities.
 //
@@ -19,7 +19,7 @@ extensions: .cs .cpp .h
 
 extensions:  .xml .config .xsd
 <!--
-Copyright (c) 2021, 2022 Mark A. Olbert
+Copyright (c) 2021, 2022, 2023 Mark A. Olbert
 
 This file is part of ConsoleUtilities.
 
