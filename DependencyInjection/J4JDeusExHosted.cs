@@ -17,8 +17,8 @@
 
 using System.IO;
 using J4JSoftware.DeusEx;
-using J4JSoftware.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace J4JSoftware.DependencyInjection;
 
@@ -49,12 +49,12 @@ public abstract class J4JDeusExHosted : J4JDeusEx
         {
             OutputFatalMessage(
                 $"Missing {typeof( J4JHostConfiguration )} items: {hostConfig.MissingRequirements}",
-                hostConfig.Logger );
+                hostConfig.BuildLogger );
 
             return false;
         }
 
-        Logger = hostConfig.Logger;
+        Logger = hostConfig.BuildLogger;
 
         var host = hostConfig.Build();
 
@@ -62,8 +62,10 @@ public abstract class J4JDeusExHosted : J4JDeusEx
         {
             ServiceProvider = host.Services;
 
-            var runTimeLogger = host.Services.GetService<IJ4JLogger>();
-            runTimeLogger?.OutputCache( hostConfig.Logger );
+            var runTimeLogger = host.Services.GetService<ILogger>();
+
+            if( runTimeLogger != null )
+                hostConfig.BuildLoggerSink.OutputTo(runTimeLogger);
 
             Logger = runTimeLogger;
 
@@ -75,7 +77,7 @@ public abstract class J4JDeusExHosted : J4JDeusEx
         Logger = null;
 
         OutputFatalMessage( $"Could not create {typeof( IJ4JHost )}",
-                            hostConfig.Logger );
+                            hostConfig.BuildLogger );
 
         return false;
     }

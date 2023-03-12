@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.Utilities;
 
@@ -31,15 +31,15 @@ public class MonthlyTickRange : ITickRange<DateTime, MonthRange>
     private int _traditionalIndex;
     private int _traditionalYears;
 
-    private readonly IJ4JLogger? _logger;
+    private readonly ILogger? _logger;
 
-    public MonthlyTickRange( IJ4JLogger? logger = null )
+    public MonthlyTickRange( ILogger? logger = null )
     {
         _logger = logger;
-        _logger?.SetLoggedType( GetType() );
+        _logger?.ForContext( GetType() );
     }
 
-    public bool TraditionalMonthsPerMinorOnly { get; set; } = false;
+    public bool TraditionalMonthsPerMinorOnly { get; set; } 
 
     public bool IsSupported( Type toCheck ) => toCheck.IsAssignableTo( typeof( DateTime ) );
     public bool IsSupported<T>() => typeof( DateTime ).IsAssignableFrom( typeof( T ) );
@@ -162,7 +162,7 @@ public class MonthlyTickRange : ITickRange<DateTime, MonthRange>
 
             var factorOf3 = minorFactors.FirstOrDefault( x => x.Factor == 3 );
             if( factorOf3 == null )
-                minorFactors.Add( new FactorInfo( 3, 1 ) );
+                minorFactors.Add( new FactorInfo( 3 ) );
 
             var monthsPerMajor = 1;
 
@@ -264,23 +264,23 @@ public class MonthlyTickRange : ITickRange<DateTime, MonthRange>
 
     private (DateTime minValue, DateTime maxValue)? ConvertRange( object minimum, object maximum )
     {
-        DateTime minDT;
-        DateTime maxDT;
+        DateTime minDt;
+        DateTime maxDt;
 
         try
         {
-            minDT = (DateTime) Convert.ChangeType( minimum, typeof( DateTime ) );
-            maxDT = (DateTime) Convert.ChangeType( maximum, typeof( DateTime ) );
+            minDt = (DateTime) Convert.ChangeType( minimum, typeof( DateTime ) );
+            maxDt = (DateTime) Convert.ChangeType( maximum, typeof( DateTime ) );
         }
         catch
         {
-            _logger?.Error<string, string>( "Minimum ({0}) and/or maximum ({1}) values could not be converted to type DateTime",
-                                            minimum?.ToString() ?? "** unknown **",
-                                            maximum.ToString() ?? "** unknown **" );
+            _logger?.Error("Minimum ({0}) and/or maximum ({1}) values could not be converted to type DateTime",
+                minimum.ToString() ?? "** unknown **",
+                maximum.ToString() ?? "** unknown **");
 
             return null;
         }
 
-        return ( minDT, maxDT );
+        return ( minDt, maxDt );
     }
 }

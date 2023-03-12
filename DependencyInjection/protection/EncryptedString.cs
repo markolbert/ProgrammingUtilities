@@ -18,7 +18,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.DependencyInjection;
 
@@ -30,7 +30,7 @@ public class EncryptedString : INotifyPropertyChanged
     private string? _encryptedText;
 
     [JsonIgnore]
-    public IJ4JLogger? Logger { get; set; }
+    public ILogger? Logger { get; set; }
 
     [JsonIgnore]
     public IJ4JProtection? Protector { get; set; }
@@ -108,6 +108,7 @@ public class EncryptedString : INotifyPropertyChanged
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
+    // ReSharper disable once RedundantAssignment
     private void SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         field = value;

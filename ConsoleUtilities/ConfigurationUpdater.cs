@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.ConsoleUtilities;
 
@@ -29,13 +29,13 @@ public partial class ConfigurationUpdater<TConfig> : IConfigurationUpdater<TConf
 {
     private readonly Dictionary<string, PropertyValidation> _updaters = new();
 
-    public ConfigurationUpdater( Func<IJ4JLogger>? loggerFactory )
+    public ConfigurationUpdater( Func<ILogger>? loggerFactory )
     {
         Logger = loggerFactory?.Invoke();
-        Logger?.SetLoggedType( GetType() );
+        Logger?.ForContext( GetType() );
     }
 
-    protected IJ4JLogger? Logger { get; }
+    protected ILogger? Logger { get; }
 
     public virtual bool Update( TConfig config )
     {
@@ -54,7 +54,7 @@ public partial class ConfigurationUpdater<TConfig> : IConfigurationUpdater<TConf
                     break;
 
                 case UpdaterResult.InvalidUserInput:
-                    Logger?.Error<string>( "Validation of {0} was cancelled", propVal.PropertyInfo.Name );
+                    Logger?.Error( "Validation of {0} was cancelled", propVal.PropertyInfo.Name );
                     retVal = false;
 
                     break;

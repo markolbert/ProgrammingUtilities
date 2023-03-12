@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Versioning;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.Utilities;
 
@@ -32,7 +32,7 @@ public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, T
     private readonly IEqualityComparer<TKey> _keyComparer;
 
     protected SelectableTree(
-        IJ4JLogger? logger,
+        ILogger? logger,
         IEqualityComparer<TKey>? keyComparer = null
     )
     {
@@ -41,10 +41,10 @@ public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, T
         _masterDict = new Dictionary<TKey, TEntity>( keyComparer );
 
         Logger = logger;
-        Logger?.SetLoggedType( GetType() );
+        Logger?.ForContext( GetType() );
     }
 
-    protected IJ4JLogger? Logger { get; }
+    protected ILogger? Logger { get; }
 
     public bool Load( List<TEntity> entities )
     {

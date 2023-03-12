@@ -17,7 +17,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.Utilities;
 
@@ -29,13 +29,13 @@ public abstract class SortedCollection<T> : ISortedCollection<T>
 
     private List<T>? _sorted;
 
-    protected SortedCollection( IJ4JLogger? logger = null )
+    protected SortedCollection( ILogger? logger = null )
     {
         Logger = logger;
-        Logger?.SetLoggedType( GetType() );
+        Logger?.ForContext( GetType() );
     }
 
-    protected IJ4JLogger? Logger { get; }
+    protected ILogger? Logger { get; }
     protected List<T> Available { get; } = new();
 
     public List<T> SortedSequence

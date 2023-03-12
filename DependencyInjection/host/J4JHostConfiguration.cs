@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 
 namespace J4JSoftware.DependencyInjection;
 
@@ -41,6 +42,12 @@ public class J4JHostConfiguration
         bool registerJ4JHost = true
     )
     {
+        BuildLogger = new LoggerConfiguration()
+            .WriteTo.InMemory(out var temp)
+            .CreateLogger();
+
+        BuildLoggerSink = temp;
+
         RegisterJ4JHost = registerJ4JHost;
         AppEnvironment = appEnvironment;
 
@@ -62,8 +69,9 @@ public class J4JHostConfiguration
     }
 
     // used to capture log events during the host building process,
-    // when the ultimate J4JLogger instance is not yet available
-    public J4JCachedLogger Logger { get; } = new();
+    // when the ultimate ILogger instance is not yet available
+    public ILogger BuildLogger { get; }
+    public InMemorySink BuildLoggerSink { get; }
 
     internal string Publisher
     {
@@ -85,7 +93,7 @@ public class J4JHostConfiguration
     internal bool RegisterJ4JHost { get; }
     internal IJ4JHost? Host { get; set; }
 
-    internal bool FileSystemCaseSensitivity { get; set; } = false;
+    internal bool FileSystemCaseSensitivity { get; set; }
 
     private void AutoDetectCaseSensitivity()
     {
@@ -103,7 +111,7 @@ public class J4JHostConfiguration
 
         bool DefaultSensitivity()
         {
-            Logger.Warning( "Unsupported operating system, case sensitivity set to false" );
+            BuildLogger.Warning( "Unsupported operating system, case sensitivity set to false" );
             return false;
         }
     }
@@ -130,9 +138,7 @@ public class J4JHostConfiguration
 
     internal CommandLineSource? CommandLineSource { get; private set; }
 
-    internal Action<IConfiguration, J4JHostConfiguration, J4JLoggerConfiguration>? LoggerInitializer { get; set; }
-    internal Func<Type?, string, int, string, string>? FilePathTrimmer { get; set; }
-    internal NetEventConfiguration? NetEventConfiguration { get; set; }
+    internal Func<IConfiguration, J4JHostConfiguration, ILogger>? RuntimeLoggerInitializer { get; set; }
 
     internal List<Action<HostBuilderContext, IConfigurationBuilder>> EnvironmentInitializers { get; } = new();
     internal List<Action<IConfigurationBuilder>> ConfigurationInitializers { get; } = new();
@@ -146,10 +152,10 @@ public class J4JHostConfiguration
         result = null;
 
         if (string.IsNullOrEmpty(_publisher))
-            Logger.Error("UserConfigurationFolder is undefined because Publisher is undefined");
+            BuildLogger.Error("UserConfigurationFolder is undefined because Publisher is undefined");
 
         if (string.IsNullOrEmpty(_appName))
-            Logger.Error("UserConfigurationFolder is undefined because ApplicationName is undefined");
+            BuildLogger.Error("UserConfigurationFolder is undefined because ApplicationName is undefined");
 
         if (!string.IsNullOrEmpty(_publisher) && !string.IsNullOrEmpty(_appName))
             result = Path.Combine(
@@ -159,8 +165,6 @@ public class J4JHostConfiguration
 
         return result != null;
     }
-
-    public void OutputBuildLogger( IJ4JLogger logger ) => logger.OutputCache( Logger );
 
     public J4JHostRequirements MissingRequirements
     {
@@ -225,30 +229,30 @@ public class J4JHostConfiguration
 
         _options = new OptionCollection( CommandLineTextComparison,
                                          CommandLineConfiguration.TextConverters,
-                                         Logger );
+                                         BuildLogger );
 
         CommandLineConfiguration.OptionsGenerator ??=
-            new OptionsGenerator( _options, CommandLineTextComparison, Logger );
+            new OptionsGenerator( _options, CommandLineTextComparison, BuildLogger );
 
         CommandLineConfiguration.LexicalElements ??= CommandLineConfiguration.OperatingSystem switch
         {
             CommandLineOperatingSystems.Windows =>
-                new WindowsLexicalElements( Logger ),
+                new WindowsLexicalElements( BuildLogger ),
             CommandLineOperatingSystems.Linux =>
-                new LinuxLexicalElements( Logger ),
+                new LinuxLexicalElements( BuildLogger ),
             _ => throw new
                 J4JDependencyInjectionException( "Operating system is undefined", this )
         };
 
-        var parsingTable = new ParsingTable( CommandLineConfiguration.OptionsGenerator!, Logger );
+        var parsingTable = new ParsingTable( CommandLineConfiguration.OptionsGenerator! );
 
         var tokenizer = new Tokenizer( CommandLineConfiguration.LexicalElements!,
-                                       Logger,
+                                       BuildLogger,
                                        CommandLineConfiguration.CleanupProcessors.ToArray() );
 
-        var parser = new Parser( _options, parsingTable, tokenizer, Logger );
+        var parser = new Parser( _options, parsingTable, tokenizer, BuildLogger );
 
-        builder.AddJ4JCommandLine( parser, out var cmdLineSrc, Logger );
+        builder.AddJ4JCommandLine( parser, out var cmdLineSrc );
 
         CommandLineConfiguration.OptionsInitializer!( _options );
 
@@ -285,7 +289,7 @@ public class J4JHostConfiguration
     {
         // expose IOptionCollection when J4JCommandLine subsystem is being used
         if (_options != null)
-            builder.Register(c => _options)
+            builder.Register(_ => _options)
                    .AsSelf()
                    .SingleInstance();
     }
@@ -294,33 +298,19 @@ public class J4JHostConfiguration
     {
         // register the IJ4JHost which will get built
         if (RegisterJ4JHost)
-            builder.Register(c => Host!)
+            builder.Register(_ => Host!)
                    .As<IJ4JHost>()
                    .SingleInstance();
     }
 
-    private void CoreLoggingDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
+    private void CoreLoggingDependencyInjection(HostBuilderContext hbc, ContainerBuilder builder)
     {
-        builder.Register( c =>
-                {
-                    var loggerConfig = new J4JLoggerConfiguration( FilePathTrimmer );
+        if (RuntimeLoggerInitializer == null)
+            return;
 
-                    if( NetEventConfiguration != null )
-                    {
-                        var outputTemplate =
-                            NetEventConfiguration.OutputTemplate ?? "[{Level:u3}] {Message:lj}";
-
-                        loggerConfig.NetEvent( outputTemplate: outputTemplate,
-                                               restrictedToMinimumLevel:
-                                               NetEventConfiguration.MinimumLevel );
-                    }
-
-                    LoggerInitializer?.Invoke( hbc.Configuration, this, loggerConfig );
-
-                    return loggerConfig.CreateLogger();
-                } )
-               .AsImplementedInterfaces()
-               .SingleInstance();
+        builder.Register(_ => RuntimeLoggerInitializer.Invoke(hbc.Configuration, this))
+            .AsImplementedInterfaces()
+            .SingleInstance();
     }
 
     private void CoreDataProtectionServices( HostBuilderContext hbc, IServiceCollection services )

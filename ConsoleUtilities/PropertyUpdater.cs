@@ -16,19 +16,19 @@
 // with ConsoleUtilities. If not, see <https://www.gnu.org/licenses/>.
 
 using System;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.ConsoleUtilities;
 
 public abstract class PropertyUpdater<TProp> : IPropertyUpdater<TProp>
 {
-    protected PropertyUpdater( IJ4JLogger? logger )
+    protected PropertyUpdater( ILogger? logger )
     {
         Logger = logger;
-        Logger?.SetLoggedType( GetType() );
+        Logger?.ForContext( GetType() );
     }
 
-    protected IJ4JLogger? Logger { get; }
+    protected ILogger? Logger { get; }
 
     public abstract UpdaterResult Update( TProp? origValue, out TProp? newValue );
 

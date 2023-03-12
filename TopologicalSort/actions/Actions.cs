@@ -15,22 +15,24 @@
 // You should have received a copy of the GNU General Public License along 
 // with TopologicalSort. If not, see <https://www.gnu.org/licenses/>.
 
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.Utilities;
 
 public abstract class Actions<TSource> : Nodes<IAction<TSource>>, IAction<TSource>
 {
-    protected Actions( ActionsContext context,
-        IJ4JLogger? logger = null )
+    protected Actions( 
+        ActionsContext context,
+        ILogger? logger = null 
+        )
     {
         Context = context;
 
         Logger = logger;
-        Logger?.SetLoggedType( GetType() );
+        Logger?.ForContext( GetType() );
     }
 
-    protected IJ4JLogger? Logger { get; }
+    protected ILogger? Logger { get; }
     protected ActionsContext Context { get; }
 
     public virtual bool Process( TSource src )
@@ -48,7 +50,7 @@ public abstract class Actions<TSource> : Nodes<IAction<TSource>>, IAction<TSourc
 
         actions!.Reverse();
 
-        foreach( var action in actions! )
+        foreach( var action in actions )
         {
             allOkay &= action.Process( src );
 

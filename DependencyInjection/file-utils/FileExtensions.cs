@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.DependencyInjection;
 
@@ -31,10 +31,10 @@ public static class FileExtensions
         string? reqdExtension = ".json",
         IEnumerable<string>? folders = null,
         bool requireWriteAccess = false,
-        IJ4JLogger? logger = null
+        ILogger? logger = null
     )
     {
-        logger?.Verbose<string>("Validating file path '{0}'", path);
+        logger?.Verbose("Validating file path '{0}'", path);
 
         folders ??= Enumerable.Empty<string>();
 
@@ -42,7 +42,7 @@ public static class FileExtensions
         if( reqdExtension != null && !extension.Equals( reqdExtension, StringComparison.OrdinalIgnoreCase ) )
         {
             path = Path.GetFileNameWithoutExtension( path ) + reqdExtension;
-            logger?.Verbose<string>( "Added required extension ('{0}') to file", reqdExtension );
+            logger?.Verbose( "Added required extension ('{0}') to file", reqdExtension );
         }
 
         var fileOkay = requireWriteAccess
@@ -51,7 +51,7 @@ public static class FileExtensions
 
         if( fileOkay )
         {
-            logger?.Verbose<string>( "Found file {0}", result! );
+            logger?.Verbose( "Found file {0}", result! );
             return true;
         }
 
@@ -69,7 +69,7 @@ public static class FileExtensions
                                            out result,
                                            logger ) )
             {
-                logger?.Verbose<string>("Found file {0}", result!);
+                logger?.Verbose("Found file {0}", result!);
                 return true;
             }
         }
@@ -78,11 +78,11 @@ public static class FileExtensions
 
         if( CheckAlternativeLocations( Path.GetFileName( path ), folderList, requireWriteAccess, out result, logger ) )
         {
-            logger?.Verbose<string>("Found file {0}", result!);
+            logger?.Verbose("Found file {0}", result!);
             return true;
         }
 
-        logger?.Information<string>("Could not find '{0}' in any of the supplied folders", path);
+        logger?.Information("Could not find '{0}' in any of the supplied folders", path);
 
         return false;
     }
@@ -92,7 +92,7 @@ public static class FileExtensions
         List<string> folderList,
         bool requireWriteAccess,
         out string? result,
-        IJ4JLogger? logger
+        ILogger? logger
     )
     {
         result = null;
@@ -100,7 +100,7 @@ public static class FileExtensions
 
         foreach( var folder in folderList )
         {
-            logger?.Verbose<string, string>( "Checking folder '{0}' for {1}", folder, path );
+            logger?.Verbose( "Checking folder '{0}' for {1}", folder, path );
 
             try
             {
@@ -113,9 +113,9 @@ public static class FileExtensions
             }
             catch( Exception ex )
             {
-                logger?.Error<string, string>( "Exception when trying to access '{0}', message was '{1}'",
-                                               pathToCheck!,
-                                               ex.Message );
+                logger?.Error("Exception when trying to access '{0}', message was '{1}'",
+                    pathToCheck!,
+                    ex.Message);
                 return false;
             }
         }
@@ -123,7 +123,7 @@ public static class FileExtensions
         return false;
     }
 
-    private static bool CheckFileExists( string path, out string? result, IJ4JLogger? logger )
+    private static bool CheckFileExists( string path, out string? result, ILogger? logger )
     {
         result = null;
 
@@ -135,7 +135,7 @@ public static class FileExtensions
         }
         catch
         {
-            logger?.Verbose<string>("File '{0}' is not accessible", path);
+            logger?.Verbose("File '{0}' is not accessible", path);
             return false;
         }
 
@@ -145,11 +145,11 @@ public static class FileExtensions
             return true;
         }
 
-        logger?.Verbose<string>("File '{0}' does not exist", path);
+        logger?.Verbose("File '{0}' does not exist", path);
         return false;
     }
 
-    private static bool CheckFileCanBeCreated( string path, out string? result, IJ4JLogger? logger )
+    private static bool CheckFileCanBeCreated( string path, out string? result, ILogger? logger )
     {
         //see if the file can be created where specified
         var directory = Path.GetDirectoryName(path)!;
@@ -168,7 +168,7 @@ public static class FileExtensions
         }
         catch
         {
-            logger?.Verbose<string>("Could not access directory '{0}'", directory);
+            logger?.Verbose("Could not access directory '{0}'", directory);
         }
 
         result = canCreate ? path : null;

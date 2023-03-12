@@ -19,16 +19,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Configuration.CommandLine;
 using J4JSoftware.DependencyInjection.host;
-using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog.Events;
+using Serilog;
 
 namespace J4JSoftware.DependencyInjection;
 
@@ -48,13 +46,13 @@ public static class J4JHostConfigurationExtensions
 
         var retVal = sb.ToString().Trim();
 
-        return retVal[ ^0 ] == ',' ? retVal[ 0..^1 ] : retVal;
+        return retVal[ ^1 ] == ',' ? retVal[ 0..^1 ] : retVal;
     }
 
     public static J4JHostConfiguration Publisher( this J4JHostConfiguration config, string publisher )
     {
         if (string.IsNullOrEmpty(publisher))
-            config.Logger.Error("The publisher name cannot be empty");
+            config.BuildLogger.Error("The publisher name cannot be empty");
         else config.Publisher = publisher;
 
         return config;
@@ -63,7 +61,7 @@ public static class J4JHostConfigurationExtensions
     public static J4JHostConfiguration ApplicationName( this J4JHostConfiguration config, string appName )
     {
         if (string.IsNullOrEmpty(appName))
-            config.Logger.Error("The application name cannot be empty");
+            config.BuildLogger.Error("The application name cannot be empty");
         else config.ApplicationName = appName;
         
         return config;
@@ -103,7 +101,7 @@ public static class J4JHostConfigurationExtensions
 
         if( !FileExtensions.ValidateFilePath( filePath, out var revisedPath, folders: folders ) && !optional )
         {
-            config.Logger.Fatal<string>("Could not locate required application configuration file '{0}'", filePath);
+            config.BuildLogger.Fatal("Could not locate required application configuration file '{0}'", filePath);
 
             throw new J4JDependencyInjectionException(
                 $"Could not locate required application configuration file '{filePath}'",
@@ -113,7 +111,7 @@ public static class J4JHostConfigurationExtensions
         // if we couldn't find the file but it's optional, revert to the original path
         if( string.IsNullOrEmpty( revisedPath ) )
         {
-            config.Logger.Error<string>("Could not locate optional application configuration file '{0}'", filePath);
+            config.BuildLogger.Error("Could not locate optional application configuration file '{0}'", filePath);
             revisedPath = filePath;
         }
 
@@ -169,25 +167,10 @@ public static class J4JHostConfigurationExtensions
     }
 
     public static J4JHostConfiguration LoggerInitializer( this J4JHostConfiguration config,
-        Action<IConfiguration, J4JHostConfiguration, J4JLoggerConfiguration>
+        Func<IConfiguration, J4JHostConfiguration, ILogger>
             initializer )
     {
-        config.LoggerInitializer = initializer;
-        return config;
-    }
-
-    public static J4JHostConfiguration AddNetEventSinkToLogger( this J4JHostConfiguration config,
-        string? outputTemplate = NetEventSink.DefaultTemplate,
-        LogEventLevel minimumLevel = LogEventLevel.Verbose )
-    {
-        config.NetEventConfiguration = new NetEventConfiguration( outputTemplate, minimumLevel );
-        return config;
-    }
-
-    public static J4JHostConfiguration FilePathTrimmer( this J4JHostConfiguration config,
-        Func<Type?, string, int, string, string> filePathTrimmer )
-    {
-        config.FilePathTrimmer = filePathTrimmer;
+        config.RuntimeLoggerInitializer = initializer;
         return config;
     }
 
@@ -265,14 +248,14 @@ public static class J4JHostConfigurationExtensions
     {
         if( config.MissingRequirements != J4JHostRequirements.AllMet )
         {
-            config.Logger.Fatal("J4JHostConfiguration: some or all requirements not met");
+            config.BuildLogger.Fatal("J4JHostConfiguration: some or all requirements not met");
             return null;
         }
 
         // this next call should never fail, but...
         if (!config.TryGetUserConfigurationFolder(out var userConfigFolder))
         {
-            config.Logger.Fatal("J4JHostConfiguration: user configuration folder is undefined");
+            config.BuildLogger.Fatal("J4JHostConfiguration: user configuration folder is undefined");
             return null;
         }
 
@@ -349,29 +332,29 @@ public static class J4JHostConfigurationExtensions
 
         var optionCollection = new OptionCollection( hostConfig.CommandLineTextComparison,
                                             textConverters,
-                                            hostConfig.Logger );
+                                            hostConfig.BuildLogger );
 
         cmdConfig.OptionsInitializer( optionCollection );
         optionCollection.FinishConfiguration();
 
-        var optionsGenerator = new OptionsGenerator( optionCollection, hostConfig.CommandLineTextComparison, hostConfig.Logger );
+        var optionsGenerator = new OptionsGenerator( optionCollection, hostConfig.CommandLineTextComparison, hostConfig.BuildLogger );
 
         var lexicalElements = cmdConfig.OperatingSystem switch
         {
             CommandLineOperatingSystems.Windows =>
-                new WindowsLexicalElements(hostConfig.Logger),
+                new WindowsLexicalElements(hostConfig.BuildLogger),
             CommandLineOperatingSystems.Linux =>
-                new LinuxLexicalElements(hostConfig.Logger),
+                new LinuxLexicalElements(hostConfig.BuildLogger),
             _ => (LexicalElements?) null
         };
 
         if( lexicalElements == null )
             return retVal;
 
-        var parsingTable = new ParsingTable( optionsGenerator, hostConfig.Logger );
-        var tokenizer = new Tokenizer( lexicalElements, hostConfig.Logger );
+        var parsingTable = new ParsingTable( optionsGenerator );
+        var tokenizer = new Tokenizer( lexicalElements, hostConfig.BuildLogger );
 
-        var parser = new Parser( optionCollection, parsingTable, tokenizer, hostConfig.Logger );
+        var parser = new Parser( optionCollection, parsingTable, tokenizer, hostConfig.BuildLogger );
 
         var pathComparer = hostConfig.FileSystemCaseSensitivity
             ? StringComparison.Ordinal
@@ -418,7 +401,7 @@ public static class J4JHostConfigurationExtensions
                     break;
 
                 default:
-                    hostConfig.Logger.Warning<string>(
+                    hostConfig.BuildLogger.Warning(
                         "Command line option for '{0}' is not a string or an IEnumerable<string>",
                         cmdKey );
                     break;

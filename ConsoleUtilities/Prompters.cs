@@ -21,7 +21,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Alba.CsConsoleFormat.Fluent;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.ConsoleUtilities;
 
@@ -30,11 +30,11 @@ public static class Prompters
     public static T GetEnum<T>( T curValue,
         T defaultValue,
         List<T>? values = null,
-        IJ4JLogger? logger = null,
+        ILogger? logger = null,
         int indent = 4 )
         where T : Enum
     {
-        indent = indent < 0 ? 4 : indent;
+        //indent = indent < 0 ? 4 : indent;
 
         Colors.WriteLine( "Enter ",
                           typeof( T ).Name.Yellow(),
@@ -45,10 +45,12 @@ public static class Prompters
         values ??= Enum.GetValues( typeof( T ) ).Cast<T>().ToList();
 
         for( var idx = 0; idx < values.Count; idx++ )
+        {
             Colors.WriteLine( new string( ' ', 4 ),
                               ( idx + 1 ).ToString().Green(),
                               " - ",
                               values[ idx ].ToString() );
+        }
 
         Console.Write( "\n\nChoice: " );
 
@@ -63,7 +65,7 @@ public static class Prompters
         return defaultValue;
     }
 
-    public static T? GetSingleValue<T>( T curValue, string prompt, T? defaultValue = default )
+    public static T GetSingleValue<T>( T curValue, string prompt, T? defaultValue = default )
     {
         defaultValue ??= curValue;
 

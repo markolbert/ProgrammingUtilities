@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.Utilities;
 
@@ -37,12 +37,12 @@ public class NumericTickRange : ITickRange<decimal, NumericRange>
         NumericTicks.Add( new NumericTick( 10 ) );
     }
 
-    private readonly IJ4JLogger? _logger;
+    private readonly ILogger? _logger;
 
-    public NumericTickRange( IJ4JLogger? logger = null )
+    public NumericTickRange( ILogger? logger = null )
     {
         _logger = logger;
-        _logger?.SetLoggedType( GetType() );
+        _logger?.ForContext( GetType() );
     }
 
     public TickSizePreference TickSizePreference { get; set; } = TickSizePreference.Smallest;
@@ -58,7 +58,7 @@ public class NumericTickRange : ITickRange<decimal, NumericRange>
             if( value == null )
                 return false;
 
-            var temp = (decimal) Convert.ChangeType( value, typeof( decimal ) );
+            //var temp = (decimal) Convert.ChangeType( value, typeof( decimal ) );
         }
         catch
         {
@@ -164,10 +164,6 @@ public class NumericTickRange : ITickRange<decimal, NumericRange>
                     pow10--;
                 }
 
-                break;
-
-            default:
-                // no scaling needed
                 break;
         }
 
@@ -303,9 +299,9 @@ public class NumericTickRange : ITickRange<decimal, NumericRange>
         }
         catch
         {
-            _logger?.Error<string, string>( "Minimum ({0}) and/or maximum ({1}) values could not be converted to type decimal",
-                                            minimum?.ToString() ?? "** unknown **",
-                                            maximum.ToString() ?? "** unknown **" );
+            _logger?.Error("Minimum ({0}) and/or maximum ({1}) values could not be converted to type decimal",
+                minimum.ToString() ?? "** unknown **",
+                maximum.ToString() ?? "** unknown **");
 
             return null;
         }

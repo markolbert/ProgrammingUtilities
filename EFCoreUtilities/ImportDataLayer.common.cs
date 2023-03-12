@@ -18,9 +18,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using J4JSoftware.Logging;
 using J4JSoftware.Utilities;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 // ReSharper disable ExplicitCallerInfoArgument
 
@@ -29,21 +29,21 @@ namespace J4JSoftware.EFCoreUtilities;
 public class ImportDataLayer : IImportDataLayer
 {
     private readonly DbContext _dbContext;
-    private readonly IJ4JLogger _logger;
+    private readonly ILogger _logger;
 
     public ImportDataLayer(
         DbContext dbContext,
-        IJ4JLogger logger
+        ILogger logger
     )
     {
         _dbContext = dbContext;
 
         _logger = logger;
-        _logger.SetLoggedType( GetType() );
+        _logger.ForContext( GetType() );
     }
 
     public void LogPendingChanges() =>
-        _logger.Information<string>( "{0}", _dbContext.ChangeTracker.DebugView.LongView );
+        _logger.Information( "{0}", _dbContext.ChangeTracker.DebugView.LongView );
 
     public bool SaveChanges()
     {

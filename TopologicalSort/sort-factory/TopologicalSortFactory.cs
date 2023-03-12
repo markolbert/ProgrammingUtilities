@@ -18,18 +18,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.Utilities;
 
 public class TopologicalSortFactory : ITopologicalSortFactory
 {
-    private readonly IJ4JLogger? _logger;
+    private readonly ILogger? _logger;
 
-    public TopologicalSortFactory( IJ4JLogger? logger )
+    public TopologicalSortFactory( ILogger? logger )
     {
         _logger = logger;
-        _logger?.SetLoggedType( GetType() );
+        _logger?.ForContext( GetType() );
     }
 
     public bool CreateSortedList<T>( IEnumerable<T> toSort, out List<T>? result )
@@ -75,9 +75,9 @@ public class TopologicalSortFactory : ITopologicalSortFactory
 
                     if( predecessor == null )
                     {
-                        _logger?.Error<Type, string>( "Could not find {0} type '{1}'",
-                                                      typeof( T ),
-                                                      predecessorType.Name );
+                        _logger?.Error("Could not find {0} type '{1}'",
+                            typeof(T),
+                            predecessorType.Name);
                         return false;
                     }
 
@@ -86,7 +86,7 @@ public class TopologicalSortFactory : ITopologicalSortFactory
             }
         }
 
-        if( !topoSort.Sort( out result, out var remaining ) )
+        if( !topoSort.Sort( out result, out _ ) )
             _logger?.Error( "Could not topologically sort {0} collection", typeof( T ) );
 
         return true;

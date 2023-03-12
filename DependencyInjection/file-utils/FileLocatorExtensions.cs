@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.DependencyInjection;
 
@@ -207,13 +207,13 @@ public static class FileLocatorExtensions
         }
         catch (Exception ex)
         {
-            fileLoc.Logger?.Verbose<string>("Problem searching for file, exception message was '{0}'",  ex.Message);
+            fileLoc.Logger?.Verbose("Problem searching for file, exception message was '{0}'",  ex.Message);
         }
 
         return retVal;
     }
 
-    private static PathState TestFile( string path, bool fileExists, IJ4JLogger? logger )
+    private static PathState TestFile( string path, bool fileExists, ILogger? logger )
     {
         var retVal = fileExists ? PathState.Exists : PathState.None;
 
@@ -229,7 +229,7 @@ public static class FileLocatorExtensions
         return retVal;
     }
 
-    private static bool TestReadability(string path, IJ4JLogger? logger)
+    private static bool TestReadability(string path, ILogger? logger)
     {
         try
         {
@@ -238,7 +238,7 @@ public static class FileLocatorExtensions
         }
         catch (Exception ex)
         {
-            logger?.Verbose<string, string>("Could not access file '{0}', exception message was '{1}'",
+            logger?.Verbose("Could not access file '{0}', exception message was '{1}'",
                                             path,
                                             ex.Message);
         }
@@ -246,7 +246,7 @@ public static class FileLocatorExtensions
         return false;
     }
 
-    private static bool TestCanCreateFile( string path, IJ4JLogger? logger )
+    private static bool TestCanCreateFile( string path, ILogger? logger )
     {
         try
         {
@@ -260,7 +260,7 @@ public static class FileLocatorExtensions
         }
         catch (Exception ex)
         {
-            logger?.Verbose<string, string>("Could not access directory '{0}', exception message was '{1}'",
+            logger?.Verbose("Could not access directory '{0}', exception message was '{1}'",
                                             Path.GetDirectoryName(path) ?? string.Empty,
                                             ex.Message);
         }

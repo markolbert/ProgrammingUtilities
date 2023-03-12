@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.Utilities;
 
@@ -27,15 +27,17 @@ namespace J4JSoftware.Utilities;
 public class TickRanges
 {
     private readonly List<ITickRange> _rangers;
-    private readonly IJ4JLogger? _logger;
+    private readonly ILogger? _logger;
 
-    public TickRanges( IEnumerable<ITickRange> rangers,
-        IJ4JLogger? logger = null )
+    public TickRanges( 
+        IEnumerable<ITickRange> rangers,
+        ILogger? logger = null 
+        )
     {
         _rangers = rangers.ToList();
 
         _logger = logger;
-        _logger?.SetLoggedType( GetType() );
+        _logger?.ForContext( GetType() );
     }
 
     public bool IsSupported( Type toCheck ) => _rangers.Any( x => x.IsSupported( toCheck ) );
@@ -54,7 +56,7 @@ public class TickRanges
         if( config == null )
             return retVal;
 
-        if( !retVal!.Configure( config ) )
+        if( !retVal.Configure( config ) )
             _logger?.Error( "Failed to configure ITickRange supporting '{0}'", typeof( TValue ) );
 
         return retVal;

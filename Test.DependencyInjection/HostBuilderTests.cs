@@ -3,7 +3,6 @@ using System.IO;
 using FluentAssertions;
 using J4JSoftware.Configuration.CommandLine;
 using J4JSoftware.DependencyInjection;
-using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -37,7 +36,8 @@ public class HostBuilderTests
     {
         var config = new J4JHostConfiguration( AppEnvironment.Console )
                     .ApplicationName( "Test" )
-                    .Publisher( "J4JSoftware" );
+                    .Publisher( "J4JSoftware" )
+                    .LoggerInitializer(ConfigLogger);
 
         config.MissingRequirements.Should().Be( J4JHostRequirements.AllMet );
 
@@ -50,50 +50,42 @@ public class HostBuilderTests
         var config = new J4JHostConfiguration( AppEnvironment.Console )
                     .ApplicationName( "Test" )
                     .Publisher( "J4JSoftware" )
-                    .LoggerInitializer( config_logger );
+                    .LoggerInitializer( ConfigLogger );
 
         config.MissingRequirements.Should().Be( J4JHostRequirements.AllMet );
 
         var host = BuildHost( config );
 
-        var logger = host.Services.GetRequiredService<IJ4JLogger>();
-        logger.SetLoggedType( GetType() );
+        var logger = host.Services.GetRequiredService<ILogger>();
+        logger.ForContext( GetType() );
         logger.Fatal( "This is a test fatal event" );
-
-        static void config_logger( IConfiguration buildConfig, J4JHostConfiguration hostConfig, J4JLoggerConfiguration loggerConfig )
-        {
-            loggerConfig.SerilogConfiguration
-                        .WriteTo
-                        .Debug( outputTemplate: loggerConfig.GetOutputTemplate( true ) );
-        }
     }
 
-    [ Fact ]
-    public void LoggerJSONTest()
+    private static ILogger ConfigLogger(IConfiguration buildConfig, J4JHostConfiguration hostConfig) =>
+        new LoggerConfiguration()
+            .WriteTo.Debug()
+            .CreateLogger();
+
+
+    [Fact ]
+    public void LoggerJsonTest()
     {
         var config = new J4JHostConfiguration( AppEnvironment.Console )
                     .ApplicationName( "Test" )
                     .Publisher( "J4JSoftware" )
-                    .AddConfigurationInitializers( config_config );
+                    .AddConfigurationInitializers( ConfigConfig );
 
-        config.LoggerInitializer( config_logger );
+        config.LoggerInitializer( ConfigLogger );
 
         var host = BuildHost( config );
 
-        var logger = host.Services.GetRequiredService<IJ4JLogger>();
-        logger.SetLoggedType( GetType() );
+        var logger = host.Services.GetRequiredService<ILogger>();
+        logger.ForContext( GetType() );
         logger.Fatal( "This is a test fatal event" );
 
-        void config_config( IConfigurationBuilder configBuilder )
+        void ConfigConfig( IConfigurationBuilder configBuilder )
         {
             configBuilder.AddJsonFile( Path.Combine( Environment.CurrentDirectory, "appConfig.json" ), false );
-        }
-
-        void config_logger( IConfiguration buildConfig, J4JHostConfiguration hostConfig, J4JLoggerConfiguration loggerConfig )
-        {
-            loggerConfig.SerilogConfiguration
-                        .ReadFrom
-                        .Configuration( buildConfig );
         }
     }
 
@@ -102,10 +94,11 @@ public class HostBuilderTests
     {
         var config = new J4JHostConfiguration( AppEnvironment.Console )
                     .ApplicationName( "Test" )
-                    .Publisher( "J4JSoftware" );
+                    .Publisher( "J4JSoftware" )
+                    .LoggerInitializer(ConfigLogger);
 
         config.AddCommandLineProcessing( CommandLineOperatingSystems.Windows )
-              .OptionsInitializer( define_options );
+            .OptionsInitializer( DefineOptions );
 
         var host = BuildHost( config );
         host.Should().NotBeNull();
@@ -121,24 +114,25 @@ public class HostBuilderTests
 
         cmdOptions!.Switch.Should().BeTrue();
         cmdOptions.Text.Should().Be( "hello" );
-
-        static void define_options( OptionCollection options )
-        {
-            options.Bind<OptionsTest, bool>( x => x.Switch, "s" );
-            options.Bind<OptionsTest, string>( x => x.Text, "t" );
-        }
     }
 
-    [ Fact ]
+    private static void DefineOptions(OptionCollection options)
+    {
+        options.Bind<OptionsTest, bool>(x => x.Switch, "s");
+        options.Bind<OptionsTest, string>(x => x.Text, "t");
+    }
+
+    [Fact ]
     public void Protection()
     {
         var config = new J4JHostConfiguration( AppEnvironment.Console )
                     .ApplicationName( "Test" )
-                    .Publisher( "J4JSoftware" );
+                    .Publisher( "J4JSoftware" )
+                    .LoggerInitializer(ConfigLogger);
 
         var host = BuildHost( config );
 
-        var protector = host!.Services.GetRequiredService<IJ4JProtection>();
+        var protector = host.Services.GetRequiredService<IJ4JProtection>();
         protector.Should().NotBeNull();
 
         protector.Protect( "test text", out var encrypted )
@@ -160,7 +154,7 @@ public class HostBuilderTests
         host.Should().NotBeNull();
 
         host!.Services.GetRequiredService<IConfiguration>().Should().NotBeNull();
-        host.Services.GetRequiredService<IJ4JLogger>().Should().NotBeNull();
+        host.Services.GetRequiredService<ILogger>().Should().NotBeNull();
 
         return host;
     }

@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License along 
 // with DeusEx. If not, see <https://www.gnu.org/licenses/>.
 
-using J4JSoftware.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace J4JSoftware.DeusEx;
 
@@ -40,25 +40,25 @@ public class J4JDeusEx
 
     public static bool IsInitialized { get; protected set; }
     public static string? CrashFilePath { get; protected set; }
-    public static IJ4JLogger? Logger { get; protected set; }
+    public static ILogger? Logger { get; protected set; }
 
-    public static IJ4JLogger? GetLogger() => IsInitialized ? _serviceProvider?.GetService<IJ4JLogger>() : null;
+    public static ILogger? GetLogger() => IsInitialized ? _serviceProvider?.GetService<ILogger>() : null;
 
-    public static IJ4JLogger? GetLogger<T>() 
+    public static ILogger? GetLogger<T>() 
         where T: class
     {
         if( !IsInitialized )
             return null;
 
-        var retVal = _serviceProvider?.GetService<IJ4JLogger>();
+        var retVal = _serviceProvider?.GetService<ILogger>();
         if( retVal == null )
             return retVal;
 
-        retVal.SetLoggedType<T>();
+        retVal.ForContext<T>();
         return retVal;
     }
 
-    public static void OutputFatalMessage( string msg, IJ4JLogger? logger )
+    public static void OutputFatalMessage( string msg, ILogger? logger )
     {
         // how we log depends on whether we successfully created the service provider
         logger?.Fatal( msg );

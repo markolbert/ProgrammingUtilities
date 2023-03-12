@@ -15,19 +15,19 @@
 // You should have received a copy of the GNU General Public License along 
 // with TopologicalSort. If not, see <https://www.gnu.org/licenses/>.
 
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.Utilities;
 
 public abstract class TopoAction<TSource> : IAction<TSource>
 {
-    protected TopoAction( IJ4JLogger logger )
+    protected TopoAction( ILogger logger )
     {
         Logger = logger;
-        Logger.SetLoggedType( GetType() );
+        Logger.ForContext( GetType() );
     }
 
-    protected IJ4JLogger Logger { get; }
+    protected ILogger Logger { get; }
 
     public bool Process( TSource src )
     {
@@ -55,7 +55,7 @@ public abstract class TopoAction<TSource> : IAction<TSource>
         if( src is TSource castSrc )
             return Process( castSrc );
 
-        Logger?.Error( "Expected a '{0}' but got a '{1}'", typeof( IAction<TSource> ), src.GetType() );
+        Logger.Error( "Expected a '{0}' but got a '{1}'", typeof( IAction<TSource> ), src.GetType() );
 
         return false;
     }

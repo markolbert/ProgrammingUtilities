@@ -17,8 +17,8 @@
 
 using System;
 using System.IO;
-using J4JSoftware.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 #pragma warning disable CS8618
 
@@ -31,7 +31,7 @@ public static class J4JServices
     public static string CrashFile { get; private set; }
             //_crashFile = Path.Combine( HostConfiguration.ApplicationConfigurationFolder, "crashFile.txt" );
 
-    public static IJ4JLogger? BuildLogger { get; private set; }
+    public static ILogger? BuildLogger { get; private set; }
     public static bool IsValid { get; private set; }
 
     public static bool Initialize( J4JHostConfiguration? hostConfig, string crashFilePath )
@@ -44,7 +44,7 @@ public static class J4JServices
             return false;
         }
 
-        BuildLogger = hostConfig.Logger;
+        BuildLogger = hostConfig.BuildLogger;
 
         if( hostConfig.MissingRequirements != J4JHostRequirements.AllMet )
         {
@@ -73,13 +73,14 @@ public static class J4JServices
     public static void OutputFatalMessage(string msg)
     {
         // how we log depends on whether we successfully created the service provider
-        var logger = IsValid ? Default.GetRequiredService<IJ4JLogger>() : BuildLogger;
+        var logger = IsValid ? Default.GetRequiredService<ILogger>() : BuildLogger;
         logger?.Fatal(msg);
 
         try
         {
             File.AppendAllText( CrashFile, $"{msg}\n" );
         }
+        // ReSharper disable once EmptyGeneralCatchClause
         catch
         {
         }

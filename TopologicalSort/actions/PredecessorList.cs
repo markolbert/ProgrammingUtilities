@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.Utilities;
 
@@ -28,7 +28,7 @@ public static class TopologicalSortExtensions
     public static Nodes<T> ToNodeList<T>( 
         this IEnumerable<T> source, 
         IEqualityComparer<T>? comparer = null,
-        IJ4JLogger? logger = null )
+        ILogger? logger = null )
         where T: class, IEquatable<T>
     {
         var retVal = new Nodes<T>( comparer );
@@ -54,7 +54,7 @@ public static class TopologicalSortExtensions
                 var predecessor = nodeList.FirstOrDefault(x => x.GetType() == predAttr.Predecessor);
                 if (predecessor == null)
                 {
-                    logger?.Fatal<string>( "Couldn't find predecessor extractor {0}", predAttr.Predecessor.Name );
+                    logger?.Fatal( "Couldn't find predecessor extractor {0}", predAttr.Predecessor.Name );
                     continue;
                 }
 

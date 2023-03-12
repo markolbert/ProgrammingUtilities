@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.DependencyInjection;
 
@@ -43,7 +43,7 @@ public static class TypeTestExtensions
                     break;
 
                 case PredefinedTypeTests.OnlyJ4JLoggerRequired:
-                    tester.Tests.Add( new ConstructorParameterTester<T>( typeof( IJ4JLogger ) ) );
+                    tester.Tests.Add( new ConstructorParameterTester<T>( typeof( ILogger ) ) );
                     break;
 
                 case PredefinedTypeTests.NonAbstract:
@@ -157,7 +157,7 @@ public static class TypeTestExtensions
                     break;
 
                 case PredefinedTypeTests.OnlyJ4JLoggerRequired:
-                    retVal.Add( new ConstructorParameterTester<T>( typeof( IJ4JLogger ) ) );
+                    retVal.Add( new ConstructorParameterTester<T>( typeof( ILogger ) ) );
                     break;
 
                 case PredefinedTypeTests.NonAbstract:

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
 using J4JSoftware.DeusEx;
-using J4JSoftware.Logging;
+using Serilog;
 
 namespace J4JSoftware.DependencyInjection;
 
@@ -15,7 +15,7 @@ public class FileLocator : IEnumerable<PathInfo>
     )
     {
         Logger = J4JDeusEx.GetLogger();
-        Logger?.SetLoggedType( GetType() );
+        Logger?.ForContext<FileLocator>();
 
         FileSystemIsCaseSensitive = Environment.OSVersion.Platform switch
         {
@@ -36,7 +36,7 @@ public class FileLocator : IEnumerable<PathInfo>
         return false;
     }
     
-    internal IJ4JLogger? Logger { get; }
+    internal ILogger? Logger { get; }
 
     public bool FileSystemIsCaseSensitive { get; internal set; }
     internal StringComparison FileSystemComparison =>
