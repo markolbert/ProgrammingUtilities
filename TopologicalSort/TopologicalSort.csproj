@@ -32,11 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="J4JSoftware.Logging" Version="4.2.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
+	  <PackageReference Include="Serilog" Version="2.12.0" />
 	</ItemGroup>
 
 </Project>

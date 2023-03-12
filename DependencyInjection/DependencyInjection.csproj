@@ -23,12 +23,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Autofac" Version="6.5.0" />
+	  <Compile Remove="roots\**" />
+	  <EmbeddedResource Remove="roots\**" />
+	  <None Remove="roots\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Autofac" Version="7.0.0" />
 		<PackageReference Include="Autofac.Configuration" Version="6.0.0" />
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="J4JSoftware.Configuration.CommandLine" Version="4.2.0" />
 		<PackageReference Include="J4JSoftware.DeusEx" Version="1.0.0" />
-		<PackageReference Include="J4JSoftware.Logging" Version="4.2.0" />
 		<PackageReference Include="J4JSoftware.MiscellaneousUtilities" Version="2.1.0" />
 		<PackageReference Include="J4JSoftware.TypeUtilities" Version="1.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
@@ -41,7 +46,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\J4JCommandLine\J4JCommandLine\J4JCommandLine.csproj" />
-		<ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
+		<ProjectReference Include="..\..\J4JLoggerEnhancements\J4JLoggerEnhancements\J4JLoggerEnhancements.csproj" />
 		<ProjectReference Include="..\DeusEx\DeusEx.csproj" />
 		<ProjectReference Include="..\MiscellaneousUtilities\MiscellaneousUtilities.csproj" />
 		<ProjectReference Include="..\TypeUtilities\TypeUtilities.csproj" />

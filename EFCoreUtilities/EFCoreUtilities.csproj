@@ -23,13 +23,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="J4JSoftware.Logging" Version="4.2.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.1">
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -42,7 +41,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\J4JLogging\J4JLogging\J4JLogging.csproj" />
 	  <ProjectReference Include="..\MiscellaneousUtilities\MiscellaneousUtilities.csproj" />
 	</ItemGroup>
 
