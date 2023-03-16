@@ -26,7 +26,9 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Serilog;
+using ILogger = Serilog.ILogger;
 
 namespace J4JSoftware.DependencyInjection;
 
@@ -311,6 +313,20 @@ public class J4JHostConfiguration
         builder.Register(_ => RuntimeLoggerInitializer.Invoke(hbc.Configuration, this))
             .AsImplementedInterfaces()
             .SingleInstance();
+
+        builder.Register( c =>
+                {
+                    var seriLogger = c.Resolve<ILogger>();
+
+                    return new LoggerFactory()
+                       .AddSerilog( seriLogger );
+                } )
+               .As<ILoggerFactory>()
+               .SingleInstance();
+
+        // somehow, this is enough to get ILoggerFactory called to create the instance
+        builder.RegisterGeneric( typeof( Logger<> ) )
+               .As( typeof( ILogger<> ) );
     }
 
     private void CoreDataProtectionServices( HostBuilderContext hbc, IServiceCollection services )
