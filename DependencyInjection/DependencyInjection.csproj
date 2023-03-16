@@ -46,7 +46,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\J4JCommandLine\J4JCommandLine\J4JCommandLine.csproj" />
-		<ProjectReference Include="..\..\J4JLoggerEnhancements\J4JLoggerEnhancements\J4JLoggerEnhancements.csproj" />
+		<ProjectReference Include="..\..\J4JLoggerEnhancements\J4JLoggerSerilog\J4JLoggerSerilog.csproj" />
 		<ProjectReference Include="..\DeusEx\DeusEx.csproj" />
 		<ProjectReference Include="..\MiscellaneousUtilities\MiscellaneousUtilities.csproj" />
 		<ProjectReference Include="..\TypeUtilities\TypeUtilities.csproj" />

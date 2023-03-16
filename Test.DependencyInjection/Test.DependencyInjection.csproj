@@ -30,6 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\J4JLoggerEnhancements\J4JLoggerSerilog\J4JLoggerSerilog.csproj" />
 		<ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
 	</ItemGroup>
 
