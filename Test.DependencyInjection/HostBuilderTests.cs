@@ -5,8 +5,10 @@ using J4JSoftware.Configuration.CommandLine;
 using J4JSoftware.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Xunit;
+using ILogger = Serilog.ILogger;
 
 #pragma warning disable 8618
 
@@ -45,7 +47,7 @@ public class HostBuilderTests
     }
 
     [ Fact ]
-    public void LoggerTest()
+    public void SerilogTest()
     {
         var config = new J4JHostConfiguration( AppEnvironment.Console )
                     .ApplicationName( "Test" )
@@ -59,6 +61,22 @@ public class HostBuilderTests
         var logger = host.Services.GetRequiredService<ILogger>();
         logger.ForContext( GetType() );
         logger.Fatal( "This is a test fatal event" );
+    }
+
+    [Fact]
+    public void MicrosoftLoggingTest()
+    {
+        var config = new J4JHostConfiguration(AppEnvironment.Console)
+                    .ApplicationName("Test")
+                    .Publisher("J4JSoftware")
+                    .LoggerInitializer(ConfigLogger);
+
+        config.MissingRequirements.Should().Be(J4JHostRequirements.AllMet);
+
+        var host = BuildHost(config);
+
+        var logger = host.Services.GetRequiredService<ILogger<HostBuilderTests>>();
+        logger.LogCritical("This is a test critical event");
     }
 
     private static ILogger ConfigLogger(IConfiguration buildConfig, J4JHostConfiguration hostConfig) =>
