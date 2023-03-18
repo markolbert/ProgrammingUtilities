@@ -44,7 +44,7 @@ The repository is available online at [github](https://github.com/markolbert/Pro
 
 ## FileUtilities
 
-`FileExtensions.ValidateFilePath` validates the existence and, optionally, writeability, of a file. It can search specified alternative folders for the file if it is not found on the original path that's provided. It also supports logging via my `IJ4JLogger` system. All log events are set at the *Verbose* level.
+`FileExtensions.ValidateFilePath` validates the existence and, optionally, writeability, of a file. It can search specified alternative folders for the file if it is not found on the original path that's provided. It also supports logging via my `ILogger` system. All log events are set at the *Verbose* level.
 
 ```csharp
   public static bool ValidateFilePath(
@@ -53,7 +53,7 @@ The repository is available online at [github](https://github.com/markolbert/Pro
       string? reqdExtension = ".json",
       IEnumerable<string>? folders = null,
       bool requireWriteAccess = false,
-      IJ4JLogger? logger = null
+      ILogger? logger = null
   )
 ```
 
@@ -64,7 +64,7 @@ The repository is available online at [github](https://github.com/markolbert/Pro
 |`reqdExtension`|the required file extension (optional; default = **.json**). If specified, `path` will be forced to match it.|
 |`folders`|a list of folders to search for the file if it isn't found at `path` (optional). See below for details.|
 |`requireWriteAccess`|require that `path` be writeable. This is verified by testing to see if a temporary file can be written to the folder where the file was found (the temporary file is deleted after the test).|
-|`logger`|an instance of `IJ4JLogger` to record log events (optional). All log events are marked at the *Verbose* level|
+|`logger`|an instance of `ILogger` to record log events (optional). All log events are marked at the *Verbose* level|
 
 `ValidateFilePath` looks for the required file as follows:
 

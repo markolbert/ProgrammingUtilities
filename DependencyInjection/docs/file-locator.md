@@ -41,7 +41,7 @@ Because target files can be optional a match can occur whether or not a file is 
 
 ## Configuration Methods
 
-The new declarative approach is based on creating an instance of `FileLocator`, optionally specifying an instance of `IJ4JLogger`, and then calling one or more of the following configuration methods on the instance. These are all static methods on `FileLocator` (the first argument, a `FileLocator` instance, is omitted for clarity):
+The new declarative approach is based on creating an instance of `FileLocator`, optionally specifying an instance of `ILogger`, and then calling one or more of the following configuration methods on the instance. These are all static methods on `FileLocator` (the first argument, a `FileLocator` instance, is omitted for clarity):
 
 |Method|Purpose|Comments|
 |------|-------|--------|

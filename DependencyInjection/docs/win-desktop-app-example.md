@@ -9,7 +9,7 @@ As a Windows Application v3 app, `GPSLocator` is sandboxed: it does not have unf
 ```csharp
 public partial class App : Application
 {
-    private readonly IJ4JLogger _logger;
+    private readonly ILogger _logger;
 
     public App()
     {
@@ -21,7 +21,7 @@ public partial class App : Application
         if ( !deusEx.Initialize() )
             throw new J4JDeusExException( "Couldn't configure J4JDeusEx object" );
 
-        _logger = J4JDeusEx.ServiceProvider.GetRequiredService<IJ4JLogger>();
+        _logger = J4JDeusEx.ServiceProvider.GetRequiredService<ILogger>();
     }
 
     private void App_UnhandledException( object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e )

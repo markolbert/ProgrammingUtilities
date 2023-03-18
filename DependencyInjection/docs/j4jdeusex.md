@@ -33,9 +33,9 @@ public class J4JDeusEx
     public static IServiceProvider ServiceProvider { get; protected set; }
     public static bool IsInitialized { get; protected set; }
     public static string? CrashFilePath { get; protected set; }
-    public static IJ4JLogger? Logger { get; protected set; }
+    public static ILogger? Logger { get; protected set; }
 
-    public static void OutputFatalMessage( string msg, IJ4JLogger? logger );
+    public static void OutputFatalMessage( string msg, ILogger? logger );
 }
 ```
 

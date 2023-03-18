@@ -67,7 +67,7 @@ There are a number of tests I use quite frequently so I created predefined tests
 |NonAbstract|requires that the type not be abstract|
 |NonGeneric|requires that the type not be generic|
 |ParameterlessConstructor|requires that the type have a public instance (i.e., non-static) constructor which accepts no arguments|
-|OnlyJ4JLoggerRequired|requires that the type have a public instance (i.e., non-static) constructor which requires only one argument, an instance implementing my logging system, `IJ4JLogger` (for more information, see the IJ4JLogger documentation)|
+|OnlyJ4JLoggerRequired|requires that the type have a public instance (i.e., non-static) constructor which requires only one argument, an instance implementing my logging system, `ILogger` (for more information, see the ILogger documentation)|
 
 ## Creating Your Own Test
 

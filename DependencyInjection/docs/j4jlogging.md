@@ -15,7 +15,7 @@ public static J4JHostConfiguration LoggerInitializer( this J4JHostConfiguration 
 Action<IConfiguration, J4JHostConfiguration, J4JLoggerConfiguration> initializer )
 ```
 
-The initializer method receives instances of `IConfiguration`, `J4JHostConfiguration` and `J4JLoggerConfiguration`. Details on how to configure `IJ4JLogger` can be found in the [library's GitHub documentation](https://github.com/markolbert/J4JLogging).
+The initializer method receives instances of `IConfiguration`, `J4JHostConfiguration` and `J4JLoggerConfiguration`. Details on how to configure `ILogger` can be found in the [library's GitHub documentation](https://github.com/markolbert/J4JLogging).
 
 ## Adding a NetEventSink
 
@@ -33,7 +33,7 @@ public static J4JHostConfiguration AddNetEventSinkToLogger(
 
 ## Trimming Source Code File Paths
 
-One of the main additions to `Serilog` in `IJ4JLogger` (which was, in fact, the reason I wrote it) involves automatically adding source code annotations (e.g., source code file path, line number) to log events. Unfortunately, source code file paths typically get very long very quickly, so I implemented a way to shorten them.
+One of the main additions to `Serilog` in `ILogger` (which was, in fact, the reason I wrote it) involves automatically adding source code annotations (e.g., source code file path, line number) to log events. Unfortunately, source code file paths typically get very long very quickly, so I implemented a way to shorten them.
 
 It's done by supplying a method to trim file paths to `J4JHostConfiguration`. That's done by calling the `FilePathTrimmer` extension method:
 
