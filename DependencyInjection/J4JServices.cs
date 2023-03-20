@@ -29,7 +29,6 @@ public static class J4JServices
     public static IServiceProvider Default { get; private set; }
 
     public static string CrashFile { get; private set; }
-            //_crashFile = Path.Combine( HostConfiguration.ApplicationConfigurationFolder, "crashFile.txt" );
 
     public static ILogger? BuildLogger { get; private set; }
     public static bool IsValid { get; private set; }
