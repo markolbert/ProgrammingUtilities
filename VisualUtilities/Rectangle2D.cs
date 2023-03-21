@@ -61,6 +61,9 @@ public record Rectangle2D : IEnumerable<Vector3>
         UpperRight = new Vector3( maxX, minY, 0 );
         LowerRight = new Vector3( maxX, maxY, 0 );
 
+        Height = Vector3.Distance(LowerLeft, UpperLeft);
+        Width = Vector3.Distance(UpperLeft, UpperRight);
+
         BoundingBox = this;
     }
 
