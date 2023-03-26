@@ -2,16 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 
 namespace J4JSoftware.VisualUtilities;
-
-public enum CoordinateSystem2D
-{
-    Cartesian,
-    Display
-}
 
 public record Rectangle2D : IEnumerable<Vector3>
 {
@@ -44,6 +39,8 @@ public record Rectangle2D : IEnumerable<Vector3>
 
     #endregion
 
+    public static readonly Rectangle2D Empty = new Rectangle2D( 0, 0, 0, 0, CoordinateSystem2D.Display );
+
     public const float DefaultComparisonTolerance = 1E-4F;
 
     private readonly Matrix4x4 _inverseUnitTransform;
@@ -64,6 +61,7 @@ public record Rectangle2D : IEnumerable<Vector3>
         Height = Vector3.Distance(LowerLeft, UpperLeft);
         Width = Vector3.Distance(UpperLeft, UpperRight);
 
+        Center = new Vector3( ( minX + maxX ) / 2, ( minY + maxY ) / 2, 0 );
         BoundingBox = this;
     }
 
@@ -77,6 +75,14 @@ public record Rectangle2D : IEnumerable<Vector3>
     )
         : this(CreateCorners(height, width, rotation, center), coordinateSystem, comparisonTolerance)
     {
+    }
+
+    public Rectangle2D Copy()
+    {
+        var retVal = (Rectangle2D) this.MemberwiseClone();
+        retVal.BoundingBox = (Rectangle2D) retVal.BoundingBox.MemberwiseClone();
+
+        return retVal;
     }
 
     public Rectangle2D(
@@ -152,6 +158,11 @@ public record Rectangle2D : IEnumerable<Vector3>
         Height = Vector3.Distance( LowerLeft, UpperLeft );
         Width = Vector3.Distance( UpperLeft, UpperRight );
 
+        var corners = new Vector3[] { UpperLeft, UpperRight, LowerLeft, LowerRight };
+        Center = new Vector3( ( corners.Max( c => c.X ) + corners.Min( c => c.X ) ) / 2,
+                              ( corners.Max( c => c.Y ) + corners.Min( c => c.Y ) ) / 2,
+                              0 );
+
         var scaleTransform = Matrix4x4.CreateScale(Width, Height, 1 );
         var translationTransform = Matrix4x4.CreateTranslation( LowerLeft.X, LowerRight.Y, 0 );
         var unitTransform = scaleTransform * translationTransform;
@@ -203,9 +214,10 @@ public record Rectangle2D : IEnumerable<Vector3>
     public Vector3 UpperRight { get; }
     public Vector3 LowerRight { get; }
 
+    public Vector3 Center { get; }
     public float Height { get; }
     public float Width { get; }
-    public Rectangle2D BoundingBox { get; }
+    public Rectangle2D BoundingBox { get; private set; }
 
     public Vector3 this[ int idx ] =>
         idx switch
