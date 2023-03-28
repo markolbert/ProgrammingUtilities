@@ -8,7 +8,6 @@ using Serilog;
 
 namespace J4JSoftware.DependencyInjection;
 
-[RequiresPreviewFeatures("Under development as of January 2023")]
 public class FileLocator : IEnumerable<PathInfo>
 {
     public FileLocator(

@@ -7,7 +7,6 @@ using Serilog;
 
 namespace J4JSoftware.DependencyInjection;
 
-[RequiresPreviewFeatures("Under development as of January 2023")]
 public static class FileLocatorExtensions
 {
     public static FileLocator FileSystemIsCaseSensitive(this FileLocator fileLoc )

@@ -3,7 +3,6 @@ using System.Runtime.Versioning;
 
 namespace J4JSoftware.DependencyInjection;
 
-[RequiresPreviewFeatures("Under development as of January 2023")]
 public class PathInfo
 {
     public string Path { get; internal set; } = string.Empty;
