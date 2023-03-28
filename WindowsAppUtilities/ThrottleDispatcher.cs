@@ -1,5 +1,4 @@
 ﻿using System;
-using ABI.Windows.Services.Cortana;
 using Microsoft.UI.Xaml;
 
 namespace J4JSoftware.WindowsAppUtilities;
