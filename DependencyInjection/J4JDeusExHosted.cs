@@ -16,11 +16,11 @@
 // with DependencyInjection. If not, see <https://www.gnu.org/licenses/>.
 
 using System.IO;
-using J4JSoftware.DeusEx;
+using J4JSoftware.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
-namespace J4JSoftware.DependencyInjection;
+namespace J4JSoftware.DeusEx;
 
 public abstract class J4JDeusExHosted : J4JDeusEx
 {
