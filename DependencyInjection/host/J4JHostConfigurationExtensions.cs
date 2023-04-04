@@ -332,19 +332,21 @@ public static class J4JHostConfigurationExtensions
 
         var optionCollection = new OptionCollection( hostConfig.CommandLineTextComparison,
                                             textConverters,
-                                            hostConfig.BuildLogger );
+                                            hostConfig.BuildLoggerFactory );
 
         cmdConfig.OptionsInitializer( optionCollection );
         optionCollection.FinishConfiguration();
 
-        var optionsGenerator = new OptionsGenerator( optionCollection, hostConfig.CommandLineTextComparison, hostConfig.BuildLogger );
+        var optionsGenerator = new OptionsGenerator( optionCollection,
+                                                     hostConfig.CommandLineTextComparison,
+                                                     hostConfig.BuildLoggerFactory );
 
         var lexicalElements = cmdConfig.OperatingSystem switch
         {
             CommandLineOperatingSystems.Windows =>
-                new WindowsLexicalElements(hostConfig.BuildLogger),
+                new WindowsLexicalElements(hostConfig.BuildLoggerFactory),
             CommandLineOperatingSystems.Linux =>
-                new LinuxLexicalElements(hostConfig.BuildLogger),
+                new LinuxLexicalElements(hostConfig.BuildLoggerFactory),
             _ => (LexicalElements?) null
         };
 
@@ -352,9 +354,9 @@ public static class J4JHostConfigurationExtensions
             return retVal;
 
         var parsingTable = new ParsingTable( optionsGenerator );
-        var tokenizer = new Tokenizer( lexicalElements, hostConfig.BuildLogger );
+        var tokenizer = new Tokenizer( lexicalElements, hostConfig.BuildLoggerFactory );
 
-        var parser = new Parser( optionCollection, parsingTable, tokenizer, hostConfig.BuildLogger );
+        var parser = new Parser( optionCollection, parsingTable, tokenizer, hostConfig.BuildLoggerFactory );
 
         var pathComparer = hostConfig.FileSystemCaseSensitivity
             ? StringComparison.Ordinal

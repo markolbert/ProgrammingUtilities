@@ -18,7 +18,8 @@
 using System;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
+using Microsoft.Extensions.Logging;
+using ILogger = Serilog.ILogger;
 
 #pragma warning disable CS8618
 
@@ -31,6 +32,7 @@ public static class J4JServices
     public static string CrashFile { get; private set; }
 
     public static ILogger? BuildLogger { get; private set; }
+    public static ILoggerFactory? BuildLoggerFactory { get; private set; }
     public static bool IsValid { get; private set; }
 
     public static bool Initialize( J4JHostConfiguration? hostConfig, string crashFilePath )
@@ -44,6 +46,7 @@ public static class J4JServices
         }
 
         BuildLogger = hostConfig.BuildLogger;
+        BuildLoggerFactory = hostConfig.BuildLoggerFactory;
 
         if( hostConfig.MissingRequirements != J4JHostRequirements.AllMet )
         {

@@ -48,6 +48,9 @@ public class J4JHostConfiguration
             .WriteTo.InMemory(out var temp)
             .CreateLogger();
 
+        BuildLoggerFactory = new LoggerFactory()
+           .AddSerilog( BuildLogger );
+
         BuildLoggerSink = temp;
 
         RegisterJ4JHost = registerJ4JHost;
@@ -73,6 +76,7 @@ public class J4JHostConfiguration
     // used to capture log events during the host building process,
     // when the ultimate ILogger instance is not yet available
     public ILogger BuildLogger { get; }
+    public ILoggerFactory BuildLoggerFactory { get; }
     public InMemorySink BuildLoggerSink { get; }
 
     internal string Publisher
@@ -231,17 +235,17 @@ public class J4JHostConfiguration
 
         _options = new OptionCollection( CommandLineTextComparison,
                                          CommandLineConfiguration.TextConverters,
-                                         BuildLogger );
+                                         BuildLoggerFactory );
 
         CommandLineConfiguration.OptionsGenerator ??=
-            new OptionsGenerator( _options, CommandLineTextComparison, BuildLogger );
+            new OptionsGenerator( _options, CommandLineTextComparison, BuildLoggerFactory );
 
         CommandLineConfiguration.LexicalElements ??= CommandLineConfiguration.OperatingSystem switch
         {
             CommandLineOperatingSystems.Windows =>
-                new WindowsLexicalElements( BuildLogger ),
+                new WindowsLexicalElements( BuildLoggerFactory ),
             CommandLineOperatingSystems.Linux =>
-                new LinuxLexicalElements( BuildLogger ),
+                new LinuxLexicalElements( BuildLoggerFactory ),
             _ => throw new
                 J4JDependencyInjectionException( "Operating system is undefined", this )
         };
@@ -249,10 +253,10 @@ public class J4JHostConfiguration
         var parsingTable = new ParsingTable( CommandLineConfiguration.OptionsGenerator! );
 
         var tokenizer = new Tokenizer( CommandLineConfiguration.LexicalElements!,
-                                       BuildLogger,
+                                       BuildLoggerFactory,
                                        CommandLineConfiguration.CleanupProcessors.ToArray() );
 
-        var parser = new Parser( _options, parsingTable, tokenizer, BuildLogger );
+        var parser = new Parser( _options, parsingTable, tokenizer, BuildLoggerFactory );
 
         builder.AddJ4JCommandLine( parser, out var cmdLineSrc );
 
