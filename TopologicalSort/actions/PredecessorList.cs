@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.Utilities;
 
@@ -43,7 +43,7 @@ public static class TopologicalSortExtensions
             var predAttr = nodeType.GetCustomAttribute<PredecessorAttribute>(false);
             if( predAttr == null )
             {
-                logger?.Error("Node type '{0}' (item {1}) is not decorated with a PredecessorAttribute", nodeType, idx );
+                logger?.LogError("Node type '{0}' (item {1}) is not decorated with a PredecessorAttribute", nodeType, idx );
                 continue;
             }
 
@@ -54,7 +54,7 @@ public static class TopologicalSortExtensions
                 var predecessor = nodeList.FirstOrDefault(x => x.GetType() == predAttr.Predecessor);
                 if (predecessor == null)
                 {
-                    logger?.Fatal( "Couldn't find predecessor extractor {0}", predAttr.Predecessor.Name );
+                    logger?.LogCritical( "Couldn't find predecessor extractor {0}", predAttr.Predecessor.Name );
                     continue;
                 }
 

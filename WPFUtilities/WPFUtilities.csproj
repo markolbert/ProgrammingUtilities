@@ -36,8 +36,4 @@
 	  <PackageReference Include="J4JSoftware.DependencyInjection" Version="2.3.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
-	</ItemGroup>
-
 </Project>

@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.Utilities;
 
@@ -33,10 +33,11 @@ public class MonthlyTickRange : ITickRange<DateTime, MonthRange>
 
     private readonly ILogger? _logger;
 
-    public MonthlyTickRange( ILogger? logger = null )
+    public MonthlyTickRange( 
+        ILoggerFactory? loggerFactory = null 
+        )
     {
-        _logger = logger;
-        _logger?.ForContext( GetType() );
+        _logger = loggerFactory?.CreateLogger( GetType() );
     }
 
     public bool TraditionalMonthsPerMinorOnly { get; set; } 
@@ -187,7 +188,7 @@ public class MonthlyTickRange : ITickRange<DateTime, MonthRange>
         }
 
         if( result == null )
-            _logger?.Error( "Couldn't determine ticks" );
+            _logger?.LogError( "Couldn't determine ticks" );
 
         return result != null;
     }
@@ -274,7 +275,7 @@ public class MonthlyTickRange : ITickRange<DateTime, MonthRange>
         }
         catch
         {
-            _logger?.Error("Minimum ({0}) and/or maximum ({1}) values could not be converted to type DateTime",
+            _logger?.LogError("Minimum ({0}) and/or maximum ({1}) values could not be converted to type DateTime",
                 minimum.ToString() ?? "** unknown **",
                 maximum.ToString() ?? "** unknown **");
 

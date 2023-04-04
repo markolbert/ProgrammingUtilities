@@ -17,7 +17,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.Utilities;
 
@@ -29,10 +29,11 @@ public abstract class SortedCollection<T> : ISortedCollection<T>
 
     private List<T>? _sorted;
 
-    protected SortedCollection( ILogger? logger = null )
+    protected SortedCollection( 
+        ILoggerFactory? loggerFactory = null 
+        )
     {
-        Logger = logger;
-        Logger?.ForContext( GetType() );
+        Logger = loggerFactory?.CreateLogger( GetType() );
     }
 
     protected ILogger? Logger { get; }
@@ -82,7 +83,7 @@ public abstract class SortedCollection<T> : ISortedCollection<T>
         switch( Available.Count )
         {
             case 0:
-                Logger?.Error( "No root {0} defined", typeof( T ) );
+                Logger?.LogError( "No root {0} defined", typeof( T ) );
                 break;
 
             case 1:
@@ -94,12 +95,12 @@ public abstract class SortedCollection<T> : ISortedCollection<T>
                 if( TopologicalSorter.Sort( _items, out var result ) )
                     SortedSequence.AddRange( result! );
                 else
-                    Logger?.Error( "Couldn't create execution sequence for {0}", typeof( T ) );
+                    Logger?.LogError( "Couldn't create execution sequence for {0}", typeof( T ) );
 
                 break;
 
             default:
-                Logger?.Error( "Multiple root {0} objects defined", typeof( T ) );
+                Logger?.LogError( "Multiple root {0} objects defined", typeof( T ) );
                 break;
         }
 
@@ -117,7 +118,7 @@ public abstract class SortedCollection<T> : ISortedCollection<T>
 
         if( selectedIdx < 0 )
         {
-            Logger?.Error( "Couldn't find '{nodeType}'", nodeType );
+            Logger?.LogError( "Couldn't find '{nodeType}'", nodeType );
             return false;
         }
 
@@ -125,7 +126,7 @@ public abstract class SortedCollection<T> : ISortedCollection<T>
 
         if( predecessor == null )
         {
-            Logger?.Error( $"Couldn't find '{predecessorType}'", predecessorType );
+            Logger?.LogError( $"Couldn't find '{predecessorType}'", predecessorType );
             return false;
         }
 

@@ -15,9 +15,7 @@
 // You should have received a copy of the GNU General Public License along 
 // with MiscellaneousUtilities. If not, see <https://www.gnu.org/licenses/>.
 
-using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 

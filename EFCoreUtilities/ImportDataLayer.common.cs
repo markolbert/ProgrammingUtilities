@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using J4JSoftware.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable ExplicitCallerInfoArgument
 
@@ -29,21 +29,20 @@ namespace J4JSoftware.EFCoreUtilities;
 public class ImportDataLayer : IImportDataLayer
 {
     private readonly DbContext _dbContext;
-    private readonly ILogger _logger;
+    private readonly ILogger? _logger;
 
     public ImportDataLayer(
         DbContext dbContext,
-        ILogger logger
+        ILoggerFactory? loggerFactory = null
     )
     {
         _dbContext = dbContext;
 
-        _logger = logger;
-        _logger.ForContext( GetType() );
+        _logger = loggerFactory?.CreateLogger( GetType() );
     }
 
     public void LogPendingChanges() =>
-        _logger.Information( "{0}", _dbContext.ChangeTracker.DebugView.LongView );
+        _logger?.LogInformation( "{0}", _dbContext.ChangeTracker.DebugView.LongView );
 
     public bool SaveChanges()
     {
@@ -56,12 +55,12 @@ public class ImportDataLayer : IImportDataLayer
         }
         catch( DbUpdateException e )
         {
-            _logger.Fatal( e.FormatDbException() );
+            _logger?.LogCritical( e.FormatDbException() );
             return false;
         }
         catch( Exception e )
         {
-            _logger.Fatal( e.FormatException( "Exception thrown while saving database changes" ) );
+            _logger?.LogCritical(e.FormatException("Exception thrown while saving database changes"));
             return false;
         }
     }

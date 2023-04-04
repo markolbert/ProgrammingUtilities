@@ -48,7 +48,7 @@ public class DebounceDispatcher
         // Action only fires after timeout has fully elapsed without other events firing in between
         _timer = new DispatcherTimer( TimeSpan.FromMilliseconds( interval ),
                                       priority,
-                                      ( s, e ) =>
+                                      ( _, _ ) =>
                                       {
                                           if ( _timer == null )
                                               return;
@@ -88,7 +88,7 @@ public class DebounceDispatcher
 
         _timer = new DispatcherTimer( TimeSpan.FromMilliseconds( interval ),
                                       priority,
-                                      ( s, e ) =>
+                                      ( _, _ ) =>
                                       {
                                           if ( _timer == null )
                                               return;

@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Versioning;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.Utilities;
 
@@ -32,7 +32,7 @@ public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, T
     private readonly IEqualityComparer<TKey> _keyComparer;
 
     protected SelectableTree(
-        ILogger? logger,
+        ILoggerFactory? loggerFactory = null,
         IEqualityComparer<TKey>? keyComparer = null
     )
     {
@@ -40,8 +40,7 @@ public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, T
 
         _masterDict = new Dictionary<TKey, TEntity>( keyComparer );
 
-        Logger = logger;
-        Logger?.ForContext( GetType() );
+        Logger = loggerFactory?.CreateLogger(GetType());
     }
 
     protected ILogger? Logger { get; }
@@ -58,7 +57,7 @@ public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, T
                 continue;
             }
 
-            Logger?.Error( "Entity ({0}) with duplicate key ({1}) encountered", entity.DisplayName, entity.Key );
+            Logger?.LogError( "Entity ({0}) with duplicate key ({1}) encountered", entity.DisplayName, entity.Key );
             return false;
         }
 
@@ -97,7 +96,7 @@ public abstract class SelectableTree<TEntity, TKey> : ISelectableTree<TEntity, T
                     continue;
                 }
 
-                Logger?.Error( "Loop detected for entity '{0}' (key: {1}) at '{2}' (key: {3})",
+                Logger?.LogError( "Loop detected for entity '{0}' (key: {1}) at '{2}' (key: {3})",
                                new object[]
                                {
                                    kvp.Value.DisplayName, kvp.Key, curEntity.DisplayName, curEntity.Key

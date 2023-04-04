@@ -16,16 +16,15 @@
 // with ConsoleUtilities. If not, see <https://www.gnu.org/licenses/>.
 
 using System;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.ConsoleUtilities;
 
 public abstract class PropertyUpdater<TProp> : IPropertyUpdater<TProp>
 {
-    protected PropertyUpdater( ILogger? logger )
+    protected PropertyUpdater( ILoggerFactory? loggerFactory = null )
     {
-        Logger = logger;
-        Logger?.ForContext( GetType() );
+        Logger = loggerFactory?.CreateLogger(GetType());
     }
 
     protected ILogger? Logger { get; }
@@ -48,7 +47,7 @@ public abstract class PropertyUpdater<TProp> : IPropertyUpdater<TProp>
             return result;
         }
 
-        Logger?.Error( "Expected a {0} but got a {1}", typeof( TProp ), origValue?.GetType() );
+        Logger?.LogError( "Expected a {0} but got a {1}", typeof( TProp ), origValue?.GetType() );
 
         return UpdaterResult.InvalidValidator;
     }

@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.Utilities;
 
@@ -39,10 +39,11 @@ public class NumericTickRange : ITickRange<decimal, NumericRange>
 
     private readonly ILogger? _logger;
 
-    public NumericTickRange( ILogger? logger = null )
+    public NumericTickRange( 
+        ILoggerFactory? loggerFactory = null 
+    )
     {
-        _logger = logger;
-        _logger?.ForContext( GetType() );
+        _logger = loggerFactory?.CreateLogger(GetType());
     }
 
     public TickSizePreference TickSizePreference { get; set; } = TickSizePreference.Smallest;
@@ -204,7 +205,7 @@ public class NumericTickRange : ITickRange<decimal, NumericRange>
         }
 
         if( !foundAnswer )
-            _logger?.Error( "Couldn't determine ticks" );
+            _logger?.LogError( "Couldn't determine ticks" );
 
         return foundAnswer;
     }
@@ -299,7 +300,7 @@ public class NumericTickRange : ITickRange<decimal, NumericRange>
         }
         catch
         {
-            _logger?.Error("Minimum ({0}) and/or maximum ({1}) values could not be converted to type decimal",
+            _logger?.LogError("Minimum ({0}) and/or maximum ({1}) values could not be converted to type decimal",
                 minimum.ToString() ?? "** unknown **",
                 maximum.ToString() ?? "** unknown **");
 

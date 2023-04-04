@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.ConsoleUtilities;
 
@@ -29,10 +29,9 @@ public partial class ConfigurationUpdater<TConfig> : IConfigurationUpdater<TConf
 {
     private readonly Dictionary<string, PropertyValidation> _updaters = new();
 
-    public ConfigurationUpdater( Func<ILogger>? loggerFactory )
+    public ConfigurationUpdater( ILoggerFactory? loggerFactory )
     {
-        Logger = loggerFactory?.Invoke();
-        Logger?.ForContext( GetType() );
+        Logger = loggerFactory?.CreateLogger( GetType() );
     }
 
     protected ILogger? Logger { get; }
@@ -54,7 +53,7 @@ public partial class ConfigurationUpdater<TConfig> : IConfigurationUpdater<TConf
                     break;
 
                 case UpdaterResult.InvalidUserInput:
-                    Logger?.Error( "Validation of {0} was cancelled", propVal.PropertyInfo.Name );
+                    Logger?.LogError( "Validation of {0} was cancelled", propVal.PropertyInfo.Name );
                     retVal = false;
 
                     break;
@@ -69,7 +68,7 @@ public partial class ConfigurationUpdater<TConfig> : IConfigurationUpdater<TConf
         if( config is TConfig castConfig )
             return Update( castConfig );
 
-        Logger?.Error( "Got a {0} but required a {1}", config.GetType(), typeof( TConfig ) );
+        Logger?.LogError( "Got a {0} but required a {1}", config.GetType(), typeof( TConfig ) );
 
         return false;
     }
@@ -95,7 +94,7 @@ public partial class ConfigurationUpdater<TConfig> : IConfigurationUpdater<TConf
 
         if( propInfo == null )
         {
-            Logger?.Error( "Could not bind to property" );
+            Logger?.LogError( "Could not bind to property" );
             return this;
         }
 

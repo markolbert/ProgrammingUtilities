@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.Utilities;
 
@@ -31,13 +31,12 @@ public class TickRanges
 
     public TickRanges( 
         IEnumerable<ITickRange> rangers,
-        ILogger? logger = null 
+        ILoggerFactory? loggerFactory = null 
         )
     {
         _rangers = rangers.ToList();
 
-        _logger = logger;
-        _logger?.ForContext( GetType() );
+        _logger = loggerFactory?.CreateLogger(GetType());
     }
 
     public bool IsSupported( Type toCheck ) => _rangers.Any( x => x.IsSupported( toCheck ) );
@@ -49,7 +48,7 @@ public class TickRanges
 
         if( retVal == null )
         {
-            _logger?.Error( "No ITickRange class supporting '{0}' exists", typeof( TValue ) );
+            _logger?.LogError( "No ITickRange class supporting '{0}' exists", typeof( TValue ) );
             return null;
         }
 
@@ -57,7 +56,7 @@ public class TickRanges
             return retVal;
 
         if( !retVal.Configure( config ) )
-            _logger?.Error( "Failed to configure ITickRange supporting '{0}'", typeof( TValue ) );
+            _logger?.LogError( "Failed to configure ITickRange supporting '{0}'", typeof( TValue ) );
 
         return retVal;
     }
@@ -73,7 +72,7 @@ public class TickRanges
 
         if( minValue == null || maxValue == null )
         {
-            _logger?.Error( "One or both of the minimum/maximum values are null" );
+            _logger?.LogError( "One or both of the minimum/maximum values are null" );
             return false;
         }
 
@@ -97,7 +96,7 @@ public class TickRanges
     {
         if( minValue == null || maxValue == null )
         {
-            _logger?.Error( "One or both of the minimum/maximum values are null" );
+            _logger?.LogError( "One or both of the minimum/maximum values are null" );
             return new List<TResult>();
         }
 
@@ -111,7 +110,7 @@ public class TickRanges
         }
         catch
         {
-            _logger?.Error( "Range values were not '{0}'", typeof( TResult ) );
+            _logger?.LogError( "Range values were not '{0}'", typeof( TResult ) );
             return new List<TResult>();
         }
     }
@@ -128,7 +127,7 @@ public class TickRanges
 
         if( minValue == null || maxValue == null )
         {
-            _logger?.Error( "One or both of the minimum/maximum values are null" );
+            _logger?.LogError( "One or both of the minimum/maximum values are null" );
             return false;
         }
 

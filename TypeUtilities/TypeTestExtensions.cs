@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.DependencyInjection;
 

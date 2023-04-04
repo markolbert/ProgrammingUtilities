@@ -21,7 +21,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Alba.CsConsoleFormat.Fluent;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.ConsoleUtilities;
 
@@ -34,8 +34,6 @@ public static class Prompters
         int indent = 4 )
         where T : Enum
     {
-        //indent = indent < 0 ? 4 : indent;
-
         Colors.WriteLine( "Enter ",
                           typeof( T ).Name.Yellow(),
                           " (current value is ".White(),
