@@ -2,6 +2,7 @@
 
 |Version|Description|
 |:-----:|-----------|
+|2.5.0|**breaking changes**, [see details below](#250)|
 |2.4.0|added new file locator API (experimental), [see details below](#240)|
 |2.3.3|apply validation/searching functionality when adding application configuration files, [see details below](#233)|
 |2.3.2|fix bug causing app config files to be ignored|
@@ -10,6 +11,19 @@
 |2.2|simplified creating type tests, register IJ4JHost when creating IJ4JHostConfiguration|
 |2.1|updated to Net 6|
 |2.0|significant breaking changes; [see details below](#200)|
+
+## 2.5.0
+
+To make the library more generally useful logging has been migrated from [Serilog](https://serilog.net/) to Microsoft's logging
+system.
+
+In general, this means instances of `ILoggerFactory` are used as construction parameters, rather than `ILogger`.
+This is because, while Serilog lets you scope an `ILogger` instance to a new type, you can only define
+the scope of a Microsoft `ILogger` by calling `ILoggerFactory.CreateLogger()`.
+
+FWIW, in my projects I continue to use Serilog behind the scenes as my logging engine. It's great!
+
+In addition the new file locator API has been changed from 'experimental' to 'functional'.
 
 ## 2.4.0
 

@@ -16,15 +16,11 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
-		<Version>1.2.0.0</Version>
-		<AssemblyVersion>1.2.0.0</AssemblyVersion>
-		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
+		<Version>1.3.0.0</Version>
+		<AssemblyVersion>1.3.0.0</AssemblyVersion>
+		<PackageReleaseNotes>migrated logging from Serilog to Microsoft, added new tests</PackageReleaseNotes>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <Compile Remove="ConstructorTesterBase.cs" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">

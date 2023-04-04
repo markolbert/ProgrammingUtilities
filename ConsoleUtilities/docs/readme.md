@@ -2,6 +2,8 @@
 
 Enables run-time editing of configuration parameters in console apps on an as-needed basis.
 
+The change log is available [here](changes.md).
+
 This assembly targets Net 7 and has nullability enabled.
 
 The library's repository is available on [github](https://github.com/markolbert/ProgrammingUtilities/blob/master/ConsoleUtilities/docs/readme.md).

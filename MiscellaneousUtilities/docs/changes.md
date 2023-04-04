@@ -2,11 +2,23 @@
 
 |Version|Description|
 |:-----:|-----------|
+|2.4.0|**breaking changes**, [see details below](#240)|
 |2.3.0|moved file validation API to DependencyInjection project, [see details below](#230)|
 |2.2.0|Improved how files are searched for when validating [see details below](#220)|
 |2.1.1|Relocated exception formatting extension method `Exception.FormatException()`|
 |2.1.0|Updated to Net 7, updated packages, [see details below](#210)|
 |2.0|breaking changes; updated to Net 6|
+
+## 2.4.0
+
+To make the library more generally useful logging has been migrated from [Serilog](https://serilog.net/) to Microsoft's logging
+system.
+
+In general, this means instances of `ILoggerFactory` are used as construction parameters, rather than `ILogger`.
+This is because, while Serilog lets you scope an `ILogger` instance to a new type, you can only define
+the scope of a Microsoft `ILogger` by calling `ILoggerFactory.CreateLogger()`.
+
+FWIW, in my projects I continue to use Serilog behind the scenes as my logging engine. It's great!
 
 ## 2.3.0
 
