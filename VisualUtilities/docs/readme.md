@@ -8,41 +8,112 @@ This assembly is focused on functions needed to work with various kinds of media
 
 This assembly targets Net 7 and has nullability enabled.
 
+## Table of contents
+
+- [WebColors](#webcolors)
+- Rectangle2D
+  - [Constructors](#constructors)
+  - [Properties](#properties)
+  - [Methods](#methods)
+
 ## WebColors
 
 The `WebColors` class contains various static methods supporting frequently-used transformations between "web-encoded" colors and colors as defined in the Microsoft/Windows environment (the difference relates to how RGB colors are stored within a 32 bit integer value). Using the Google Earth API within a Windows app is an example of where this difference comes into play.
 
-## Vector-based and Coordinate System Utilities
+[return to table of contents](#table-of-contents)
 
-I find working with the Windows Vector-based API difficult. It lacks built-in support for important capabilities I frequently need (e.g., creating rectangles, finding perpendiculars).
+## Rectangle2D
 
-At the same time, I find dealing with Windows' display coordinate system confusing, because of the oddball coordinate system it uses, with (0,0) being the upper-left corner of the screen and increasing values of the Y coordinate taking you **down** the screen, rather than up. Any API manipulating a (real) world coordinate system, like Google Maps, thus creates a (mind-bending) conflict when integrating such an API into a Windows/Microsoft program.
+### Constructors
 
-The vector-based and coordinate system utilties in this library attempt to address these issues.
+`Rectangle2D` is a class which allows you to create two dimensional rectangles and then compare how they relate to each other (i.e., is Rectangle1 inside or outside or coterminus with Rectangle2?).
 
-`VectorPolygon` creates polygons from arrays of `Vector2` objects via its static `Create()` method. It also lets you create rectangles from upper-left corner (X,Y) coordinates, a width and a height via its static `CreateRectangle()` method. `VectorPolygon` has no public constructor.
+There are two public constructors and a private one to support creating copies of a `Rectangle2D` object.
 
-`VectorPolygon` provides a number of useful properties and methods:
+```csharp
+public Rectangle2D(
+    float height,
+    float width,
+    float rotation = 0,
+    Vector3? center = null,
+    CoordinateSystem2D coordinateSystem = CoordinateSystem2D.Cartesian,
+    float comparisonTolerance = DefaultComparisonTolerance )
+```
 
-|Name|Type|Description|
-|----|:--:|-----------|
-|`Vertices`|property|read-only collection of `Vector2` objects defining the polygon's vertices|
-|`Center`|property|a `Vector2` object defining the center of the polygon|
-|`IsConvex`|property|true if the polygon is convex, false if it is concave|
-|`Edges`|enumerator|an enumerator (`IEnumerable<Vector2>` of the polygon's edges|
-|`Minimum`|property|a tuple (X,Y) of the upper-left corner of the polygon's bounding box|
-|`Maximum`|property|a tuple (X,Y) of the lower-right corner of the polygon's bounding box|
-|`BoundingRectangle`|property|a tuple (Width, Height) of the polygon's bounding box|
+Notice that you can define a **rotation value** to change the orientation of the rectangle in the two dimensional plane. The rotation is assumed to be in degrees. Positive values correspond to clockwise rotations.
 
-The `VectorExtensions` static class contains a number of methods (some are extension methods) that I've found useful:
+You can also specify a **center** point for the rotation. If you don't, the midpoint of the rectangle is used.
 
-|Name|Type|Description|
-|----|:--:|-----------|
-|`Perpendicular`|extension method (`Vector2`)|calculates the perpendicular to a `Vector2`, optionally normalizing it|
-|`Translate`|extension method (`VectorPolygon`)|moves/translates a `VectorPolygon` along a provided `Vector2` or X/Y deltas|
-|`Rotate`|extension method (`VectorPolygon`)|rotates a `VectorPolygon` by a number of degrees, around an optional center point|
-|`GetPerpendiculars`|static enumerator|enumerates `Vector2` perpendiculars based on a collection of one or more `VectorPolygon`s|
-|`GetNormalizedPerpendiculars`|static enumerator|similar to `GetPerpendiculars`, but normalizes the calculated perpendiculars|
-|`Intersects`|static method|returns true if two supplied `VectorPolygon`s intersect, false otherwise, optionally throwing an exception if the supplied polygons are not each convex|
-|`Inside`|static method|returns true if one of the two supplied `VectorPolygon`s is inside the other, false otherwise, optionally throwing an exception if the supplied polygons are not each convex|
-|`ChangeCoordinateSystem`|converts a `VectorPolygon` from one coordinate system to another|
+The **coordinateSystem** parameter lets you define where the origin of the Cartesian plane is, and what increases in Y values mean geometrically:
+
+- `CoordinateSystem2D.Cartesian` puts the origin in the center of the rectangle. It also implies *increases* in Y values move you **up**.
+- `CoordinateSystem2D.Display` puts the origin in the upper left corner of the rectangle. It also implies *increases* in Y values move you **down**.
+
+The **comparisonTolerance** parameter defines what it means for two floating point values to be considered equal. Because `Rectangle2D` is based on floating point math various calculations (e.g., a 360 degree rotation) can, through rounding errors, result in two points which *should* be the same being considered distinct. **comparisonTolerance** defines the difference between two floating point values which should still result in them being considered equal.
+
+```csharp
+public Rectangle2D(
+    Vector3[] points,
+    CoordinateSystem2D coordinateSystem = CoordinateSystem2D.Cartesian,
+    float comparisonTolerance = DefaultComparisonTolerance
+)
+```
+
+This second constructor allows you to define a `Rectangle2D` object using its four corner points. No attempt is made to normalize the provided points, so it's possible the resulting `Rectangle2D` object won't be a geometric rectangle.
+
+[return to table of contents](#table-of-contents)
+
+### Properties
+
+|Property|Value Type|Description|
+|--------|:--------:|-----------|
+|ComparisonTolerance|`float`|the maximum absolute value by which two floating point numbers can differ and still be considered the same|
+|CoordinateSystem|`CoordinateSystem2D`|an enum defining the origin of the rectangle and how Y values are interpreted (see the [constructor](#constructors) discussion above)|
+|LowerLeft|`Vector3`|the lower left corner of the rectangle|
+|UpperLeft|`Vector3`|the upper left corner of the rectangle|
+|UpperRight|`Vector3`|the upper right corner of the rectangle|
+|LowerRight|`Vector3`|the lower right corner of the rectangle|
+|Center|`Vector3`|the center of the rectangle|
+|Height|`float`|the height of the rectangle|
+|Width|`float`|the width of the rectangle|
+|BoundingBox|`Rectangle2D`|the rectangle that encloses the rectangle (which can be larger than the actual rectangle if it is rotated)|
+
+[return to table of contents](#table-of-contents)
+
+### Methods
+
+#### `RelativePosition2D` Contains( `Rectangle2D` toCheck )
+
+Indicates the containment relationship between the rectangle and another rectangle. See below for the possible values of [RelativePosition2D](#commonly-used-entities).
+
+#### `RelativePosition2D` Contains( `Vector3` point )
+
+Indicates the containment relationship between the rectangle and a point. See below for the possible values of [RelativePosition2D](#commonly-used-entities).
+
+#### `Vector3` this[ `int` idx ]
+
+Returns one of the rectangle's corners, which are numbered from the lower left corner, starting at **0** and then proceeding clockwise.
+
+**idx** values less than 0 or greater than 3 will throw an `IndexOutOfRangeException`.
+
+#### `IEnumerable<Edge2D>` GetEdges()
+
+Iterates over the edges of the rectangle, starting from the lower left corner and proceeding clockwise.
+
+[return to table of contents](#table-of-contents)
+
+### Commonly Used Entities
+
+`RelativePosition2D`
+
+- `Inside`: the rectangle being evaluated is *inside* the rectangle
+- `Edge`: the rectangle being evaluated is coterminus with the rectangle
+- `Outside`: the rectangle being evaluated is outside the rectangle
+
+`Edge2D` is a record containing the two `Vector3` points which define an edge. *Point1* and *Point2* are defined in a clockwise sense.
+
+```csharp
+public record Edge2D( Vector3 Point1, Vector3 Point2 );
+```
+
+[return to table of contents](#table-of-contents)
