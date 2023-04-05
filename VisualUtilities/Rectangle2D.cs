@@ -250,14 +250,14 @@ public record Rectangle2D : IEnumerable<Vector3>
 
     // thanx to Nick Alger for this!
     // https://math.stackexchange.com/questions/190111/how-to-check-if-a-point-is-inside-a-rectangle/1685315#1685315?newreg=dea69604c07d4329b2944256e006a34f
-    public RelativePosition2D Contains( Rectangle2D inner )
+    public RelativePosition2D Contains( Rectangle2D toCheck )
     {
         // test for identity
         var sameCorners = true;
 
         for( var idx = 0; idx < 4; idx++ )
         {
-            if( this[ idx ] == inner[ idx ] )
+            if( this[ idx ] == toCheck[ idx ] )
                 continue;
 
             sameCorners = false;
@@ -269,7 +269,7 @@ public record Rectangle2D : IEnumerable<Vector3>
 
         var retVal = RelativePosition2D.Inside;
 
-        foreach( var corner in inner )
+        foreach( var corner in toCheck )
         {
             retVal = Contains( corner );
 
