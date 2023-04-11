@@ -8,6 +8,8 @@ The library repository is available on [github](https://github.com/markolbert/Pr
 
 The change log is [available here](changes.md).
 
+** Breaking change: logging was migrated to Microsoft Logging**
+
 The starting point for using the library is creating an instance of `ExcelWorkbook`. It takes an optional `Func<IJ4JLogger>` logger factory. For more information on `IJ4JLogger` see the [github documentation](https://github.com/markolbert/J4JLogging).
 
 Worksheets are created by callling the `AddWorksheet()` method on an `ExcelWorkbook` instance.
