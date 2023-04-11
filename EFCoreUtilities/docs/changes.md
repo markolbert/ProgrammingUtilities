@@ -2,6 +2,7 @@
 
 |Version|Description|
 |:-----:|-----------|
+|1.4.1|fixed nuget dependencies|
 |1.4.0|**breaking changes**, [see details below](#140)|
 |1.3.0|Updated to Net 7, updated packages, [see details below](#130)|
 |1.2|revised design time factory|

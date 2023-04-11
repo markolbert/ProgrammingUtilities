@@ -2,6 +2,7 @@
 
 |Version|Description|
 |:-----:|-----------|
+|2.5.1|fixed nuget dependencies|
 |2.5.0|**breaking changes**, [see details below](#250)|
 |2.4.0|added new file locator API (experimental), [see details below](#240)|
 |2.3.3|apply validation/searching functionality when adding application configuration files, [see details below](#233)|

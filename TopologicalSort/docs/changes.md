@@ -2,6 +2,7 @@
 
 |Version|Description|
 |:-----:|-----------|
+|1.2.1|fixed nuget dependencies|
 |1.2.0|**breaking changes**, [see details below](#120)|
 |1.1.0|Updated to Net 7, updated packages|
 |1.0.0|added utilities for creating topological sort node lists|

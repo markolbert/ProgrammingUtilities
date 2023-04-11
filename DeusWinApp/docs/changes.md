@@ -2,6 +2,7 @@
 
 |Version|Description|
 |:-----:|-----------|
+|1.1.1|fixed nuget dependencies|
 |1.1.0|**breaking changes**, [see details below](#110)|
 |1.0.0|Updated to Net 7, updated packages|
 

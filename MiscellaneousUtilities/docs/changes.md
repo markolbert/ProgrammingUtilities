@@ -2,6 +2,7 @@
 
 |Version|Description|
 |:-----:|-----------|
+|2.4.1|fixed nuget dependencies|
 |2.4.0|**breaking changes**, [see details below](#240)|
 |2.3.0|moved file validation API to DependencyInjection project, [see details below](#230)|
 |2.2.0|Improved how files are searched for when validating [see details below](#220)|
