@@ -15,19 +15,7 @@
 		<RepositoryType>git</RepositoryType>
 		<Version>2.4.0.0</Version>
 		<AssemblyVersion>2.4.0.0</AssemblyVersion>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageDescription>support classes not tied to a particular UI or focus</PackageDescription>
-		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>migrated logging from Serilog to Microsoft</PackageReleaseNotes>
-		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <Compile Remove="range-tick\**" />
-	  <EmbeddedResource Remove="range-tick\**" />
-	  <None Remove="range-tick\**" />
-	</ItemGroup>
 
 	<ItemGroup>
 	  <Compile Remove="selectable-node\CollectionChangedHandler.cs" />
@@ -35,16 +23,6 @@
 	  <Compile Remove="selectable-node\ISelectableNodeFactory.cs" />
 	  <Compile Remove="selectable-node\SelectableNode.cs" />
 	  <Compile Remove="selectable-node\SelectableNodeFactory.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\..\licenses\GPLv3-2023.licenseheader" Link="GPLv3-2023.licenseheader" />
-		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md" />
 	</ItemGroup>
 
 	<ItemGroup>

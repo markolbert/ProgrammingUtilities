@@ -14,23 +14,7 @@
 		<RepositoryType>git</RepositoryType>
 		<Version>1.2.0.0</Version>
 		<AssemblyVersion>1.2.0.0</AssemblyVersion>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageDescription>a topological sort implementation, suitable for enforcing dependencies</PackageDescription>
-		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>migrated logging from Serilog to Microsoft</PackageReleaseNotes>
-		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<None Include="..\..\licenses\GPLv3-2023.licenseheader" Link="GPLv3-2023.licenseheader" />
-		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md" />
-	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />

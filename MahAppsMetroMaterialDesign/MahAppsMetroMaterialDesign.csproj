@@ -10,16 +10,10 @@
 		<Company>Jump for Joy Software</Company>
 		<Description>extensions and utilities supporting MahApps.Metro Material Design</Description>
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
-		<PackageDescription>extensions and utilities supporting MahApps.Metro Material Design</PackageDescription>
-		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
-		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
 		<Version>1.2.0.0</Version>
 		<AssemblyVersion>1.2.0.0</AssemblyVersion>
-		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
-		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -28,16 +22,6 @@
 		<PackageReference Include="MaterialDesignThemes" Version="4.8.0" />
 		<PackageReference Include="MaterialDesignThemes.MahApps" Version="0.2.8" />
 		<PackageReference Include="MaterialDesignThemes.Wpf" Version="1.0.1" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\..\licenses\GPLv3-2023.licenseheader" Link="GPLv3-2023.licenseheader" />
-		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md" />
 	</ItemGroup>
 
 	<ItemGroup>

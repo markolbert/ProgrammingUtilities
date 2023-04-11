@@ -14,19 +14,7 @@
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
 		<Version>2.5.0.0</Version>
 		<AssemblyVersion>2.5.0.0</AssemblyVersion>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageDescription>provides customized IHostBuilder and IHost classes for simplified configuration</PackageDescription>
-		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>migrated logging from Serilog to Microsoft</PackageReleaseNotes>
-		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <Compile Remove="roots\**" />
-	  <EmbeddedResource Remove="roots\**" />
-	  <None Remove="roots\**" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Autofac" Version="7.0.0" />
@@ -45,23 +33,5 @@
 		<PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="7.0.4" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
 		<PackageReference Include="Serilog.Extensions.Hosting" Version="5.0.1" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\J4JCommandLine\J4JCommandLine\J4JCommandLine.csproj" />
-		<ProjectReference Include="..\..\J4JLoggerEnhancements\J4JLoggerSerilog\J4JLoggerSerilog.csproj" />
-		<ProjectReference Include="..\DeusEx\DeusEx.csproj" />
-		<ProjectReference Include="..\MiscellaneousUtilities\MiscellaneousUtilities.csproj" />
-		<ProjectReference Include="..\TypeUtilities\TypeUtilities.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\..\licenses\GPLv3-2023.licenseheader" Link="GPLv3-2023.licenseheader" />
-		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md" />
 	</ItemGroup>
 </Project>

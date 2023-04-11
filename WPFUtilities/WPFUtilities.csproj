@@ -10,27 +10,11 @@
 		<Company>Jump for Joy Software</Company>
 		<Description>viewmodel support for WPF projects</Description>
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
-		<PackageDescription>utilities for console applications</PackageDescription>
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
-		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
 		<Version>1.2.0.0</Version>
 		<AssemblyVersion>1.2.0.0</AssemblyVersion>
-		<PackageReleaseNotes>updated to net7</PackageReleaseNotes>
-		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<None Include="..\..\licenses\GPLv3-2023.licenseheader" Link="GPLv3-2023.licenseheader" />
-		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md" />
-	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />

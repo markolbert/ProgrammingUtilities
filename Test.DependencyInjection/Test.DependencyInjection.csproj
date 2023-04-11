@@ -7,12 +7,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="CommandLineParsing.cs" />
-		<Compile Remove="CompositionRoot.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="FluentAssertions" Version="6.10.0" />
+		<PackageReference Include="J4JSoftware.DependencyInjection" Version="2.5.0" />
+		<PackageReference Include="J4JSoftware.LoggingSerilog" Version="1.0.1" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
 		<PackageReference Include="Serilog.Settings.Configuration" Version="3.4.0" />
 		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
@@ -26,11 +23,6 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\J4JLoggerEnhancements\J4JLoggerSerilog\J4JLoggerSerilog.csproj" />
-		<ProjectReference Include="..\DependencyInjection\DependencyInjection.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

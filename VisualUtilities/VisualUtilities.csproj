@@ -10,26 +10,10 @@
 		<Product>J4JSoftware Utilities for Visual/Media Elements</Product>
 		<Description>Utilities for visual/media elements</Description>
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
-		<PackageDescription>Utilities for visual/media elements</PackageDescription>
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
-		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
 		<Version>2.1.0.0</Version>
 		<AssemblyVersion>2.1.0.0</AssemblyVersion>
-		<PackageReleaseNotes>added 2D rectangle, transform extensions</PackageReleaseNotes>
-		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<None Include="..\..\licenses\GPLv3-2023.licenseheader" Link="GPLv3-2023.licenseheader" />
-		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md" />
-	</ItemGroup>
 
 </Project>

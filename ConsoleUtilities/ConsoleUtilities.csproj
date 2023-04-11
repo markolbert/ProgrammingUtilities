@@ -23,16 +23,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\..\licenses\GPLv3-2023.licenseheader" Link="GPLv3-2023.licenseheader" />
-		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Alba.CsConsoleFormat-NoXaml" Version="1.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
 	</ItemGroup>

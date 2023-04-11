@@ -17,27 +17,11 @@
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
 		<Version>1.0.0.0</Version>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageDescription>provides utilities for Windows Apps (WinUI 3)</PackageDescription>
-		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-		<PackageIcon>Diego nuspec.png</PackageIcon>
-		<PackageReleaseNotes>initial release</PackageReleaseNotes>
-		<PackageReadmeFile>readme.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.230217.4" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.755" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\..\licenses\GPLv3-2023.licenseheader" Link="GPLv3-2023.licenseheader" />
-		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="docs/readme.md" Pack="true" PackagePath="/" />
-		<None Include="../LICENSE.md" />
 	</ItemGroup>
 
 </Project>
