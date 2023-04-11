@@ -20,24 +20,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using J4JSoftware.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.Excel;
 
 public class ExcelTable
 {
-    private readonly IJ4JLogger? _logger;
+    private readonly ILogger? _logger;
 
     internal ExcelTable( ExcelSheet sheet,
         int upperLeftRow,
         int upperLeftColumn,
         TableOrientation orientation,
-        IJ4JLogger? logger = null )
+        ILoggerFactory? loggerFactory = null )
     {
         ExcelSheet = sheet;
 
-        _logger = logger ?? throw new NullReferenceException( nameof( logger ) );
-        _logger?.SetLoggedType( GetType() );
+        _logger = loggerFactory?.CreateLogger<ExcelTable>();
 
         if( upperLeftRow < 0 )
             throw new ArgumentException( $"Upper left row cannot be < 0 ({upperLeftRow})" );
@@ -111,7 +110,7 @@ public class ExcelTable
 
         if( values.Count == 0 )
         {
-            _logger?.Error( "To properties found on instance of type '{0}' to add to the table",
+            _logger?.LogError( "To properties found on instance of type '{entity}' to add to the table",
                             typeof( TEntity ) );
             return false;
         }
@@ -156,13 +155,13 @@ public class ExcelTable
     {
         if( !IsValid )
         {
-            _logger?.Error( "Table is invalid" );
+            _logger?.LogError( "Table is invalid" );
             return false;
         }
 
         if( !ExcelSheet!.IsValid )
         {
-            _logger?.Error( "ExcelSheet is invalid" );
+            _logger?.LogError( "ExcelSheet is invalid" );
             return false;
         }
 

@@ -23,15 +23,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using J4JSoftware.Logging;
+using Microsoft.Extensions.Logging;
 using NPOI.XSSF.UserModel;
 
 namespace J4JSoftware.Excel;
 
 public class ExcelWorkbook : IEnumerable<ExcelSheet>
 {
-    private readonly IJ4JLogger? _logger;
-    private readonly Func<IJ4JLogger>? _loggerFactory;
+    private readonly ILogger? _logger;
+    private readonly ILoggerFactory? _loggerFactory;
     private readonly List<ExcelSheet> _worksheets = new();
     private readonly XSSFWorkbook _xssfWorkbook;
     private int _activeSheetIndex = -1;
@@ -40,19 +40,18 @@ public class ExcelWorkbook : IEnumerable<ExcelSheet>
     private string? _filePath;
 
     public ExcelWorkbook( string? filePath = null,
-        Func<IJ4JLogger>? loggerFactory = null )
+        ILoggerFactory? loggerFactory = null )
     {
         _loggerFactory = loggerFactory;
 
         _xssfWorkbook = new XSSFWorkbook();
 
-        _logger = _loggerFactory?.Invoke();
-        _logger?.SetLoggedType( GetType() );
+        _logger = _loggerFactory?.CreateLogger<ExcelWorkbook>();
 
         FilePath = filePath;
     }
 
-    public ExcelWorkbook( Func<J4JLogger>? loggerFactory = null )
+    public ExcelWorkbook( ILoggerFactory? loggerFactory = null )
         : this( null, loggerFactory )
     {
     }
@@ -89,7 +88,7 @@ public class ExcelWorkbook : IEnumerable<ExcelSheet>
             }
             catch
             {
-                _logger?.Error<string>( "Couldn't open or create file '{0}'", value );
+                _logger?.LogError( "Couldn't open or create file '{file}'", value );
             }
         }
     }
@@ -102,13 +101,13 @@ public class ExcelWorkbook : IEnumerable<ExcelSheet>
         {
             if( _worksheets.Count == 0 )
             {
-                _logger?.Error( "No worksheets are defined" );
+                _logger?.LogError( "No worksheets are defined" );
                 return null;
             }
 
             if( _activeSheetIndex < 0 || _activeSheetIndex >= _worksheets.Count - 1 )
             {
-                _logger?.Error( "No active worksheet defined" );
+                _logger?.LogError( "No active worksheet defined" );
                 return null;
             }
 
@@ -126,7 +125,7 @@ public class ExcelWorkbook : IEnumerable<ExcelSheet>
                                             ?? false );
 
             if( retVal == null )
-                _logger?.Error<string>( "Could not find worksheet '{0}'", name );
+                _logger?.LogError( "Could not find worksheet '{name}'", name );
 
             return retVal;
         }
@@ -150,7 +149,7 @@ public class ExcelWorkbook : IEnumerable<ExcelSheet>
 
         if( idx < 0 )
         {
-            _logger?.Error<string>( "No worksheet named '{0}' exists in the workbook", name );
+            _logger?.LogError( "No worksheet named '{name}' exists in the workbook", name );
             return false;
         }
 
@@ -165,7 +164,7 @@ public class ExcelWorkbook : IEnumerable<ExcelSheet>
 
         if( Worksheets.Any( w => w.Sheet?.SheetName.Equals( name, StringComparison.OrdinalIgnoreCase ) ?? false ) )
         {
-            _logger?.Error<string>( "Duplicate worksheet name '{0}'", name );
+            _logger?.LogError( "Duplicate worksheet name '{name}'", name );
             return false;
         }
 
@@ -179,11 +178,11 @@ public class ExcelWorkbook : IEnumerable<ExcelSheet>
     {
         if( _excelStream == null )
         {
-            _logger?.Error( "ExcelWorkbook is not linked to a file, set FilePath property" );
+            _logger?.LogError( "ExcelWorkbook is not linked to a file, set FilePath property" );
             return false;
         }
 
-        _xssfWorkbook!.Write( _excelStream );
+        _xssfWorkbook.Write( _excelStream );
 
         return true;
     }

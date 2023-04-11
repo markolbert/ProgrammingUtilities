@@ -17,10 +17,9 @@
 // with J4JLogger. If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using J4JSoftware.Logging;
+using Microsoft.Extensions.Logging;
 using NPOI.SS.UserModel;
 
 namespace J4JSoftware.Excel;
@@ -28,17 +27,16 @@ namespace J4JSoftware.Excel;
 public class ExcelSheet
 {
     private readonly List<ICell> _cells = new();
-    private readonly IJ4JLogger? _logger;
-    private readonly Func<IJ4JLogger>? _loggerFactory;
+    private readonly ILogger? _logger;
+    private readonly ILoggerFactory? _loggerFactory;
     private readonly List<IRow> _rows = new();
 
     internal ExcelSheet( ISheet xssfSheet,
-        Func<IJ4JLogger>? loggerFactory = null )
+        ILoggerFactory? loggerFactory = null )
     {
         _loggerFactory = loggerFactory;
 
-        _logger = _loggerFactory?.Invoke();
-        _logger?.SetLoggedType( GetType() );
+        _logger = _loggerFactory?.CreateLogger<ExcelSheet>();
 
         Sheet = xssfSheet;
     }
@@ -54,19 +52,19 @@ public class ExcelSheet
         {
             if( !IsValid )
             {
-                _logger?.Error( "Worksheet is not initialized" );
+                _logger?.LogError( "Worksheet is not initialized" );
                 return null;
             }
 
             if( row < 0 )
             {
-                _logger?.Error( "Invalid row# {0}", row );
+                _logger?.LogError( "Invalid row# {row}", row );
                 return null;
             }
 
             if( col < 0 )
             {
-                _logger?.Error( "Invalid column #{0}", col );
+                _logger?.LogError( "Invalid column #{col}", col );
                 return null;
             }
 
@@ -96,7 +94,7 @@ public class ExcelSheet
         {
             if( !IsValid )
             {
-                _logger?.Error( "Worksheet is not initialized" );
+                _logger?.LogError( "Worksheet is not initialized" );
                 return null;
             }
 
@@ -118,7 +116,7 @@ public class ExcelSheet
         {
             if( !IsValid )
             {
-                _logger?.Error( "Worksheet is not initialized" );
+                _logger?.LogError( "Worksheet is not initialized" );
                 return null;
             }
 
@@ -141,13 +139,13 @@ public class ExcelSheet
     {
         if( row < 0 )
         {
-            _logger?.Error( "Row # cannot be < 0 ({0})", row );
+            _logger?.LogError( "Row # cannot be < 0 ({row})", row );
             return this;
         }
 
         if( col < 0 )
         {
-            _logger?.Error( "{Column # cannot be < 0 ({0})", col );
+            _logger?.LogError( "Column # cannot be < 0 ({col})", col );
             return this;
         }
 
@@ -161,13 +159,13 @@ public class ExcelSheet
     {
         if( rows + ActiveRowNumber < 0 )
         {
-            _logger?.Error( "Cannot move before row 0 ({0})", rows );
+            _logger?.LogError( "Cannot move before row 0 ({rows})", rows );
             return this;
         }
 
         if( cols + ActiveColumnNumber < 0 )
         {
-            _logger?.Error( "Cannot move before column 0 ({0})", cols );
+            _logger?.LogError( "Cannot move before column 0 ({cols})", cols );
             return this;
         }
 
@@ -181,7 +179,7 @@ public class ExcelSheet
     {
         if( !IsValid )
         {
-            _logger?.Error( "Worksheet is not initialized" );
+            _logger?.LogError( "Worksheet is not initialized" );
             return this;
         }
 
@@ -205,17 +203,17 @@ public class ExcelSheet
 
         if( upperLeftRow < 0 )
         {
-            _logger?.Error( "Upper left row cannot be < 0 ({0})", upperLeftRow );
+            _logger?.LogError( "Upper left row cannot be < 0 ({upperLeftRow})", upperLeftRow );
             return false;
         }
 
         if( upperLeftColumn < 0 )
         {
-            _logger?.Error( "Upper left column cannot be < 0 ({0})", upperLeftColumn );
+            _logger?.LogError( "Upper left column cannot be < 0 ({upperLeftColumn})", upperLeftColumn );
             return false;
         }
 
-        result = new ExcelTable( this, upperLeftRow, upperLeftColumn, orientation, _loggerFactory?.Invoke() );
+        result = new ExcelTable( this, upperLeftRow, upperLeftColumn, orientation, _loggerFactory );
 
         return true;
     }
