@@ -38,24 +38,29 @@ namespace J4JSoftware.DependencyInjection;
 
 public class J4JHostConfiguration
 {
+    public const string DefaultDataProtectionPurpose = nameof(J4JHostConfiguration);
+
+    private readonly IDataProtectionProvider _dpProvider;
+
     private OptionCollection? _options;
     private StringComparison? _cmdLineTextComparison;
     private string _publisher = string.Empty;
     private string _appName = string.Empty;
+    private string _dataProtectionPurpose = DefaultDataProtectionPurpose;
 
     public J4JHostConfiguration(
         AppEnvironment appEnvironment,
         bool registerJ4JHost = true
     )
     {
-        BuildLogger = new LoggerConfiguration()
+        Logger = new LoggerConfiguration()
             .WriteTo.InMemory(out var temp)
             .CreateLogger();
 
-        BuildLoggerFactory = new LoggerFactory()
-           .AddSerilog( BuildLogger );
+        LoggerFactory = new LoggerFactory()
+           .AddSerilog( Logger );
 
-        BuildLoggerSink = temp;
+        LoggerSink = temp;
 
         RegisterJ4JHost = registerJ4JHost;
         AppEnvironment = appEnvironment;
@@ -75,13 +80,25 @@ public class J4JHostConfiguration
         DependencyInjectionInitializers.Add( CoreLoggingDependencyInjection );
 
         ServicesInitializers.Add( CoreDataProtectionServices );
+
+        _dpProvider = DataProtectionProvider.Create(
+            new DirectoryInfo(Path.Combine(
+                                  Environment.GetFolderPath(
+                                      Environment.SpecialFolder.LocalApplicationData),
+                                  "ASP.NET",
+                                  "DataProtection-Keys")));
+
+        DataProtector = _dpProvider.CreateProtector( DataProtectionPurpose );
     }
 
     // used to capture log events during the host building process,
     // when the ultimate ILogger instance is not yet available
-    public ILogger BuildLogger { get; }
-    public ILoggerFactory BuildLoggerFactory { get; }
-    public InMemorySink BuildLoggerSink { get; }
+    public ILogger Logger { get; }
+    public ILoggerFactory LoggerFactory { get; }
+    public InMemorySink LoggerSink { get; }
+
+    // used for data encryption/decryption during the host building process
+    public IDataProtector DataProtector { get; private set; }
 
     internal string Publisher
     {
@@ -95,7 +112,17 @@ public class J4JHostConfiguration
         set => _appName = value;
     }
 
-    internal string DataProtectionPurpose { get; set; } = string.Empty;
+    internal string DataProtectionPurpose
+    {
+        get => _dataProtectionPurpose;
+
+        set
+        {
+            _dataProtectionPurpose = value;
+            DataProtector = _dpProvider.CreateProtector( DataProtectionPurpose );
+        }
+    }
+
     internal AppEnvironment AppEnvironment { get; }
 
     // controls whether the IJ4JHost instance that gets built is itself
@@ -121,7 +148,7 @@ public class J4JHostConfiguration
 
         bool DefaultSensitivity()
         {
-            BuildLogger.Warning( "Unsupported operating system, case sensitivity set to false" );
+            Logger.Warning( "Unsupported operating system, case sensitivity set to false" );
             return false;
         }
     }
@@ -162,10 +189,10 @@ public class J4JHostConfiguration
         result = null;
 
         if (string.IsNullOrEmpty(_publisher))
-            BuildLogger.Error("UserConfigurationFolder is undefined because Publisher is undefined");
+            Logger.Error("UserConfigurationFolder is undefined because Publisher is undefined");
 
         if (string.IsNullOrEmpty(_appName))
-            BuildLogger.Error("UserConfigurationFolder is undefined because ApplicationName is undefined");
+            Logger.Error("UserConfigurationFolder is undefined because ApplicationName is undefined");
 
         if (!string.IsNullOrEmpty(_publisher) && !string.IsNullOrEmpty(_appName))
             result = Path.Combine(
@@ -239,17 +266,17 @@ public class J4JHostConfiguration
 
         _options = new OptionCollection( CommandLineTextComparison,
                                          CommandLineConfiguration.TextConverters,
-                                         BuildLoggerFactory );
+                                         LoggerFactory );
 
         CommandLineConfiguration.OptionsGenerator ??=
-            new OptionsGenerator( _options, CommandLineTextComparison, BuildLoggerFactory );
+            new OptionsGenerator( _options, CommandLineTextComparison, LoggerFactory );
 
         CommandLineConfiguration.LexicalElements ??= CommandLineConfiguration.OperatingSystem switch
         {
             CommandLineOperatingSystems.Windows =>
-                new WindowsLexicalElements( BuildLoggerFactory ),
+                new WindowsLexicalElements( LoggerFactory ),
             CommandLineOperatingSystems.Linux =>
-                new LinuxLexicalElements( BuildLoggerFactory ),
+                new LinuxLexicalElements( LoggerFactory ),
             _ => throw new
                 J4JDependencyInjectionException( "Operating system is undefined", this )
         };
@@ -257,15 +284,15 @@ public class J4JHostConfiguration
         var parsingTable = new ParsingTable( CommandLineConfiguration.OptionsGenerator! );
 
         var tokenizer = new Tokenizer( CommandLineConfiguration.LexicalElements!,
-                                       BuildLoggerFactory,
+                                       LoggerFactory,
                                        CommandLineConfiguration.CleanupProcessors.ToArray() );
 
-        var parser = new Parser( _options, parsingTable, tokenizer, BuildLoggerFactory );
+        var parser = new Parser( _options, parsingTable, tokenizer, LoggerFactory );
 
         builder.AddJ4JCommandLine( parser, out var cmdLineSrc );
 
         CommandLineConfiguration.OptionsInitializer!( _options );
-
+            
         CommandLineSource = cmdLineSrc;
 
         _options.FinishConfiguration();
@@ -273,25 +300,8 @@ public class J4JHostConfiguration
 
     private void CoreDataProtectionDependencyInjection( HostBuilderContext hbc, ContainerBuilder builder )
     {
-        builder.RegisterType<DataProtection>()
-               .As<IDataProtection>()
-               .OnActivating( x => x.Instance.Purpose =
-                                  string.IsNullOrEmpty( DataProtectionPurpose )
-                                      ? ApplicationName
-                                      : DataProtectionPurpose )
-               .SingleInstance();
-
-        builder.RegisterType<J4JProtection>()
-               .As<IJ4JProtection>()
-               .SingleInstance();
-
-        builder.Register( c =>
-                {
-                    var provider = c.Resolve<IDataProtectionProvider>();
-
-                    return new J4JProtection( provider, DataProtectionPurpose );
-                } )
-               .As<IJ4JProtection>()
+        builder.Register( c => _dpProvider.CreateProtector( DataProtectionPurpose ) )
+               .As<IDataProtector>()
                .SingleInstance();
     }
 
