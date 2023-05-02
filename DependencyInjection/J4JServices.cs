@@ -49,8 +49,8 @@ public static class J4JServices
             return false;
         }
 
-        BuildLogger = hostConfig.BuildLogger;
-        BuildLoggerFactory = hostConfig.BuildLoggerFactory;
+        BuildLogger = hostConfig.Logger;
+        BuildLoggerFactory = hostConfig.LoggerFactory;
 
         if( hostConfig.MissingRequirements != J4JHostRequirements.AllMet )
         {

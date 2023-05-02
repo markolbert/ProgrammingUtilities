@@ -53,12 +53,12 @@ public abstract class J4JDeusExHosted : J4JDeusEx
         {
             OutputFatalMessage(
                 $"Missing {typeof( J4JHostConfiguration )} items: {hostConfig.MissingRequirements}",
-                hostConfig.BuildLogger );
+                hostConfig.Logger );
 
             return false;
         }
 
-        Logger = hostConfig.BuildLogger;
+        Logger = hostConfig.Logger;
 
         var host = hostConfig.Build();
 
@@ -69,7 +69,7 @@ public abstract class J4JDeusExHosted : J4JDeusEx
             var runTimeLogger = host.Services.GetService<ILogger>();
 
             if( runTimeLogger != null )
-                hostConfig.BuildLoggerSink.OutputTo(runTimeLogger);
+                hostConfig.LoggerSink.OutputTo(runTimeLogger);
 
             Logger = runTimeLogger;
 
@@ -81,7 +81,7 @@ public abstract class J4JDeusExHosted : J4JDeusEx
         Logger = null;
 
         OutputFatalMessage( $"Could not create {typeof( IJ4JHost )}",
-                            hostConfig.BuildLogger );
+                            hostConfig.Logger );
 
         return false;
     }
