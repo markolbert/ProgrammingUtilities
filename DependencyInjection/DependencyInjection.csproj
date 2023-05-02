@@ -12,8 +12,7 @@
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
-		<Version>2.5.1.0</Version>
-		<AssemblyVersion>2.5.1.0</AssemblyVersion>
+		<VersionPrefix>2.6.0</VersionPrefix>
 	</PropertyGroup>
 
 	<ItemGroup>
