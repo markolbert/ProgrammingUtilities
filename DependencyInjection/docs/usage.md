@@ -82,7 +82,7 @@ public enum J4JHostRequirements
 }
 ```
 
-The first two flags indicate you failed to define the publisher name, the application name, or both. These are necessary for the data protection system to be configured, and for the configuration file folders to be located in some situations.
+The first two flags indicate you failed to define the publisher name, the application name, or both. These are necessary for the configuration file folders to be located in some situations.
 
 The third flag indicates you configured the command line processing subsystem to use specific lexical elements (e.g., the text that demarcates a string value) but failed to provide them.
 

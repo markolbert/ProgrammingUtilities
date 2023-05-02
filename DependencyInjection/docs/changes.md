@@ -2,6 +2,7 @@
 
 |Version|Description|
 |:-----:|-----------|
+|2.6.0|**breaking changes**, [see details below](#260)|
 |2.5.1|fixed nuget dependencies|
 |2.5.0|**breaking changes**, [see details below](#250)|
 |2.4.0|added new file locator API (experimental), [see details below](#240)|
@@ -12,6 +13,12 @@
 |2.2|simplified creating type tests, register IJ4JHost when creating IJ4JHostConfiguration|
 |2.1|updated to Net 6|
 |2.0|significant breaking changes; [see details below](#200)|
+
+## 2.6.0
+
+- The `IJ4JProtection` system was removed and replaced by the Microsoft `IDataProtector` system it was based on.
+- Data protection via `IDataProtector` was made available during the `IJ4JHost` build process.
+- Certain property names were simplified to clarify them (e.g., `BuildLogger` => `Logger`)
 
 ## 2.5.0
 
