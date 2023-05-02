@@ -3,6 +3,7 @@ using System.IO;
 using FluentAssertions;
 using J4JSoftware.Configuration.CommandLine;
 using J4JSoftware.DependencyInjection;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -150,18 +151,12 @@ public class HostBuilderTests
 
         var host = BuildHost( config );
 
-        var protector = host.Services.GetRequiredService<IJ4JProtection>();
+        var protector = host.Services.GetRequiredService<IDataProtector>();
         protector.Should().NotBeNull();
 
-        protector.Protect( "test text", out var encrypted )
-                 .Should()
-                 .BeTrue();
+        var encrypted = protector.Protect( "test text" );
 
-        protector.Unprotect( encrypted!, out var decrypted )
-                 .Should()
-                 .BeTrue();
-
-        decrypted.Should().Be( "test text" );
+        protector.Unprotect( encrypted! ).Should().Be( "test text" );
     }
 
     private static IJ4JHost BuildHost( J4JHostConfiguration config )
