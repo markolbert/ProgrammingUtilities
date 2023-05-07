@@ -51,7 +51,7 @@ public abstract class PropertyUpdater<TProp> : IPropertyUpdater<TProp>
             return result;
         }
 
-        Logger?.LogError( "Expected a {0} but got a {1}", typeof( TProp ), origValue?.GetType() );
+        Logger?.LogError( "Expected a {correct} but got a {incorrect}", typeof( TProp ), origValue?.GetType() );
 
         return UpdaterResult.InvalidValidator;
     }
