@@ -22,7 +22,7 @@
 using System;
 using Microsoft.UI.Xaml;
 
-namespace J4JSoftware.WindowsUtilities;
+namespace J4JSoftware.WindowsUtilities.debounce;
 
 // thanx to Rick Strahl for this one.
 // https://weblog.west-wind.com/posts/2017/jul/02/debouncing-and-throttling-dispatcher-events
@@ -35,7 +35,7 @@ public class DebounceDispatcher
         )
     {
         var timer = new DispatcherTimer();
-        timer.Tick += ( _, _ ) => action.Invoke( optParam );
+        timer.Tick += (_, _) => action.Invoke(optParam);
         timer.Interval = TimeSpan.FromMilliseconds(interval);
         timer.Start();
     }

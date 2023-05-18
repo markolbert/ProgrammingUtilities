@@ -23,7 +23,7 @@ using Microsoft.UI.Xaml;
 using System;
 using System.Threading.Tasks;
 
-namespace J4JSoftware.WindowsUtilities;
+namespace J4JSoftware.WindowsUtilities.debounce;
 
 // thanx to Rick Strahl for this one.
 // https://weblog.west-wind.com/posts/2017/jul/02/debouncing-and-throttling-dispatcher-events
