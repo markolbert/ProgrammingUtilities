@@ -4,10 +4,11 @@ The library repository is available on [github](https://github.com/markolbert/Pr
 
 The change log is [available here](changes.md).
 
-Provides support utilities for Windows App (WinUI 3) programs, including:
+Provides support utilities for Windows App (WinUI 3) programs.
 
-- a debounce dispatcher, to manage rapid property changes which can overwhelm update routines
-- a throttle dispatcher, to manage rapid repetive method calls
-- an [application configuration base class supporting automatic encryption/decryption](config-crypt.md)
+- [Debouncing UI updates](debounce.md)
+- [Throttling UI updates](throttle.md)
+- [Encrypting application configuration files](config-crypt.md)
+- [WinUI 3 application startup and shutdown](startup.md)
 
 This assembly targets Net 7 and has nullability enabled.
