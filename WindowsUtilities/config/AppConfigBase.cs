@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using Microsoft.AspNetCore.DataProtection;
 using System.Text.Json.Serialization;
 using Windows.Graphics;
@@ -34,86 +35,148 @@ public class AppConfigBase
 {
     private enum EncryptablePropertyType
     {
-        Unsupported,
-        Simple,
-        Array,
-        List
+        Object,
+        Unencrypted,
+        SimpleString,
+        StringArray,
+        StringEnumerable
     }
 
-    private record EncryptedProperty(PropertyInfo PropertyInfo, EncryptablePropertyType Type);
+    private record EncryptedProperty(
+        PropertyInfo Property,
+        EncryptablePropertyType Type,
+        List<PropertyInfo>? PropertyPath
+    );
 
     public static string UserFolder { get; } = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
 
     private readonly Type _configType;
-    private readonly List<EncryptedProperty> _encryptedProps;
+    private readonly List<EncryptedProperty> _encryptedProps = new();
 
     protected AppConfigBase()
     {
         _configType = GetType();
 
-        _encryptedProps = _configType
-                         .GetProperties()
-                         .Where(x => x.CanWrite)
-                         .Select(x => new EncryptedProperty(x, GetSupportedType(x)))
-                         .ToList();
+        FindEncryptableProperties( _configType.GetProperties().Where( x => x.CanWrite ), null );
     }
 
-    private EncryptablePropertyType GetSupportedType(PropertyInfo propInfo)
+    private void FindEncryptableProperties(
+        IEnumerable<PropertyInfo> properties,
+        List<PropertyInfo>? propertyPath
+    )
     {
-        if (propInfo.GetCustomAttribute<EncryptedPropertyAttribute>() == null)
-            return EncryptablePropertyType.Unsupported;
+        foreach( var curProp in properties )
+        {
+            var propType = GetSupportedType( curProp );
 
+            if( propType != EncryptablePropertyType.Object )
+            {
+                _encryptedProps.Add( new EncryptedProperty( curProp, propType, propertyPath ) );
+                continue;
+            }
+
+            // we can't handle any types which don't have a parameterless public ctor
+            if( curProp.PropertyType.GetConstructors().All( x => x.GetParameters().Length != 0 ) )
+                continue;
+
+            // recurse over curProp's public properties
+            propertyPath = propertyPath == null ? new List<PropertyInfo>() : new List<PropertyInfo>( propertyPath );
+            propertyPath.Add( curProp );
+
+            FindEncryptableProperties( curProp.PropertyType.GetProperties().Where( x => x.CanWrite ),
+                                       propertyPath );
+        }
+    }
+
+    private EncryptablePropertyType GetSupportedType( PropertyInfo propInfo )
+    {
+        var taggedForEncryption = propInfo.GetCustomAttribute<EncryptedPropertyAttribute>() != null;
         var propType = propInfo.PropertyType;
 
-        if (propType == typeof(string))
-            return EncryptablePropertyType.Simple;
+        if( propType == typeof( string ) )
+            return taggedForEncryption ? EncryptablePropertyType.SimpleString : EncryptablePropertyType.Unencrypted;
 
-        if (propType == typeof(string[]))
-            return EncryptablePropertyType.Array;
+        if( propType == typeof( string[] ) )
+            return taggedForEncryption ? EncryptablePropertyType.StringArray : EncryptablePropertyType.Unencrypted;
 
-        return propType.IsAssignableTo(typeof(IEnumerable<string>))
-            ? EncryptablePropertyType.List
-            : EncryptablePropertyType.Unsupported;
+        if( propType.IsAssignableTo( typeof( IEnumerable<string> ) ) )
+            return taggedForEncryption? EncryptablePropertyType.StringEnumerable : EncryptablePropertyType.Unencrypted;
+
+        return propType.IsValueType ? EncryptablePropertyType.Unencrypted : EncryptablePropertyType.Object;
     }
 
-    [JsonIgnore]
+    [ JsonIgnore ]
     public string? UserConfigurationFilePath { get; set; }
 
-    [JsonIgnore]
+    [ JsonIgnore ]
     public bool UserConfigurationFileExists =>
-        !string.IsNullOrEmpty(UserConfigurationFilePath)
-     && File.Exists(Path.Combine(UserFolder, UserConfigurationFilePath));
+        !string.IsNullOrEmpty( UserConfigurationFilePath )
+     && File.Exists( Path.Combine( UserFolder, UserConfigurationFilePath ) );
 
     public RectInt32 MainWindowRectangle { get; set; }
 
-    public AppConfigBase Encrypt(IDataProtector protector)
+    public AppConfigBase Encrypt( IDataProtector protector )
     {
-        var retVal = CreateInstance();
+        var retVal = (AppConfigBase) MemberwiseClone();
 
-        foreach (var encProp in _encryptedProps)
+        foreach( var encProp in _encryptedProps )
         {
             // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-            switch (encProp.Type)
+            switch( encProp.Type )
             {
-                case EncryptablePropertyType.Simple:
-                    EncryptProperty(retVal, encProp, protector);
+                case EncryptablePropertyType.SimpleString:
+                    EncryptProperty( encProp, retVal, protector );
                     break;
 
-                case EncryptablePropertyType.Array:
-                    EncryptArray(retVal, encProp, protector);
+                case EncryptablePropertyType.StringArray:
+                    EncryptArray( encProp, retVal, protector );
                     break;
 
-                case EncryptablePropertyType.List:
-                    EncryptList(retVal, encProp, protector);
+                case EncryptablePropertyType.StringEnumerable:
+                    EncryptList( encProp, retVal, protector );
                     break;
 
                 default:
-                    encProp.PropertyInfo.SetValue(retVal, encProp.PropertyInfo.GetValue(this));
+                    // no op
+                    //var value = GetLeafValue(encProp, this);
+                    //SetLeafValue( encProp, retVal, value );
                     break;
             }
         }
 
         return retVal;
+    }
+
+    private object? GetLeafValue(EncryptedProperty encProp, object rootTarget)
+    {
+        // descend through the property path
+        var curTarget = rootTarget;
+
+        foreach (var propInfo in encProp.PropertyPath ?? Enumerable.Empty<PropertyInfo>())
+        {
+            if (propInfo.GetValue(curTarget) == null)
+                return null;
+
+            curTarget = propInfo.GetValue(curTarget);
+        }
+
+        return encProp.Property.GetValue(curTarget);
+    }
+
+    private void SetLeafValue( EncryptedProperty encProp, object rootTarget, object? value )
+    {
+        // create the properties along the property path, if one is defined
+        var curTarget = rootTarget;
+
+        foreach( var propInfo in encProp.PropertyPath ?? Enumerable.Empty<PropertyInfo>() )
+        {
+            if( propInfo.GetValue( curTarget ) == null )
+                propInfo.SetValue( curTarget, Activator.CreateInstance( propInfo.PropertyType ) );
+
+            curTarget = propInfo.GetValue( curTarget );
+        }
+
+        encProp.Property.SetValue( curTarget, value );
     }
 
     private AppConfigBase CreateInstance()
@@ -122,71 +185,73 @@ public class AppConfigBase
 
         try
         {
-            retVal = (AppConfigBase)Activator.CreateInstance(_configType)!;
+            retVal = (AppConfigBase) Activator.CreateInstance( _configType )!;
         }
-        catch (Exception ex)
+        catch( Exception ex )
         {
-            throw new TypeInitializationException(_configType.FullName,
+            throw new TypeInitializationException( _configType.FullName,
                                                    new ApplicationException(
                                                        $"Could not create an instance of {_configType}. Are you sure it has a public parameterless constructor?",
-                                                       ex));
+                                                       ex ) );
         }
 
         return retVal;
     }
 
-    private void EncryptProperty(AppConfigBase encrypted, EncryptedProperty propInfo, IDataProtector protector)
+    private void EncryptProperty( EncryptedProperty encProp, AppConfigBase encrypted, IDataProtector protector )
     {
-        var plainText = (string?)propInfo.PropertyInfo.GetValue(this);
-        if (string.IsNullOrEmpty(plainText))
+        var plainText = (string?) GetLeafValue( encProp, this );
+        if( string.IsNullOrEmpty( plainText ) )
             return;
 
-        propInfo.PropertyInfo.SetValue(encrypted, protector.Protect(plainText));
+        SetLeafValue( encProp, encrypted, protector.Protect( plainText ) );
     }
 
-    private void EncryptArray(AppConfigBase encrypted, EncryptedProperty propInfo, IDataProtector protector)
+    private void EncryptArray( EncryptedProperty encProp, AppConfigBase encrypted, IDataProtector protector )
     {
-        var plainTextValues = (string?[]?)propInfo.PropertyInfo.GetValue(this);
-        if (plainTextValues == null)
+        var plainTextValues = (string?[]?) GetLeafValue( encProp, this );
+        if( plainTextValues == null )
             return;
 
-        var encryptedValues = plainTextValues.Select(x => x == null ? null : protector.Protect(x)).ToArray();
-        propInfo.PropertyInfo.SetValue(encrypted, encryptedValues);
+        var encryptedValues = plainTextValues.Select( x => x == null ? null : protector.Protect( x ) ).ToArray();
+        SetLeafValue( encProp, encrypted, encryptedValues );
     }
 
-    private void EncryptList(AppConfigBase encrypted, EncryptedProperty propInfo, IDataProtector protector)
+    private void EncryptList( EncryptedProperty encProp, AppConfigBase encrypted, IDataProtector protector )
     {
-        var plainTextValues = (IEnumerable<string?>?)propInfo.PropertyInfo.GetValue(this);
-        if (plainTextValues == null)
+        var plainTextValues = (IEnumerable<string?>?) GetLeafValue( encProp, this );
+        if( plainTextValues == null )
             return;
 
-        var encryptedValues = plainTextValues.Select(x => x == null ? null : protector.Protect(x)).ToList();
-        propInfo.PropertyInfo.SetValue(encrypted, encryptedValues);
+        var encryptedValues = plainTextValues.Select( x => x == null ? null : protector.Protect( x ) ).ToList();
+        SetLeafValue( encProp, encrypted, encryptedValues );
     }
 
-    public AppConfigBase Decrypt(IDataProtector protector)
+    public AppConfigBase Decrypt( IDataProtector protector )
     {
-        var retVal = CreateInstance();
+        var retVal = (AppConfigBase) MemberwiseClone();
 
-        foreach (var encProp in _encryptedProps)
+        foreach ( var encProp in _encryptedProps )
         {
             // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-            switch (encProp.Type)
+            switch( encProp.Type )
             {
-                case EncryptablePropertyType.Simple:
-                    DecryptProperty(retVal, encProp, protector);
+                case EncryptablePropertyType.SimpleString:
+                    DecryptProperty( encProp, retVal, protector );
                     break;
 
-                case EncryptablePropertyType.Array:
-                    DecryptArray(retVal, encProp, protector);
+                case EncryptablePropertyType.StringArray:
+                    DecryptArray(encProp, retVal, protector );
                     break;
 
-                case EncryptablePropertyType.List:
-                    DecryptList(retVal, encProp, protector);
+                case EncryptablePropertyType.StringEnumerable:
+                    DecryptList( encProp, retVal, protector );
                     break;
 
                 default:
-                    encProp.PropertyInfo.SetValue(retVal, encProp.PropertyInfo.GetValue(this));
+                    // no op
+                    //var value = GetLeafValue( encProp, this );
+                    //SetLeafValue( encProp, retVal, value );
                     break;
             }
         }
@@ -194,32 +259,32 @@ public class AppConfigBase
         return retVal;
     }
 
-    private void DecryptProperty(AppConfigBase encrypted, EncryptedProperty propInfo, IDataProtector protector)
+    private void DecryptProperty( EncryptedProperty encProp, AppConfigBase decrypted, IDataProtector protector )
     {
-        var encryptedText = (string?)propInfo.PropertyInfo.GetValue(this);
-        if (string.IsNullOrEmpty(encryptedText))
+        var encryptedText = (string?) GetLeafValue( encProp, this );
+        if( string.IsNullOrEmpty( encryptedText ) )
             return;
 
-        propInfo.PropertyInfo.SetValue(encrypted, protector.Unprotect(encryptedText));
+        SetLeafValue( encProp, decrypted, protector.Unprotect( encryptedText ) );
     }
 
-    private void DecryptArray(AppConfigBase decrypted, EncryptedProperty propInfo, IDataProtector protector)
+    private void DecryptArray( EncryptedProperty encProp, AppConfigBase decrypted, IDataProtector protector )
     {
-        var encryptedValues = (string?[]?)propInfo.PropertyInfo.GetValue(this);
-        if (encryptedValues == null)
+        var encryptedValues = (string?[]?) GetLeafValue( encProp, this );
+        if( encryptedValues == null )
             return;
 
-        var decryptedValues = encryptedValues.Select(x => x == null ? null : protector.Unprotect(x)).ToArray();
-        propInfo.PropertyInfo.SetValue(decrypted, decryptedValues);
+        var decryptedValues = encryptedValues.Select( x => x == null ? null : protector.Unprotect( x ) ).ToArray();
+        SetLeafValue( encProp, decrypted, decryptedValues );
     }
 
-    private void DecryptList(AppConfigBase decrypted, EncryptedProperty propInfo, IDataProtector protector)
+    private void DecryptList( EncryptedProperty encProp, AppConfigBase decrypted, IDataProtector protector )
     {
-        var encryptedValues = (IEnumerable<string?>?)propInfo.PropertyInfo.GetValue(this);
-        if (encryptedValues == null)
+        var encryptedValues = (IEnumerable<string?>?) GetLeafValue( encProp, this );
+        if( encryptedValues == null )
             return;
 
-        var decryptedValues = encryptedValues.Select(x => x == null ? null : protector.Unprotect(x)).ToList();
-        propInfo.PropertyInfo.SetValue(decrypted, decryptedValues);
+        var decryptedValues = encryptedValues.Select( x => x == null ? null : protector.Unprotect( x ) ).ToList();
+        SetLeafValue( encProp, decrypted, decryptedValues );
     }
 }
