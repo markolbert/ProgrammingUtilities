@@ -69,6 +69,20 @@ public abstract class J4JMainWindowSupport
         var hWnd = WindowNative.GetWindowHandle( this );
         var windowId = Win32Interop.GetWindowIdFromWindow( hWnd );
         AppWindow = AppWindow.GetFromWindowId( windowId );
+        AppWindow.Changed += AppWindowOnChanged;
+    }
+
+    private void AppWindowOnChanged( AppWindow sender, AppWindowChangedEventArgs args )
+    {
+        if( args is { DidPositionChange: false, DidSizeChange: false }
+        || _winAppSupport.AppConfig == null
+        || AppWindow == null )
+            return;
+
+        _winAppSupport.AppConfig.MainWindowRectangle = new RectInt32( AppWindow.Position.X,
+                                                                      AppWindow.Position.Y,
+                                                                      AppWindow.Size.Width,
+                                                                      AppWindow.Size.Height );
     }
 
     protected abstract RectInt32 GetDefaultWindowPositionAndSize();
