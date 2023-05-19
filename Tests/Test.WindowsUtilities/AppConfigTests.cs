@@ -5,10 +5,10 @@ namespace Test.WindowsUtilities;
 
 public class AppConfigTests
 {
-    [Fact]
+    [ Fact ]
     public void EncryptDecrypt()
     {
-        var plainText = new TestConfig
+        var plainCore = new TestConfigCore
         {
             NotEncryptable = 37,
             ProtectedText = "protected text",
@@ -19,12 +19,25 @@ public class AppConfigTests
             ProtectedNullableTextList = new List<string?> { "protected text1", "protected text2", null }
         };
 
-        var localAppFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var plainText = new TestConfig
+        {
+            NotEncryptable = 37,
+            ProtectedText = "protected text",
+            ProtectedNullableText = "protected nullable text",
+            ProtectedTextArray = new[] { "protected text1", "protected text2", string.Empty },
+            ProtectedNullableTextArray = new[] { "protected text1", "protected text2", null },
+            ProtectedTextList = new List<string> { "protected text1", "protected text2", string.Empty },
+            ProtectedNullableTextList = new List<string?> { "protected text1", "protected text2", null },
+
+            SubConfig = plainCore,
+        };
+
+        var localAppFolder = Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData );
 
         var dpProvider = DataProtectionProvider.Create(
-            new DirectoryInfo(Path.Combine(localAppFolder, "ASP.NET", "DataProtection-Keys")));
+            new DirectoryInfo( Path.Combine( localAppFolder, "ASP.NET", "DataProtection-Keys" ) ) );
 
-        var protector = dpProvider.CreateProtector("Test.WindowsUtilities");
+        var protector = dpProvider.CreateProtector( "Test.WindowsUtilities" );
 
         var encrypted = plainText.Encrypt( protector );
         var temp = encrypted.Decrypt( protector );
@@ -32,35 +45,43 @@ public class AppConfigTests
 
         var decrypted = (TestConfig) temp;
 
-        decrypted.NotEncryptable.Should().Be( plainText.NotEncryptable );
+        CheckValues( plainText, decrypted ).Should().BeTrue();
+        CheckValues( plainText, decrypted.SubConfig ).Should().BeTrue();
+    }
 
-        decrypted.ProtectedText.Should().Be(plainText.ProtectedText);
-        decrypted.ProtectedNullableText.Should().Be( plainText.ProtectedNullableText );
-        
-        decrypted.ProtectedTextArray.Length.Should().Be( plainText.ProtectedTextArray.Length );
-        for( var idx = 0; idx < decrypted.ProtectedTextArray.Length; idx++ )
+    private bool CheckValues( TestConfigCore correct, TestConfigCore toCheck )
+    {
+        toCheck.NotEncryptable.Should().Be(correct.NotEncryptable);
+
+        toCheck.ProtectedText.Should().Be(correct.ProtectedText);
+        toCheck.ProtectedNullableText.Should().Be(correct.ProtectedNullableText);
+
+        toCheck.ProtectedTextArray.Length.Should().Be(correct.ProtectedTextArray.Length);
+        for (var idx = 0; idx < toCheck.ProtectedTextArray.Length; idx++)
         {
-            decrypted.ProtectedTextArray[ idx ].Should().Be( plainText.ProtectedTextArray[ idx ] );
+            toCheck.ProtectedTextArray[idx].Should().Be(correct.ProtectedTextArray[idx]);
         }
 
-        decrypted.ProtectedNullableTextArray.Should().NotBeNull();
-        decrypted.ProtectedNullableTextArray!.Length.Should().Be(plainText.ProtectedNullableTextArray.Length);
-        for (var idx = 0; idx < decrypted.ProtectedNullableTextArray.Length; idx++)
+        toCheck.ProtectedNullableTextArray.Should().NotBeNull();
+        toCheck.ProtectedNullableTextArray!.Length.Should().Be(correct.ProtectedNullableTextArray!.Length);
+        for (var idx = 0; idx < toCheck.ProtectedNullableTextArray.Length; idx++)
         {
-            decrypted.ProtectedNullableTextArray[idx].Should().Be(plainText.ProtectedNullableTextArray[idx]);
+            toCheck.ProtectedNullableTextArray[idx].Should().Be(correct.ProtectedNullableTextArray[idx]);
         }
 
-        decrypted.ProtectedTextList.Count.Should().Be(plainText.ProtectedTextList.Count);
-        for (var idx = 0; idx < decrypted.ProtectedTextList.Count; idx++)
+        toCheck.ProtectedTextList.Count.Should().Be(correct.ProtectedTextList.Count);
+        for (var idx = 0; idx < toCheck.ProtectedTextList.Count; idx++)
         {
-            decrypted.ProtectedTextList[idx].Should().Be(plainText.ProtectedTextList[idx]);
+            toCheck.ProtectedTextList[idx].Should().Be(correct.ProtectedTextList[idx]);
         }
 
-        decrypted.ProtectedNullableTextList.Should().NotBeNull();
-        decrypted.ProtectedNullableTextList!.Count.Should().Be(plainText.ProtectedNullableTextList.Count);
-        for (var idx = 0; idx < decrypted.ProtectedNullableTextList.Count; idx++)
+        toCheck.ProtectedNullableTextList.Should().NotBeNull();
+        toCheck.ProtectedNullableTextList!.Count.Should().Be(correct.ProtectedNullableTextList!.Count);
+        for (var idx = 0; idx < toCheck.ProtectedNullableTextList.Count; idx++)
         {
-            decrypted.ProtectedNullableTextList[idx].Should().Be(plainText.ProtectedNullableTextList[idx]);
+            toCheck.ProtectedNullableTextList[idx].Should().Be(correct.ProtectedNullableTextList[idx]);
         }
+
+        return true;
     }
 }
