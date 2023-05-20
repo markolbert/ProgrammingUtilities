@@ -23,9 +23,10 @@ using Microsoft.UI.Xaml;
 using System;
 using System.Threading.Tasks;
 
-namespace J4JSoftware.WindowsUtilities.debounce;
+namespace J4JSoftware.WindowsUtilities;
 
-// thanx to Rick Strahl for this one.
+// under construction...
+// thanx to Rick Strahl for the inspiration for this.
 // https://weblog.west-wind.com/posts/2017/jul/02/debouncing-and-throttling-dispatcher-events
 public abstract class ThrottleBase
 {
