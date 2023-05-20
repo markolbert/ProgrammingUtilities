@@ -66,7 +66,7 @@ public abstract class J4JMainWindowSupport
 
         _winAppSupport = winAppSupport;
 
-        var hWnd = WindowNative.GetWindowHandle( this );
+        var hWnd = WindowNative.GetWindowHandle( mainWindow );
         var windowId = Win32Interop.GetWindowIdFromWindow( hWnd );
         AppWindow = AppWindow.GetFromWindowId( windowId );
         AppWindow.Changed += AppWindowOnChanged;
