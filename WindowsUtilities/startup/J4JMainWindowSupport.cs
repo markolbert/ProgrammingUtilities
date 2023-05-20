@@ -31,7 +31,6 @@ using Windows.Graphics;
 using Microsoft.UI.Xaml;
 using WinRT.Interop;
 using System.Text.Json;
-using J4JSoftware.WindowsUtilities.debounce;
 using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.WindowsUtilities;
@@ -95,17 +94,17 @@ public abstract class J4JMainWindowSupport
 
     public AppWindow? AppWindow { get; }
 
-    public void SetInitialWindowPositionAndSize()
+    public void SetMainWindowSizeAndPosition( RectInt32? rect = null )
     {
         if( AppWindow == null )
             return;
 
-        var winRect = _winAppSupport.AppConfig?.MainWindowRectangle ?? GetDefaultWindowPositionAndSize();
+        rect ??= _winAppSupport.AppConfig?.MainWindowRectangle ?? GetDefaultWindowPositionAndSize();
 
-        if( winRect.Height == 0 || winRect.Width == 0 )
-            winRect = GetDefaultWindowPositionAndSize();
+        if( rect.Value.Height == 0 || rect.Value.Width == 0 )
+            rect = GetDefaultWindowPositionAndSize();
 
-        AppWindow.MoveAndResize( winRect );
+        AppWindow.MoveAndResize( rect.Value );
     }
 
     protected virtual void OnMainWindowClosed()
