@@ -31,7 +31,7 @@ public interface IJ4JWinAppSupport
     string ConfigurationFilePath { get; }
     IServiceProvider? Services { get; }
     IDataProtector Protector { get; }
-    ILoggerFactory? LoggerFactory { get; set; }
+    ILoggerFactory? LoggerFactory { get; }
     ILogger? Logger { get; set; }
     AppConfigBase? AppConfig { get; }
 }
