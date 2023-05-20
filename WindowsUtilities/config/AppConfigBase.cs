@@ -24,10 +24,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using Microsoft.AspNetCore.DataProtection;
 using System.Text.Json.Serialization;
-using Windows.Graphics;
 
 namespace J4JSoftware.WindowsUtilities;
 
@@ -50,14 +48,11 @@ public class AppConfigBase
 
     public static string UserFolder { get; } = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
 
-    private readonly Type _configType;
     private readonly List<EncryptedProperty> _encryptedProps = new();
 
     protected AppConfigBase()
     {
-        _configType = GetType();
-
-        FindEncryptableProperties( _configType.GetProperties().Where( x => x.CanWrite ), null );
+        FindEncryptableProperties( GetType().GetProperties().Where( x => x.CanWrite ), null );
     }
 
     private void FindEncryptableProperties(
@@ -113,7 +108,7 @@ public class AppConfigBase
         !string.IsNullOrEmpty( UserConfigurationFilePath )
      && File.Exists( Path.Combine( UserFolder, UserConfigurationFilePath ) );
 
-    public RectInt32 MainWindowRectangle { get; set; }
+    public PositionSize MainWindowRectangle { get; set; } = PositionSize.Empty;
 
     public AppConfigBase Encrypt( IDataProtector protector )
     {
@@ -134,12 +129,6 @@ public class AppConfigBase
 
                 case EncryptablePropertyType.StringEnumerable:
                     EncryptList( encProp, retVal, protector );
-                    break;
-
-                default:
-                    // no op
-                    //var value = GetLeafValue(encProp, this);
-                    //SetLeafValue( encProp, retVal, value );
                     break;
             }
         }
@@ -177,25 +166,6 @@ public class AppConfigBase
         }
 
         encProp.Property.SetValue( curTarget, value );
-    }
-
-    private AppConfigBase CreateInstance()
-    {
-        AppConfigBase retVal;
-
-        try
-        {
-            retVal = (AppConfigBase) Activator.CreateInstance( _configType )!;
-        }
-        catch( Exception ex )
-        {
-            throw new TypeInitializationException( _configType.FullName,
-                                                   new ApplicationException(
-                                                       $"Could not create an instance of {_configType}. Are you sure it has a public parameterless constructor?",
-                                                       ex ) );
-        }
-
-        return retVal;
     }
 
     private void EncryptProperty( EncryptedProperty encProp, AppConfigBase encrypted, IDataProtector protector )
@@ -246,12 +216,6 @@ public class AppConfigBase
 
                 case EncryptablePropertyType.StringEnumerable:
                     DecryptList( encProp, retVal, protector );
-                    break;
-
-                default:
-                    // no op
-                    //var value = GetLeafValue( encProp, this );
-                    //SetLeafValue( encProp, retVal, value );
                     break;
             }
         }
