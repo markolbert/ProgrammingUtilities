@@ -22,21 +22,27 @@
 using System;
 using Microsoft.UI.Xaml;
 
-namespace J4JSoftware.WindowsUtilities.debounce;
+namespace J4JSoftware.WindowsUtilities;
 
 // thanx to Rick Strahl for this one.
 // https://weblog.west-wind.com/posts/2017/jul/02/debouncing-and-throttling-dispatcher-events
 public class DebounceDispatcher
 {
-    public DebounceDispatcher(
-        int interval,
+    private DispatcherTimer? _timer;
+
+    public void Debounce(int interval,
         Action<object?> action,
-        object? optParam = null
-        )
+        object? optParam = null)
     {
-        var timer = new DispatcherTimer();
-        timer.Tick += (_, _) => action.Invoke(optParam);
-        timer.Interval = TimeSpan.FromMilliseconds(interval);
-        timer.Start();
+        // kill pending timer and pending ticks
+        _timer?.Stop();
+        _timer = null;
+
+        // timer is recreated for each event and effectively resets the timeout.
+        // Action only fires after timeout has fully elapsed without other events firing in between
+        _timer = new DispatcherTimer();
+        _timer.Tick += (_, _) => action.Invoke(optParam);
+
+        _timer.Start();
     }
 }
