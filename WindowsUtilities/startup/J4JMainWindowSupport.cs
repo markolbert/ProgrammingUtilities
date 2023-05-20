@@ -31,6 +31,7 @@ using Windows.Graphics;
 using Microsoft.UI.Xaml;
 using WinRT.Interop;
 using System.Text.Json;
+using J4JSoftware.WindowsUtilities.debounce;
 using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.WindowsUtilities;
@@ -56,6 +57,7 @@ public abstract class J4JMainWindowSupport
 
     private readonly IJ4JWinAppSupport _winAppSupport;
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
+    private readonly ThrottleAction _throttleWinChange = new();
 
     protected J4JMainWindowSupport(
         Window mainWindow,
@@ -79,10 +81,14 @@ public abstract class J4JMainWindowSupport
         || AppWindow == null )
             return;
 
-        _winAppSupport.AppConfig.MainWindowRectangle = new RectInt32( AppWindow.Position.X,
-                                                                      AppWindow.Position.Y,
-                                                                      AppWindow.Size.Width,
-                                                                      AppWindow.Size.Height );
+
+        _throttleWinChange.Throttle(100, () =>
+        {
+            _winAppSupport.AppConfig.MainWindowRectangle = new PositionSize(AppWindow.Position.X,
+                AppWindow.Position.Y,
+                AppWindow.Size.Height,
+                AppWindow.Size.Width);
+        });
     }
 
     protected abstract RectInt32 GetDefaultWindowPositionAndSize();
