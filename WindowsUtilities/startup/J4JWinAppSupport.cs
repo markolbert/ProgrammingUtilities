@@ -33,7 +33,7 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace J4JSoftware.WindowsUtilities;
 
-public abstract class J4JWinAppSupport<TApp, TConfig> : IJ4JWinAppSupport
+public class J4JWinAppSupport<TApp, TConfig> : IJ4JWinAppSupport
     where TApp : Application
     where TConfig : AppConfigBase, new()
 {
@@ -52,14 +52,14 @@ public abstract class J4JWinAppSupport<TApp, TConfig> : IJ4JWinAppSupport
 
     public bool IsInitialized { get; private set; }
 
-    public void Initialize()
+    public bool Initialize()
     {
         var serilogConfig = GetSerilogConfiguration();
-        if (serilogConfig == null)
-            return;
-
-        LoggerFactory = new LoggerFactory().AddSerilog(serilogConfig.CreateLogger());
-        Logger = LoggerFactory.CreateLogger<TApp>();
+        if (serilogConfig != null)
+        {
+            LoggerFactory = new LoggerFactory().AddSerilog(serilogConfig.CreateLogger());
+            Logger = LoggerFactory.CreateLogger<TApp>();
+        }
 
         try
         {
@@ -69,10 +69,13 @@ public abstract class J4JWinAppSupport<TApp, TConfig> : IJ4JWinAppSupport
 
             IsInitialized = true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             IsInitialized = false;
+            Logger?.LogCritical("Failed to initialize app, message was '{mesg}'", ex.Message);
         }
+
+        return IsInitialized;
     }
 
     public string ConfigurationFilePath { get; }
