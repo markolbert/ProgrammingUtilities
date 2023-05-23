@@ -1,7 +1,7 @@
 ﻿#region copyright
 // Copyright (c) 2021, 2022, 2023 Mark A. Olbert 
 // https://www.JumpForJoySoftware.com
-// J4JMainWindowSupport.cs
+// MainWinSerializerBase.cs
 //
 // This file is part of JumpForJoy Software's WindowsUtilities.
 // 
@@ -35,9 +35,9 @@ using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.WindowsUtilities;
 
-public abstract class J4JMainWindowSupport
+public abstract class MainWinSerializerBase
 {
-    public static async Task<DisplayInfo?> GetPrimaryDisplayHeightWidthAsync()
+    public static async Task<DisplayInfo?> GetPrimaryDisplayInfoAsync()
     {
         var displayList = await DeviceInformation.FindAllAsync( DisplayMonitor.GetDeviceSelector() );
 
@@ -48,24 +48,24 @@ public abstract class J4JMainWindowSupport
         if( monitorInfo == null )
             return null;
 
-        return new DisplayInfo( monitorInfo.NativeResolutionInRawPixels.Height,
-                                monitorInfo.NativeResolutionInRawPixels.Width,
+        return new DisplayInfo( monitorInfo.NativeResolutionInRawPixels.Width,
+                                monitorInfo.NativeResolutionInRawPixels.Height, 
                                 monitorInfo.RawDpiX,
                                 monitorInfo.RawDpiY );
     }
 
-    private readonly IJ4JWinAppSupport _winAppSupport;
+    private readonly IWinAppInitializer _winAppInitializer;
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
     private readonly ThrottleAction _throttleWinChange = new();
 
-    protected J4JMainWindowSupport(
+    protected MainWinSerializerBase(
         Window mainWindow,
-        IJ4JWinAppSupport winAppSupport
+        IWinAppInitializer winAppInitializer
     )
     {
         mainWindow.Closed += ( _, _ ) => OnMainWindowClosed();
 
-        _winAppSupport = winAppSupport;
+        _winAppInitializer = winAppInitializer;
 
         var hWnd = WindowNative.GetWindowHandle( mainWindow );
         var windowId = Win32Interop.GetWindowIdFromWindow( hWnd );
@@ -76,53 +76,54 @@ public abstract class J4JMainWindowSupport
     private void AppWindowOnChanged( AppWindow sender, AppWindowChangedEventArgs args )
     {
         if( args is { DidPositionChange: false, DidSizeChange: false }
-        || _winAppSupport.AppConfig == null
+        || _winAppInitializer.AppConfig == null
         || AppWindow == null )
             return;
 
 
         _throttleWinChange.Throttle(100, () =>
         {
-            _winAppSupport.AppConfig.MainWindowRectangle = new PositionSize(AppWindow.Position.X,
+            _winAppInitializer.AppConfig.MainWindowRectangle = new PositionSize(AppWindow.Position.X,
                 AppWindow.Position.Y,
-                AppWindow.Size.Height,
-                AppWindow.Size.Width);
+                AppWindow.Size.Width,
+                AppWindow.Size.Height);
         });
     }
 
-    protected abstract RectInt32 GetDefaultWindowPositionAndSize();
+    protected abstract RectInt32 GetDefaultRectangle();
 
     public AppWindow? AppWindow { get; }
 
-    public void SetMainWindowSizeAndPosition( RectInt32? rect = null )
+    public void SetSizeAndPosition( RectInt32? rect = null )
     {
         if( AppWindow == null )
             return;
 
-        rect ??= _winAppSupport.AppConfig?.MainWindowRectangle ?? GetDefaultWindowPositionAndSize();
+        rect ??= _winAppInitializer.AppConfig?.MainWindowRectangle ?? GetDefaultRectangle();
 
         if( rect.Value.Height == 0 || rect.Value.Width == 0 )
-            rect = GetDefaultWindowPositionAndSize();
+            rect = GetDefaultRectangle();
 
         AppWindow.MoveAndResize( rect.Value );
     }
 
     protected virtual void OnMainWindowClosed()
     {
-        if( string.IsNullOrEmpty( _winAppSupport.AppConfig?.UserConfigurationFilePath ) )
+        if( !_winAppInitializer.SaveConfigurationOnExit 
+        || string.IsNullOrEmpty( _winAppInitializer.AppConfig?.UserConfigurationFilePath ) )
             return;
 
-        var encrypted = _winAppSupport.AppConfig.Encrypt( _winAppSupport.Protector );
+        var encrypted = _winAppInitializer.AppConfig.Encrypt( _winAppInitializer.Protector );
 
         try
         {
             var jsonText = JsonSerializer.Serialize( encrypted, _jsonOptions );
 
-            File.WriteAllText( _winAppSupport.AppConfig.UserConfigurationFilePath, jsonText );
+            File.WriteAllText( _winAppInitializer.AppConfig.UserConfigurationFilePath, jsonText );
         }
         catch( Exception ex )
         {
-            _winAppSupport.Logger?.LogError( "Failed to write configuration file, exception was '{exception}'",
+            _winAppInitializer.Logger?.LogError( "Failed to write configuration file, exception was '{exception}'",
                                              ex.Message );
         }
     }
