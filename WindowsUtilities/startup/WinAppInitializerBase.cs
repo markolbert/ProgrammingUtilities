@@ -95,7 +95,6 @@ public class WinAppInitializerBase<TApp, TConfig> : IWinAppInitializer
            .ConfigureServices( ( hbc, s ) => ConfigureServices( hbc, s ) );
 
     protected virtual IServiceCollection ConfigureServices( HostBuilderContext hbc, IServiceCollection services )
-#pragma warning restore IDE0060
     {
         if( LoggerFactory != null )
             services.AddSingleton( LoggerFactory );
