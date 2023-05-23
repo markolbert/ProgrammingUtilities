@@ -21,4 +21,4 @@
 
 namespace J4JSoftware.WindowsUtilities;
 
-public record DisplayInfo( int Height, int Width, float DpiX, float DpiY );
+public record DisplayInfo( int Width, int Height, float DpiX, float DpiY );
