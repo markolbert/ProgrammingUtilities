@@ -1,7 +1,7 @@
 ﻿#region copyright
 // Copyright (c) 2021, 2022, 2023 Mark A. Olbert 
 // https://www.JumpForJoySoftware.com
-// IJ4JWinAppSupport.cs
+// IWinAppInitializer.cs
 //
 // This file is part of JumpForJoy Software's WindowsUtilities.
 // 
@@ -25,10 +25,11 @@ using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.WindowsUtilities;
 
-public interface IJ4JWinAppSupport
+public interface IWinAppInitializer
 {
     bool IsInitialized { get; }
     string ConfigurationFilePath { get; }
+    bool SaveConfigurationOnExit { get; }
     IServiceProvider? Services { get; }
     IDataProtector Protector { get; }
     ILoggerFactory? LoggerFactory { get; }
