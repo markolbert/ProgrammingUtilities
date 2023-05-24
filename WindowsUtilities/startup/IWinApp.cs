@@ -20,19 +20,11 @@
 #endregion
 
 using System;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.WindowsUtilities;
 
-public interface IWinAppInitializer
+public interface IWinApp
 {
-    bool IsInitialized { get; }
-    string ConfigurationFilePath { get; }
+    IServiceProvider Services { get; set; }
     bool SaveConfigurationOnExit { get; }
-    IServiceProvider? Services { get; }
-    IDataProtector Protector { get; }
-    ILoggerFactory? LoggerFactory { get; }
-    ILogger? Logger { get; set; }
-    AppConfigBase? AppConfig { get; }
 }
