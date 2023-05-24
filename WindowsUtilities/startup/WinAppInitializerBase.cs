@@ -27,27 +27,36 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.UI.Xaml;
 using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace J4JSoftware.WindowsUtilities;
 
-public class WinAppInitializerBase<TApp, TConfig> : IWinAppInitializer
-    where TApp : Application
+public class WinAppInitializerBase<TConfig>
     where TConfig : AppConfigBase, new()
 {
+    private readonly IWinApp _winApp;
+    private readonly string _configPath;
+    private readonly IDataProtector _protector;
+
+    private TConfig? _appConfig;
+    private ILoggerFactory? _loggerFactory;
+    private ILogger? _logger;
+
     protected WinAppInitializerBase(
+        IWinApp winApp,
         string configFileName = "userConfig.json"
         )
     {
+        _winApp = winApp;
+
         var localAppFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
         var dpProvider = DataProtectionProvider.Create(
             new DirectoryInfo(Path.Combine(localAppFolder, "ASP.NET", "DataProtection-Keys")));
-        Protector = dpProvider.CreateProtector( typeof( TApp ).Name );
+        _protector = dpProvider.CreateProtector( winApp.GetType().Name );
 
-        ConfigurationFilePath = Path.Combine(AppConfigBase.UserFolder, configFileName);
+        _configPath = Path.Combine(AppConfigBase.UserFolder, configFileName);
     }
 
     public bool IsInitialized { get; private set; }
@@ -57,13 +66,13 @@ public class WinAppInitializerBase<TApp, TConfig> : IWinAppInitializer
         var serilogConfig = GetSerilogConfiguration();
         if (serilogConfig != null)
         {
-            LoggerFactory = new LoggerFactory().AddSerilog(serilogConfig.CreateLogger());
-            Logger = LoggerFactory.CreateLogger<TApp>();
+            _loggerFactory = new LoggerFactory().AddSerilog(serilogConfig.CreateLogger());
+            _logger = _loggerFactory.CreateLogger(_winApp.GetType());
         }
 
         try
         {
-            Services = CreateHostBuilder()
+            _winApp.Services = CreateHostBuilder()
                       .Build()
                       .Services;
 
@@ -72,35 +81,26 @@ public class WinAppInitializerBase<TApp, TConfig> : IWinAppInitializer
         catch (Exception ex)
         {
             IsInitialized = false;
-            Logger?.LogCritical("Failed to initialize app, message was '{mesg}'", ex.Message);
+            _logger?.LogCritical("Failed to initialize app, message was '{mesg}'", ex.Message);
         }
 
         return IsInitialized;
     }
 
-    public string ConfigurationFilePath { get; }
-    public bool SaveConfigurationOnExit { get; set; } = true;
-
-    public TConfig? ApplicationConfiguration { get; private set; }
-    public IServiceProvider? Services { get; private set; }
-    public IDataProtector Protector { get; }
-    public ILoggerFactory? LoggerFactory { get; set; }
-    public ILogger? Logger { get; set; }
-
     protected virtual LoggerConfiguration? GetSerilogConfiguration() => null;
 
     protected virtual IHostBuilder CreateHostBuilder() =>
         new HostBuilder()
-           .ConfigureHostConfiguration( builder => ParseConfigurationFile( ConfigurationFilePath, builder ) )
+           .ConfigureHostConfiguration( builder => ParseConfigurationFile( _configPath, builder ) )
            .ConfigureServices( ( hbc, s ) => ConfigureServices( hbc, s ) );
 
     protected virtual IServiceCollection ConfigureServices( HostBuilderContext hbc, IServiceCollection services )
     {
-        if( LoggerFactory != null )
-            services.AddSingleton( LoggerFactory );
+        if( _loggerFactory != null )
+            services.AddSingleton( _loggerFactory );
 
-        services.AddSingleton( Protector );
-        services.AddSingleton( ApplicationConfiguration! );
+        services.AddSingleton( _protector );
+        services.AddSingleton( _appConfig! );
 
         return services;
     }
@@ -110,8 +110,8 @@ public class WinAppInitializerBase<TApp, TConfig> : IWinAppInitializer
         var fileExists = File.Exists(path);
         if (!fileExists)
         {
-            Logger?.LogWarning("Could not find user config file '{path}', creating default configuration", path);
-            ApplicationConfiguration = new TConfig { UserConfigurationFilePath = path };
+            _logger?.LogWarning("Could not find user config file '{path}', creating default configuration", path);
+            _appConfig = new TConfig { UserConfigurationFilePath = path };
 
             return;
         }
@@ -120,14 +120,12 @@ public class WinAppInitializerBase<TApp, TConfig> : IWinAppInitializer
 
         if (encrypted == null)
         {
-            Logger?.LogError("Could not parse user config file '{path}'", path);
+            _logger?.LogError("Could not parse user config file '{path}'", path);
             return;
         }
 
         encrypted.UserConfigurationFilePath = path;
 
-        ApplicationConfiguration = (TConfig) encrypted.Decrypt( Protector );
+        _appConfig = (TConfig) encrypted.Decrypt( _protector );
     }
-
-    AppConfigBase? IWinAppInitializer.AppConfig => ApplicationConfiguration;
 }
