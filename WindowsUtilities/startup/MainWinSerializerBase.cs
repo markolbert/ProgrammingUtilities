@@ -31,11 +31,14 @@ using Windows.Graphics;
 using Microsoft.UI.Xaml;
 using WinRT.Interop;
 using System.Text.Json;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace J4JSoftware.WindowsUtilities;
 
-public abstract class MainWinSerializerBase
+public abstract class MainWinSerializerBase<TConfig>
+where TConfig : AppConfigBase
 {
     public static async Task<DisplayInfo?> GetPrimaryDisplayInfoAsync()
     {
@@ -54,18 +57,31 @@ public abstract class MainWinSerializerBase
                                 monitorInfo.RawDpiY );
     }
 
-    private readonly IWinAppInitializer _winAppInitializer;
+    private readonly IWinApp _winApp;
+    private readonly AppConfigBase? _appConfig;
+    private readonly IDataProtector _protector;
+    private readonly ILogger? _logger;
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
     private readonly ThrottleAction _throttleWinChange = new();
 
     protected MainWinSerializerBase(
-        Window mainWindow,
-        IWinAppInitializer winAppInitializer
+        Window mainWindow
     )
     {
-        mainWindow.Closed += ( _, _ ) => OnMainWindowClosed();
+        _winApp = Application.Current as IWinApp
+         ?? throw new NullReferenceException(
+                $"{Application.Current.GetType()} does not implement required {typeof( IWinApp )} interface" );
 
-        _winAppInitializer = winAppInitializer;
+        _appConfig = _winApp.Services.GetService<TConfig>();
+
+        _protector = _winApp.Services.GetService<IDataProtector>()
+         ?? throw new NullReferenceException(
+                $"{Application.Current.GetType()} does not implement required {typeof( IDataProtector )} interface" );
+
+        var loggerFactory = _winApp.Services.GetService<ILoggerFactory>();
+        _logger = loggerFactory?.CreateLogger( GetType() );
+
+        mainWindow.Closed += ( _, _ ) => OnMainWindowClosed();
 
         var hWnd = WindowNative.GetWindowHandle( mainWindow );
         var windowId = Win32Interop.GetWindowIdFromWindow( hWnd );
@@ -76,18 +92,19 @@ public abstract class MainWinSerializerBase
     private void AppWindowOnChanged( AppWindow sender, AppWindowChangedEventArgs args )
     {
         if( args is { DidPositionChange: false, DidSizeChange: false }
-        || _winAppInitializer.AppConfig == null
+        || _appConfig == null
         || AppWindow == null )
             return;
 
 
-        _throttleWinChange.Throttle(100, () =>
-        {
-            _winAppInitializer.AppConfig.MainWindowRectangle = new PositionSize(AppWindow.Position.X,
-                AppWindow.Position.Y,
-                AppWindow.Size.Width,
-                AppWindow.Size.Height);
-        });
+        _throttleWinChange.Throttle( 100,
+                                     () =>
+                                     {
+                                         _appConfig.MainWindowRectangle = new PositionSize( AppWindow.Position.X,
+                                             AppWindow.Position.Y,
+                                             AppWindow.Size.Width,
+                                             AppWindow.Size.Height );
+                                     } );
     }
 
     protected abstract RectInt32 GetDefaultRectangle();
@@ -99,7 +116,7 @@ public abstract class MainWinSerializerBase
         if( AppWindow == null )
             return;
 
-        rect ??= _winAppInitializer.AppConfig?.MainWindowRectangle ?? GetDefaultRectangle();
+        rect ??= _appConfig?.MainWindowRectangle ?? GetDefaultRectangle();
 
         if( rect.Value.Height == 0 || rect.Value.Width == 0 )
             rect = GetDefaultRectangle();
@@ -109,22 +126,22 @@ public abstract class MainWinSerializerBase
 
     protected virtual void OnMainWindowClosed()
     {
-        if( !_winAppInitializer.SaveConfigurationOnExit 
-        || string.IsNullOrEmpty( _winAppInitializer.AppConfig?.UserConfigurationFilePath ) )
+        if( !_winApp.SaveConfigurationOnExit 
+        || string.IsNullOrEmpty( _appConfig?.UserConfigurationFilePath ) )
             return;
 
-        var encrypted = _winAppInitializer.AppConfig.Encrypt( _winAppInitializer.Protector );
+        var encrypted = _appConfig.Encrypt( _protector );
 
         try
         {
             var jsonText = JsonSerializer.Serialize( encrypted, _jsonOptions );
 
-            File.WriteAllText( _winAppInitializer.AppConfig.UserConfigurationFilePath, jsonText );
+            File.WriteAllText( _appConfig.UserConfigurationFilePath, jsonText );
         }
         catch( Exception ex )
         {
-            _winAppInitializer.Logger?.LogError( "Failed to write configuration file, exception was '{exception}'",
-                                             ex.Message );
+            _logger?.LogError( "Failed to write configuration file, exception was '{exception}'",
+                               ex.Message );
         }
     }
 
