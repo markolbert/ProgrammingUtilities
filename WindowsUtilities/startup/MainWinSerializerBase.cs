@@ -57,6 +57,8 @@ where TConfig : AppConfigBase
                                 monitorInfo.RawDpiY );
     }
 
+    public event EventHandler? WindowChanged;
+
     private readonly IWinApp _winApp;
     private readonly AppConfigBase? _appConfig;
     private readonly IDataProtector _protector;
@@ -68,6 +70,8 @@ where TConfig : AppConfigBase
         Window mainWindow
     )
     {
+        MainWindow = mainWindow;
+
         _winApp = Application.Current as IWinApp
          ?? throw new NullReferenceException(
                 $"{Application.Current.GetType()} does not implement required {typeof( IWinApp )} interface" );
@@ -100,15 +104,18 @@ where TConfig : AppConfigBase
         _throttleWinChange.Throttle( 100,
                                      () =>
                                      {
-                                         _appConfig.MainWindowRectangle = new PositionSize( AppWindow.Position.X,
+                                         _appConfig.MainWindowRectangle = new PositionSize(AppWindow.Position.X,
                                              AppWindow.Position.Y,
                                              AppWindow.Size.Width,
-                                             AppWindow.Size.Height );
-                                     } );
+                                             AppWindow.Size.Height);
+
+                                         WindowChanged?.Invoke( this, EventArgs.Empty );
+                                     });
     }
 
     protected abstract RectInt32 GetDefaultRectangle();
 
+    public Window MainWindow { get; }
     public AppWindow? AppWindow { get; }
 
     public void SetSizeAndPosition( RectInt32? rect = null )
