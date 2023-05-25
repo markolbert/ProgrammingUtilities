@@ -39,8 +39,6 @@ public class WinAppInitializerBase<TConfig>
     private readonly string _configPath;
     private readonly IDataProtector _protector;
 
-    private TConfig? _appConfig;
-    private ILoggerFactory? _loggerFactory;
     private ILogger? _logger;
 
     protected WinAppInitializerBase(
@@ -66,8 +64,8 @@ public class WinAppInitializerBase<TConfig>
         var serilogConfig = GetSerilogConfiguration();
         if (serilogConfig != null)
         {
-            _loggerFactory = new LoggerFactory().AddSerilog(serilogConfig.CreateLogger());
-            _logger = _loggerFactory.CreateLogger(_winApp.GetType());
+            LoggerFactory = new LoggerFactory().AddSerilog(serilogConfig.CreateLogger());
+            _logger = LoggerFactory.CreateLogger(_winApp.GetType());
         }
 
         try
@@ -87,6 +85,9 @@ public class WinAppInitializerBase<TConfig>
         return IsInitialized;
     }
 
+    public TConfig? AppConfig { get; private set; }
+    public ILoggerFactory? LoggerFactory { get; private set; }
+
     protected virtual LoggerConfiguration? GetSerilogConfiguration() => null;
 
     protected virtual IHostBuilder CreateHostBuilder() =>
@@ -96,11 +97,11 @@ public class WinAppInitializerBase<TConfig>
 
     protected virtual IServiceCollection ConfigureServices( HostBuilderContext hbc, IServiceCollection services )
     {
-        if( _loggerFactory != null )
-            services.AddSingleton( _loggerFactory );
+        if( LoggerFactory != null )
+            services.AddSingleton( LoggerFactory );
 
         services.AddSingleton( _protector );
-        services.AddSingleton( _appConfig! );
+        services.AddSingleton( AppConfig! );
 
         return services;
     }
@@ -111,7 +112,7 @@ public class WinAppInitializerBase<TConfig>
         if (!fileExists)
         {
             _logger?.LogWarning("Could not find user config file '{path}', creating default configuration", path);
-            _appConfig = new TConfig { UserConfigurationFilePath = path };
+            AppConfig = new TConfig { UserConfigurationFilePath = path };
 
             return;
         }
@@ -126,6 +127,6 @@ public class WinAppInitializerBase<TConfig>
 
         encrypted.UserConfigurationFilePath = path;
 
-        _appConfig = (TConfig) encrypted.Decrypt( _protector );
+        AppConfig = (TConfig) encrypted.Decrypt( _protector );
     }
 }
