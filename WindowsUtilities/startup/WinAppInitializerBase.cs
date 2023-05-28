@@ -22,6 +22,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,15 +39,20 @@ public class WinAppInitializerBase<TConfig>
     private readonly IWinApp _winApp;
     private readonly string _configPath;
     private readonly IDataProtector _protector;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     private ILogger? _logger;
 
     protected WinAppInitializerBase(
         IWinApp winApp,
-        string configFileName = "userConfig.json"
+        string configFileName = "userConfig.json",
+        JsonSerializerOptions? jsonOptions = null
         )
     {
         _winApp = winApp;
+
+        jsonOptions ??= new JsonSerializerOptions { WriteIndented = true };
+        _jsonOptions = jsonOptions;
 
         var localAppFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
@@ -117,16 +123,16 @@ public class WinAppInitializerBase<TConfig>
             return;
         }
 
-        var encrypted = JsonSerializer.Deserialize<TConfig>(File.ReadAllText(path));
+        AppConfig = JsonSerializer.Deserialize<TConfig>(File.ReadAllText(path), _jsonOptions);
 
-        if (encrypted == null)
+        if (AppConfig == null)
         {
             _logger?.LogError("Could not parse user config file '{path}'", path);
             return;
         }
 
-        encrypted.UserConfigurationFilePath = path;
+        AppConfig.UserConfigurationFilePath = path;
 
-        AppConfig = (TConfig) encrypted.Decrypt( _protector );
+        AppConfig.Decrypt( _protector );
     }
 }

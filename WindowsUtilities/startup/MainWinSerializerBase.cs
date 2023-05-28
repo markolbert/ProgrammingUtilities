@@ -30,10 +30,11 @@ using Windows.Devices.Enumeration;
 using Windows.Graphics;
 using Microsoft.UI.Xaml;
 using WinRT.Interop;
-using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace J4JSoftware.WindowsUtilities;
 
@@ -60,17 +61,21 @@ where TConfig : AppConfigBase
     public event EventHandler? WindowChanged;
 
     private readonly IWinApp _winApp;
-    private readonly AppConfigBase? _appConfig;
+    private readonly TConfig? _appConfig;
     private readonly IDataProtector _protector;
     private readonly ILogger? _logger;
-    private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
     private readonly ThrottleAction _throttleWinChange = new();
+    private readonly JsonSerializerOptions _jsonOptions;
 
     protected MainWinSerializerBase(
-        Window mainWindow
+        Window mainWindow,
+        JsonSerializerOptions? jsonOptions = null
     )
     {
         MainWindow = mainWindow;
+
+        jsonOptions ??= new JsonSerializerOptions { WriteIndented = true };
+        _jsonOptions = jsonOptions;
 
         _winApp = Application.Current as IWinApp
          ?? throw new NullReferenceException(
@@ -137,11 +142,11 @@ where TConfig : AppConfigBase
         || string.IsNullOrEmpty( _appConfig?.UserConfigurationFilePath ) )
             return;
 
-        var encrypted = _appConfig.Encrypt( _protector );
+        _appConfig.Encrypt( _protector );
 
         try
         {
-            var jsonText = JsonSerializer.Serialize( encrypted, _jsonOptions );
+            var jsonText = JsonSerializer.Serialize(_appConfig, _jsonOptions);
 
             File.WriteAllText( _appConfig.UserConfigurationFilePath, jsonText );
         }
@@ -151,5 +156,4 @@ where TConfig : AppConfigBase
                                ex.Message );
         }
     }
-
 }
