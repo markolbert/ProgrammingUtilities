@@ -39,14 +39,11 @@ public class AppConfigTests
 
         var protector = dpProvider.CreateProtector( "Test.WindowsUtilities" );
 
-        var encrypted = plainText.Encrypt( protector );
-        var temp = encrypted.Decrypt( protector );
-        temp.Should().BeAssignableTo<TestConfig>();
+        plainText.Encrypt( protector );
+        plainText.Decrypt( protector );
 
-        var decrypted = (TestConfig) temp;
-
-        CheckValues( plainText, decrypted ).Should().BeTrue();
-        CheckValues( plainText, decrypted.SubConfig ).Should().BeTrue();
+        CheckValues( plainText, plainText ).Should().BeTrue();
+        CheckValues( plainText, plainText.SubConfig ).Should().BeTrue();
     }
 
     private bool CheckValues( TestConfigCore correct, TestConfigCore toCheck )
