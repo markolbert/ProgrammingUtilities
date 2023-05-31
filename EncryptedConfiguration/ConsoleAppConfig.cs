@@ -19,7 +19,9 @@
 // with EncryptedConfiguration. If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System;
 using System.Reflection;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.DataProtection;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -29,23 +31,8 @@ namespace J4JSoftware.EncryptedConfiguration;
 
 public class ConsoleAppConfig : ObservableObject
 {
-    //private enum EncryptablePropertyType
-    //{
-    //    Object,
-    //    Unencrypted,
-    //    SimpleString,
-    //    StringArray,
-    //    StringEnumerable
-    //}
-
     private static Type[] EncryptableTypes { get; } =
         new[] { typeof( string ), typeof( string[] ), typeof( IEnumerable<string> ) };
-
-    //private record EncryptedProperty(
-    //    PropertyInfo Property,
-    //    EncryptablePropertyType Type,
-    //    List<PropertyInfo>? PropertyPath
-    //);
 
     public static string UserFolder { get; } = Environment.CurrentDirectory;
 
@@ -58,54 +45,7 @@ public class ConsoleAppConfig : ObservableObject
     {
         _logger = loggerFactory?.CreateLogger( GetType() );
         _propPaths = GetEncryptableProperties( GetType() ).ToList();
-
-        //FindEncryptableProperties( GetType().GetProperties().Where( x => x.CanWrite ), null );
     }
-
-    //private void FindEncryptableProperties(
-    //    IEnumerable<PropertyInfo> properties,
-    //    List<PropertyInfo>? propertyPath
-    //)
-    //{
-    //    foreach( var curProp in properties )
-    //    {
-    //        var propType = GetSupportedType( curProp );
-
-    //        if( propType != EncryptablePropertyType.Object )
-    //        {
-    //            _propPaths.Add( new EncryptedProperty( curProp, propType, propertyPath ) );
-    //            continue;
-    //        }
-
-    //        // we can't handle any types which don't have a parameterless public ctor
-    //        if( curProp.PropertyType.GetConstructors().All( x => x.GetParameters().Length != 0 ) )
-    //            continue;
-
-    //        // recurse over curProp's public properties
-    //        propertyPath = propertyPath == null ? new List<PropertyInfo>() : new List<PropertyInfo>( propertyPath );
-    //        propertyPath.Add( curProp );
-
-    //        FindEncryptableProperties( curProp.PropertyType.GetProperties().Where( x => x.CanWrite ),
-    //                                   propertyPath );
-    //    }
-    //}
-
-    //private EncryptablePropertyType GetSupportedType( PropertyInfo propInfo )
-    //{
-    //    var taggedForEncryption = propInfo.GetCustomAttribute<EncryptedPropertyAttribute>() != null;
-    //    var propType = propInfo.PropertyType;
-
-    //    if( propType == typeof( string ) )
-    //        return taggedForEncryption ? EncryptablePropertyType.SimpleString : EncryptablePropertyType.Unencrypted;
-
-    //    if( propType == typeof( string[] ) )
-    //        return taggedForEncryption ? EncryptablePropertyType.StringArray : EncryptablePropertyType.Unencrypted;
-
-    //    if( propType.IsAssignableTo( typeof( IEnumerable<string> ) ) )
-    //        return taggedForEncryption? EncryptablePropertyType.StringEnumerable : EncryptablePropertyType.Unencrypted;
-
-    //    return propType.IsValueType ? EncryptablePropertyType.Unencrypted : EncryptablePropertyType.Object;
-    //}
 
     private IEnumerable<List<PropertyInfo>> GetEncryptableProperties( Type type, List<PropertyInfo>? pathToType = null )
     {
@@ -187,48 +127,6 @@ public class ConsoleAppConfig : ObservableObject
         }
     }
 
-    //private object? GetLeafValue(EncryptedProperty encProp, object rootTarget)
-    //{
-    //    // descend through the property path
-    //    var curTarget = rootTarget;
-
-    //    foreach (var propInfo in encProp.PropertyPath ?? Enumerable.Empty<PropertyInfo>())
-    //    {
-    //        if (propInfo.GetValue(curTarget) == null)
-    //            return null;
-
-    //        curTarget = propInfo.GetValue(curTarget);
-    //    }
-
-    //    return encProp.Property.GetValue(curTarget);
-    //}
-
-    //private void SetLeafValue( EncryptedProperty encProp, object rootTarget, object? value )
-    //{
-    //    // create the properties along the property path, if one is defined
-    //    var curTarget = rootTarget;
-
-    //    foreach( var propInfo in encProp.PropertyPath ?? Enumerable.Empty<PropertyInfo>() )
-    //    {
-    //        if( propInfo.GetValue( curTarget ) == null )
-    //            propInfo.SetValue( curTarget, Activator.CreateInstance( propInfo.PropertyType ) );
-
-    //        curTarget = propInfo.GetValue( curTarget );
-    //    }
-
-    //    encProp.Property.SetValue( curTarget, value );
-    //}
-
-    //private void EncryptList( EncryptedProperty encProp, IDataProtector protector )
-    //{
-    //    var plainTextValues = (IEnumerable<string?>?) GetLeafValue( encProp, this );
-    //    if( plainTextValues == null )
-    //        return;
-
-    //    var encryptedValues = plainTextValues.Select( x => x == null ? null : protector.Protect( x ) ).ToList();
-    //    SetLeafValue( encProp, this, encryptedValues );
-    //}
-
     public void Decrypt( IDataProtector protector )
     {
         foreach (var propPath in _propPaths)
@@ -250,53 +148,40 @@ public class ConsoleAppConfig : ObservableObject
             // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
             object? decryptedValue = null;
 
-            switch (valueToDecrypt)
+            try
             {
-                case string stringValue:
-                    decryptedValue = protector.Unprotect(stringValue);
-                    break;
+                switch( valueToDecrypt )
+                {
+                    case string stringValue:
+                        decryptedValue = protector.Unprotect( stringValue );
+                        break;
 
-                case string?[] stringArray:
-                    decryptedValue = stringArray.Select(x => x == null ? null : protector.Unprotect(x)).ToArray();
-                    break;
+                    case string?[] stringArray:
+                        decryptedValue = stringArray.Select( x => x == null ? null : protector.Unprotect( x ) )
+                                                    .ToArray();
+                        break;
 
-                case IEnumerable<string?> stringEnumerable:
-                    decryptedValue = stringEnumerable.Select(x => x == null ? null : protector.Unprotect(x)).ToList();
-                    break;
+                    case IEnumerable<string?> stringEnumerable:
+                        decryptedValue = stringEnumerable.Select( x => x == null ? null : protector.Unprotect( x ) )
+                                                         .ToList();
+                        break;
+                }
+            }
+            catch( CryptographicException exCrypto )
+            {
+                _logger?.LogError( "Cryptographic exception occurred while decrypting {prop}, message is '{mesg}'",
+                                   propPath.Last().Name,
+                                   exCrypto.Message );
+            }
+            catch( Exception ex )
+            {
+                _logger?.LogCritical( "Exception occurred while decrypting {prop}, message is '{mesg}'",
+                                      propPath.Last().Name,
+                                      ex.Message );
             }
 
-            if (decryptedValue == null)
-                _logger?.LogError("Could not decrypt property '{name}'", propPath.Last().Name);
-            else propPath.Last().SetValue(parentProp, decryptedValue);
+            if( decryptedValue != null )
+                propPath.Last().SetValue( parentProp, decryptedValue );
         }
     }
-
-    //private void DecryptProperty( EncryptedProperty encProp, IDataProtector protector )
-    //{
-    //    var encryptedText = (string?) GetLeafValue( encProp, this );
-    //    if( string.IsNullOrEmpty( encryptedText ) )
-    //        return;
-
-    //    SetLeafValue( encProp, this, protector.Unprotect( encryptedText ) );
-    //}
-
-    //private void DecryptArray( EncryptedProperty encProp, IDataProtector protector )
-    //{
-    //    var encryptedValues = (string?[]?) GetLeafValue( encProp, this );
-    //    if( encryptedValues == null )
-    //        return;
-
-    //    var decryptedValues = encryptedValues.Select( x => x == null ? null : protector.Unprotect( x ) ).ToArray();
-    //    SetLeafValue( encProp, this, decryptedValues );
-    //}
-
-    //private void DecryptList( EncryptedProperty encProp, IDataProtector protector )
-    //{
-    //    var encryptedValues = (IEnumerable<string?>?) GetLeafValue( encProp, this );
-    //    if( encryptedValues == null )
-    //        return;
-
-    //    var decryptedValues = encryptedValues.Select( x => x == null ? null : protector.Unprotect( x ) ).ToList();
-    //    SetLeafValue( encProp, this, decryptedValues );
-    //}
 }
