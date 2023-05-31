@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>J4JSoftware.EncryptedConfiguration</AssemblyName>
+		<RootNamespace>J4JSoftware.EncryptedConfiguration</RootNamespace>
+		<Authors>Mark A. Olbert</Authors>
+		<Company>Jump for Joy Software</Company>
+		<Product>J4JSoftware encrypted configuration class</Product>
+		<Description>defines a root app configuration class which supports encryption</Description>
+		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/markolbert/ProgrammingUtilities</RepositoryUrl>
+		<VersionPrefix>0.7.0</VersionPrefix>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.DataProtection.Extensions" Version="7.0.5" />
+	</ItemGroup>
+</Project>
