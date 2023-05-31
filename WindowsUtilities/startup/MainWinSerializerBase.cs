@@ -34,12 +34,11 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace J4JSoftware.WindowsUtilities;
 
 public abstract class MainWinSerializerBase<TConfig>
-where TConfig : AppConfigBase
+where TConfig : WinUIConfigBase
 {
     public static async Task<DisplayInfo?> GetPrimaryDisplayInfoAsync()
     {
@@ -62,7 +61,6 @@ where TConfig : AppConfigBase
 
     private readonly IWinApp _winApp;
     private readonly TConfig? _appConfig;
-    private readonly IDataProtector _protector;
     private readonly ILogger? _logger;
     private readonly ThrottleAction _throttleWinChange = new();
     private readonly JsonSerializerOptions _jsonOptions;
@@ -82,10 +80,6 @@ where TConfig : AppConfigBase
                 $"{Application.Current.GetType()} does not implement required {typeof( IWinApp )} interface" );
 
         _appConfig = _winApp.Services.GetService<TConfig>();
-
-        _protector = _winApp.Services.GetService<IDataProtector>()
-         ?? throw new NullReferenceException(
-                $"{Application.Current.GetType()} does not implement required {typeof( IDataProtector )} interface" );
 
         var loggerFactory = _winApp.Services.GetService<ILoggerFactory>();
         _logger = loggerFactory?.CreateLogger( GetType() );
@@ -142,7 +136,7 @@ where TConfig : AppConfigBase
         || string.IsNullOrEmpty( _appConfig?.UserConfigurationFilePath ) )
             return;
 
-        _appConfig.Encrypt( _protector );
+        _appConfig.Encrypt( _winApp.AppConfigProtector );
 
         try
         {

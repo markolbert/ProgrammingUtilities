@@ -1,7 +1,7 @@
 ﻿#region copyright
 // Copyright (c) 2021, 2022, 2023 Mark A. Olbert 
 // https://www.JumpForJoySoftware.com
-// IWinAppInitializer.cs
+// IWinApp.cs
 //
 // This file is part of JumpForJoy Software's WindowsUtilities.
 // 
@@ -20,11 +20,13 @@
 #endregion
 
 using System;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace J4JSoftware.WindowsUtilities;
 
 public interface IWinApp
 {
     IServiceProvider Services { get; set; }
+    IDataProtector AppConfigProtector { get; set; }
     bool SaveConfigurationOnExit { get; }
 }

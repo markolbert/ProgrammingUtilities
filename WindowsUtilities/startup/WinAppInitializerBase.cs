@@ -21,8 +21,8 @@
 
 using System;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,19 +34,22 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 namespace J4JSoftware.WindowsUtilities;
 
 public class WinAppInitializerBase<TConfig>
-    where TConfig : AppConfigBase, new()
+    where TConfig : WinUIConfigBase, new()
 {
+    public const string EncryptedAppConfigPurpose = "AppConfig";
+
     private readonly IWinApp _winApp;
     private readonly string _configPath;
-    private readonly IDataProtector _protector;
     private readonly JsonSerializerOptions _jsonOptions;
+    private readonly string _cryptoAppName;
 
     private ILogger? _logger;
 
     protected WinAppInitializerBase(
         IWinApp winApp,
         string configFileName = "userConfig.json",
-        JsonSerializerOptions? jsonOptions = null
+        JsonSerializerOptions? jsonOptions = null,
+        string? cryptoAppName = null
         )
     {
         _winApp = winApp;
@@ -54,13 +57,9 @@ public class WinAppInitializerBase<TConfig>
         jsonOptions ??= new JsonSerializerOptions { WriteIndented = true };
         _jsonOptions = jsonOptions;
 
-        var localAppFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        _configPath = Path.Combine(WinUIConfigBase.UserFolder, configFileName);
 
-        var dpProvider = DataProtectionProvider.Create(
-            new DirectoryInfo(Path.Combine(localAppFolder, "ASP.NET", "DataProtection-Keys")));
-        _protector = dpProvider.CreateProtector( winApp.GetType().Name );
-
-        _configPath = Path.Combine(AppConfigBase.UserFolder, configFileName);
+        _cryptoAppName = cryptoAppName ?? _winApp.GetType().Name;
     }
 
     public bool IsInitialized { get; private set; }
@@ -77,9 +76,19 @@ public class WinAppInitializerBase<TConfig>
         try
         {
             _winApp.Services = CreateHostBuilder()
-                      .Build()
-                      .Services;
+                              .Build()
+                              .Services;
 
+            var dpProvider = _winApp.Services.GetRequiredService<IDataProtectionProvider>();
+            _winApp.AppConfigProtector = dpProvider.CreateProtector( EncryptedAppConfigPurpose );
+
+            AppConfig!.Decrypt( _winApp.AppConfigProtector );
+
+            IsInitialized = true;
+        }
+        catch( CryptographicException exCrypto )
+        {
+            _logger?.LogError("Could not decrypt the app configuration file, message was '{mesg}'", exCrypto.Message);
             IsInitialized = true;
         }
         catch (Exception ex)
@@ -98,41 +107,41 @@ public class WinAppInitializerBase<TConfig>
 
     protected virtual IHostBuilder CreateHostBuilder() =>
         new HostBuilder()
-           .ConfigureHostConfiguration( builder => ParseConfigurationFile( _configPath, builder ) )
+           .ConfigureAppConfiguration(ConfigureApplication)
            .ConfigureServices( ( hbc, s ) => ConfigureServices( hbc, s ) );
+
+    protected virtual void ConfigureApplication( HostBuilderContext hbc, IConfigurationBuilder builder )
+    {
+        var fileExists = File.Exists(_configPath);
+        if (!fileExists)
+        {
+            _logger?.LogWarning("Could not find user config file '{path}', creating default configuration", _configPath);
+            AppConfig = new TConfig { UserConfigurationFilePath = _configPath };
+            return;
+        }
+
+        AppConfig = JsonSerializer.Deserialize<TConfig>(File.ReadAllText(_configPath), _jsonOptions);
+
+        if (AppConfig == null)
+        {
+            _logger?.LogError("Could not parse user config file '{path}'", _configPath);
+            return;
+        }
+
+        AppConfig.UserConfigurationFilePath = _configPath;
+    }
 
     protected virtual IServiceCollection ConfigureServices( HostBuilderContext hbc, IServiceCollection services )
     {
         if( LoggerFactory != null )
             services.AddSingleton( LoggerFactory );
 
-        services.AddSingleton( _protector );
-        services.AddSingleton( AppConfig! );
+        services.AddDataProtection()
+                .SetApplicationName( _cryptoAppName );
+
+        if( AppConfig != null)
+            services.AddSingleton( AppConfig );
 
         return services;
-    }
-
-    protected virtual void ParseConfigurationFile(string path, IConfigurationBuilder builder)
-    {
-        var fileExists = File.Exists(path);
-        if (!fileExists)
-        {
-            _logger?.LogWarning("Could not find user config file '{path}', creating default configuration", path);
-            AppConfig = new TConfig { UserConfigurationFilePath = path };
-
-            return;
-        }
-
-        AppConfig = JsonSerializer.Deserialize<TConfig>(File.ReadAllText(path), _jsonOptions);
-
-        if (AppConfig == null)
-        {
-            _logger?.LogError("Could not parse user config file '{path}'", path);
-            return;
-        }
-
-        AppConfig.UserConfigurationFilePath = path;
-
-        AppConfig.Decrypt( _protector );
     }
 }
