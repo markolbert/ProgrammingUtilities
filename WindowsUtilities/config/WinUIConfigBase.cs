@@ -1,7 +1,7 @@
 ﻿#region copyright
 // Copyright (c) 2021, 2022, 2023 Mark A. Olbert 
 // https://www.JumpForJoySoftware.com
-// EncryptedPropertyAttribute.cs
+// WinUIConfigBase.cs
 //
 // This file is part of JumpForJoy Software's WindowsUtilities.
 // 
@@ -19,11 +19,17 @@
 // with WindowsUtilities. If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
-using System;
+using J4JSoftware.EncryptedConfiguration;
 
 namespace J4JSoftware.WindowsUtilities;
 
-[AttributeUsage(AttributeTargets.Property)]
-public class EncryptedPropertyAttribute : Attribute
+public class WinUIConfigBase : ConsoleAppConfig
 {
+    public new static string UserFolder { get; } = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+
+    protected WinUIConfigBase()
+    {
+    }
+
+    public PositionSize MainWindowRectangle { get; set; } = PositionSize.Empty;
 }
