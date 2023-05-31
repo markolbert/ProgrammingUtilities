@@ -1,9 +1,9 @@
-using J4JSoftware.WindowsUtilities;
+using J4JSoftware.EncryptedConfiguration;
 
 namespace Test.WindowsUtilities;
 
 #pragma warning disable CS8618
-internal class TestConfigCore : AppConfigBase
+internal class TestConfigCore : ConsoleAppConfig
 {
     public int NotEncryptable { get; set; }
 
