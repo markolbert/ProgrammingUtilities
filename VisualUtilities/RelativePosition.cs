@@ -1,7 +1,7 @@
 ﻿#region copyright
 // Copyright (c) 2021, 2022, 2023 Mark A. Olbert 
 // https://www.JumpForJoySoftware.com
-// RelativePosition2D.cs
+// RelativePosition.cs
 //
 // This file is part of JumpForJoy Software's VisualUtilities.
 // 
@@ -21,7 +21,7 @@
 
 namespace J4JSoftware.VisualUtilities;
 
-public enum RelativePosition2D
+public enum RelativePosition
 {
     Inside,
     Edge,
