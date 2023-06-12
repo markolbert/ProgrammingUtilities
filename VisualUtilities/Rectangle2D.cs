@@ -300,6 +300,15 @@ public record Rectangle2D : IEnumerable<Vector3>
         return RelativePosition2D.Outside;
     }
 
+    public IEnumerable<Vector3> GetExternalCorners( Rectangle2D toCheck )
+    {
+        foreach( var corner in toCheck )
+        {
+            if( Contains(corner  ) == RelativePosition2D.Outside)
+                yield return corner;
+        }
+    }
+
     private bool OnEdge( float toCheck, float edgeValue ) => Math.Abs( toCheck - edgeValue ) < ComparisonTolerance;
 
     private bool InRange( float toCheck, float min, float max ) => toCheck >= min && toCheck <= max;
