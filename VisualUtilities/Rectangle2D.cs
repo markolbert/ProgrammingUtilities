@@ -23,7 +23,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Numerics;
 
@@ -84,6 +83,7 @@ public record Rectangle2D : IEnumerable<Vector3>
 
         Center = new Vector3( ( minX + maxX ) / 2, ( minY + maxY ) / 2, 0 );
         BoundingBox = this;
+        CoordinateSystem = coordinateSystem;
     }
 
     public Rectangle2D(
@@ -179,7 +179,7 @@ public record Rectangle2D : IEnumerable<Vector3>
         Height = Vector3.Distance( LowerLeft, UpperLeft );
         Width = Vector3.Distance( UpperLeft, UpperRight );
 
-        var corners = new Vector3[] { UpperLeft, UpperRight, LowerLeft, LowerRight };
+        var corners = new[] { UpperLeft, UpperRight, LowerLeft, LowerRight };
         Center = new Vector3( ( corners.Max( c => c.X ) + corners.Min( c => c.X ) ) / 2,
                               ( corners.Max( c => c.Y ) + corners.Min( c => c.Y ) ) / 2,
                               0 );
@@ -300,8 +300,9 @@ public record Rectangle2D : IEnumerable<Vector3>
         return RelativePosition.Outside;
     }
 
-    public IEnumerable<Vector3> GetExternalCorners( Rectangle2D toCheck ) =>
-        toCheck.Where( corner => Contains( corner ) == RelativePosition.Outside );
+    public IEnumerable<RelativeEdgePosition> GetExternalCorners( Rectangle2D toCheck ) =>
+        toCheck.Select( c => RelativeEdgePosition.Create( this, c ) )
+               .Where( c => c.NearestEdge != NearestEdge.Internal );
 
     private bool OnEdge( float toCheck, float edgeValue ) => Math.Abs( toCheck - edgeValue ) < ComparisonTolerance;
 
