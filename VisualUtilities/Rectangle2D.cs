@@ -252,7 +252,7 @@ public record Rectangle2D : IEnumerable<Vector3>
 
     // thanx to Nick Alger for this!
     // https://math.stackexchange.com/questions/190111/how-to-check-if-a-point-is-inside-a-rectangle/1685315#1685315?newreg=dea69604c07d4329b2944256e006a34f
-    public RelativePosition2D Contains( Rectangle2D toCheck )
+    public RelativePosition Contains( Rectangle2D toCheck )
     {
         // test for identity
         var sameCorners = true;
@@ -267,22 +267,22 @@ public record Rectangle2D : IEnumerable<Vector3>
         }
 
         if( sameCorners )
-            return RelativePosition2D.Edge;
+            return RelativePosition.Edge;
 
-        var retVal = RelativePosition2D.Inside;
+        var retVal = RelativePosition.Inside;
 
         foreach( var corner in toCheck )
         {
             retVal = Contains( corner );
 
-            if( retVal == RelativePosition2D.Outside )
+            if( retVal == RelativePosition.Outside )
                 break;
         }
 
         return retVal;
     }
 
-    public RelativePosition2D Contains( Vector3 point )
+    public RelativePosition Contains( Vector3 point )
     {
         var transformed = Vector3.Transform( point, _inverseUnitTransform );
 
@@ -290,18 +290,18 @@ public record Rectangle2D : IEnumerable<Vector3>
         if( InRange( transformed.Y, 0, 1 ) )
         {
             if( OnEdge( transformed.X, 0 ) || OnEdge( transformed.X, 1 ) )
-                return RelativePosition2D.Edge;
+                return RelativePosition.Edge;
 
             return InRange( transformed.X, 0, 1 ) 
-                ? RelativePosition2D.Inside 
-                : RelativePosition2D.Outside;
+                ? RelativePosition.Inside 
+                : RelativePosition.Outside;
         }
 
-        return RelativePosition2D.Outside;
+        return RelativePosition.Outside;
     }
 
     public IEnumerable<Vector3> GetExternalCorners( Rectangle2D toCheck ) =>
-        toCheck.Where( corner => Contains( corner ) == RelativePosition2D.Outside );
+        toCheck.Where( corner => Contains( corner ) == RelativePosition.Outside );
 
     private bool OnEdge( float toCheck, float edgeValue ) => Math.Abs( toCheck - edgeValue ) < ComparisonTolerance;
 

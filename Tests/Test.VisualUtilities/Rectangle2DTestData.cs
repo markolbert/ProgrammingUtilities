@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using J4JSoftware.VisualUtilities;
 
@@ -21,7 +20,7 @@ public class Rectangle2DTestData
                       Rotation,
                       Center );
 
-    public record InsideOutsideRectParams( RectParams Outer, RectParams Inner, RelativePosition2D Relationship );
+    public record InsideOutsideRectParams( RectParams Outer, RectParams Inner, RelativePosition Relationship );
 
     public static IEnumerable<object?[]> GetTestRectangles()
     {
@@ -97,7 +96,7 @@ public class Rectangle2DTestData
                                                              new Vector3( 128, -128, 0 ),
                                                              new Vector3( -128, -128, 0 )
                                                          } ),
-                                     RelativePosition2D.Edge )
+                                     RelativePosition.Edge )
         };
 
         yield return new object?[]
@@ -124,7 +123,7 @@ public class Rectangle2DTestData
                                                              new Vector3( 256, -256, 0 ),
                                                              new Vector3( -256, -256, 0 )
                                                          } ),
-                                     RelativePosition2D.Inside )
+                                     RelativePosition.Inside )
         };
 
         yield return new object?[]
@@ -151,7 +150,7 @@ public class Rectangle2DTestData
                                                              new Vector3( 128, -128, 0 ),
                                                              new Vector3( -128, -128, 0 )
                                                          } ),
-                                     RelativePosition2D.Outside )
+                                     RelativePosition.Outside )
         };
 
     }
