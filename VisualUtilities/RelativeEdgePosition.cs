@@ -26,33 +26,33 @@ namespace J4JSoftware.VisualUtilities;
 
 public record RelativeEdgePosition
 {
-    public static RelativeEdgePosition Create( Rectangle2D rect, Vector3 corner )
+    public static RelativeEdgePosition Create( Rectangle2D rect, Vector3 point )
     {
-        var retVal = new RelativeEdgePosition() { BaseRectangle = rect, };
+        var retVal = new RelativeEdgePosition() { BaseRectangle = rect, Point = point };
 
-        if( rect.Contains( corner ) != RelativePosition.Outside )
+        if( rect.Contains( point ) != RelativePosition.Outside )
             return retVal;
 
-        if( corner.X < rect.Min( c => c.X ) )
+        if( point.X < rect.Min( c => c.X ) )
             retVal.NearestEdge |= NearestEdge.Left;
 
-        if( corner.X > rect.Max( c => c.X ) )
+        if( point.X > rect.Max( c => c.X ) )
             retVal.NearestEdge |= NearestEdge.Right;
 
         if( rect.CoordinateSystem == CoordinateSystem2D.Cartesian )
         {
-            if( corner.Y < rect.Min( c => c.Y ) )
+            if( point.Y < rect.Min( c => c.Y ) )
                 retVal.NearestEdge |= NearestEdge.Top;
 
-            if( corner.Y > rect.Max( c => c.Y ) )
+            if( point.Y > rect.Max( c => c.Y ) )
                 retVal.NearestEdge |= NearestEdge.Bottom;
         }
         else
         {
-            if( corner.Y > rect.Max( c => c.Y ) )
+            if( point.Y > rect.Max( c => c.Y ) )
                 retVal.NearestEdge |= NearestEdge.Top;
 
-            if( corner.Y < rect.Min( c => c.Y ) )
+            if( point.Y < rect.Min( c => c.Y ) )
                 retVal.NearestEdge |= NearestEdge.Bottom;
         }
 
@@ -60,5 +60,6 @@ public record RelativeEdgePosition
     }
 
     public Rectangle2D BaseRectangle { get; private set; } = Rectangle2D.Empty;
+    public Vector3 Point { get; private set; }
     public NearestEdge NearestEdge { get; private set; }
 }
