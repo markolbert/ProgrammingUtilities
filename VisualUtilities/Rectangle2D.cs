@@ -59,7 +59,7 @@ public record Rectangle2D : IEnumerable<Vector3>
 
     #endregion
 
-    public static readonly Rectangle2D Empty = new Rectangle2D( 0, 0, 0, 0, CoordinateSystem2D.Display );
+    public static readonly Rectangle2D Empty = new( 0, 0, 0, 0, CoordinateSystem2D.Display );
 
     public const float DefaultComparisonTolerance = 1E-4F;
 
@@ -212,7 +212,7 @@ public record Rectangle2D : IEnumerable<Vector3>
         return retVal;
     }
 
-    private Vector3 GetCornerPoint( Func<Vector3, bool> comparer, Func<Vector3, bool> filter, ref List<Vector3> points )
+    private static Vector3 GetCornerPoint( Func<Vector3, bool> comparer, Func<Vector3, bool> filter, ref List<Vector3> points )
     {
         var leftmost = points.Where( comparer )
                              .ToList();
@@ -300,13 +300,105 @@ public record Rectangle2D : IEnumerable<Vector3>
         return RelativePosition.Outside;
     }
 
+    public ShrinkResult ShrinkToFit( Rectangle2D toShrink, ShrinkStyle shrinkStyle = ShrinkStyle.PreserveAspectRatio )
+    {
+        if( Contains( toShrink ) != RelativePosition.Outside || shrinkStyle == ShrinkStyle.None )
+            return new ShrinkResult(null, toShrink);
+
+        var externalCorners = GetExternalCorners( toShrink ).ToList();
+
+        // should never happen...
+        if (!externalCorners.Any())
+            return new ShrinkResult(null, toShrink);
+
+        var xZoom = 1f;
+        var yZoom = 1f;
+
+        foreach (var corner in externalCorners)
+        {
+            var slope = (Center.Y - corner.Point.Y) / (corner.Point.X - Center.X);
+
+            foreach (var edge in Enum.GetValues<NearestEdge>().Where(x => corner.NearestEdge.HasFlag(x)))
+            {
+                var xCenterToCorner = corner.Point.X - toShrink.Center.X;
+                var yCenterToCorner = corner.Point.Y - toShrink.Center.Y;
+                var distCenterToCorner =
+                    Math.Sqrt(xCenterToCorner * xCenterToCorner + yCenterToCorner * yCenterToCorner);
+
+                var xCenterToIntersection = 0f;
+                var yCenterToIntersection = 0f;
+
+                switch (edge)
+                {
+                    case NearestEdge.Bottom:
+                        xCenterToIntersection = (Height - Center.Y) / slope;
+                        yCenterToIntersection = Height - Center.Y;
+                        break;
+
+                    case NearestEdge.Top:
+                        xCenterToIntersection = -Center.Y / slope;
+                        yCenterToIntersection = -Center.Y;
+                        break;
+
+                    case NearestEdge.Left:
+                        xCenterToIntersection = -Center.X;
+                        yCenterToIntersection = -Center.X * slope;
+                        break;
+
+                    case NearestEdge.Right:
+                        xCenterToIntersection = Width - Center.X;
+                        yCenterToIntersection = (Width - Center.X) * slope;
+                        break;
+                }
+
+                var distCenterToIntersection =
+                    Math.Sqrt(xCenterToIntersection * xCenterToIntersection
+                             + yCenterToIntersection * yCenterToIntersection);
+
+                var zoom = (float)(distCenterToIntersection / distCenterToCorner);
+
+                switch (edge)
+                {
+                    case NearestEdge.Bottom:
+                    case NearestEdge.Top:
+                        if (zoom < yZoom)
+                            yZoom = zoom;
+                        break;
+
+                    case NearestEdge.Left:
+                    case NearestEdge.Right:
+                        if (zoom < xZoom)
+                            xZoom = zoom;
+
+                        break;
+                }
+            }
+        }
+
+        var finalZoom = shrinkStyle switch
+        {
+            ShrinkStyle.MaximizeHeight => yZoom,
+            ShrinkStyle.MaximizeWidth => xZoom,
+            ShrinkStyle.PreserveAspectRatio => xZoom < yZoom ? xZoom : yZoom,
+            _ => (float?) null
+        };
+
+        var scaleTransform = finalZoom.HasValue
+            ? Matrix4x4.CreateScale( finalZoom.Value, finalZoom.Value, 1f )
+            : (Matrix4x4?) null;
+
+        return scaleTransform == null
+            ? new ShrinkResult( null, toShrink )
+            : new ShrinkResult( finalZoom, toShrink.ApplyTransform( scaleTransform.Value ) );
+    }
+
     public IEnumerable<RelativeEdgePosition> GetExternalCorners( Rectangle2D toCheck ) =>
         toCheck.Select( c => RelativeEdgePosition.Create( this, c ) )
                .Where( c => c.NearestEdge != NearestEdge.Internal );
 
     private bool OnEdge( float toCheck, float edgeValue ) => Math.Abs( toCheck - edgeValue ) < ComparisonTolerance;
 
-    private bool InRange( float toCheck, float min, float max ) => toCheck >= min && toCheck <= max;
+    private static bool InRange( float toCheck, float min, float max ) => toCheck >= min && toCheck <= max;
 
     public IEnumerable<Edge2D> GetEdges()
     {
