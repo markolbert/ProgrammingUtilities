@@ -20,6 +20,8 @@
 #endregion
 
 using System;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace J4JSoftware.EFCoreUtilities;
 
@@ -28,14 +30,27 @@ public class EntityConfigurationAttribute : Attribute
 {
     private readonly Type _configType;
 
-    public EntityConfigurationAttribute( Type configType )
+    public EntityConfigurationAttribute( Type configType, Type? contextType = null )
     {
+        ContextType = contextType;
+
+        if( contextType != null )
+        {
+            if( !contextType.IsAssignableTo( typeof( DbContext ) ) )
+                throw new ArgumentException($"Type {contextType.Name} is not assignable to {typeof(DbContext)}");
+
+            //if (contextType.GetConstructors().Any(c => c.GetParameters().Length == 0))
+            //    throw new ArgumentException($"Type {contextType.Name} does not have a public parameterless constructor");
+        }
+
         _configType = configType ?? throw new NullReferenceException( nameof( configType ) );
 
         if( !typeof( IEntityConfiguration ).IsAssignableFrom( configType ) )
             throw new
                 ArgumentException( $"Database entity configuration type is not {nameof( IEntityConfiguration )}" );
     }
+
+    public Type? ContextType { get; }
 
     public IEntityConfiguration GetConfigurator()
     {

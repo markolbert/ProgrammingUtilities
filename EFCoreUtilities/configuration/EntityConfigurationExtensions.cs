@@ -19,6 +19,8 @@
 // with EFCoreUtilities. If not, see <https://www.gnu.org/licenses/>.
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
@@ -27,18 +29,32 @@ namespace J4JSoftware.EFCoreUtilities;
 
 public static class EntityConfigurationExtensions
 {
-    public static void ConfigureEntities( this ModelBuilder modelBuilder, Assembly? assemblyToScan = null )
+    public static void ConfigureEntities( this ModelBuilder modelBuilder, Type? contextType = null, Assembly? assemblyToScan = null )
     {
         assemblyToScan ??= Assembly.GetCallingAssembly();
 
         // scan assembly for types decorated with EntityConfigurationAttribute and configure them
-        foreach( var entityType in assemblyToScan.DefinedTypes
-                                                 .Where( t => t.GetCustomAttribute<EntityConfigurationAttribute>()
-                                                          != null ) )
+        foreach ( var entityType in assemblyToScan
+                                  .DefinedTypes
+                                  .Where( t =>
+                                              t.GetCustomAttribute<EntityConfigurationAttribute>() != null ) )
         {
             var attr = entityType.GetCustomAttribute<EntityConfigurationAttribute>();
 
-            attr?.GetConfigurator().Configure( modelBuilder );
+            if( contextType == null || attr!.ContextType == contextType)
+                attr?.GetConfigurator().Configure( modelBuilder );
         }
+    }
+
+    public static void ConfigureEntities<TDbContext>(
+        this ModelBuilder modelBuilder,
+        Assembly? assemblyToScan = null
+    )
+    where TDbContext : DbContext
+    {
+        // have to do this here so the right assembly gets picked...
+        assemblyToScan ??= Assembly.GetCallingAssembly();
+
+        ConfigureEntities(modelBuilder, typeof(TDbContext), assemblyToScan);
     }
 }
