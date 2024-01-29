@@ -20,7 +20,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +42,38 @@ public static class EntityConfigurationExtensions
 
             if( contextType == null || attr!.ContextType == contextType)
                 attr?.GetConfigurator().Configure( modelBuilder );
+        }
+    }
+
+    public static void ConfigureEntities(this ModelBuilder modelBuilder, params Type[] entityTypes )
+    {
+        foreach (var entityType in entityTypes
+                     .Where(t =>
+                         t.GetCustomAttribute<EntityConfigurationAttribute>() != null))
+        {
+            var attr = entityType.GetCustomAttribute<EntityConfigurationAttribute>();
+            attr?.GetConfigurator().Configure(modelBuilder);
+        }
+    }
+
+    public static void ConfigureDbContextEntities<TContext>(this ModelBuilder modelBuilder)
+        where TContext: DbContext
+    {
+        foreach (var configAttr in typeof(TContext).GetProperties()
+                     .Where(pi => pi.PropertyType == typeof(DbSet<>))
+                     .Select(pi =>
+                     {
+                         if (!pi.PropertyType.IsGenericType)
+                             return null;
+
+                         var typeParams = pi.PropertyType.GetGenericArguments();
+                         if (typeParams.Length != 1)
+                             return null;
+
+                         return typeParams[0].GetCustomAttribute<EntityConfigurationAttribute>();
+                     }))
+        {
+            configAttr?.GetConfigurator().Configure(modelBuilder);
         }
     }
 
