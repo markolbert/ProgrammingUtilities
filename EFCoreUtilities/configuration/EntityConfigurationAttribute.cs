@@ -20,7 +20,6 @@
 #endregion
 
 using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace J4JSoftware.EFCoreUtilities;
@@ -38,9 +37,6 @@ public class EntityConfigurationAttribute : Attribute
         {
             if( !contextType.IsAssignableTo( typeof( DbContext ) ) )
                 throw new ArgumentException($"Type {contextType.Name} is not assignable to {typeof(DbContext)}");
-
-            //if (contextType.GetConstructors().Any(c => c.GetParameters().Length == 0))
-            //    throw new ArgumentException($"Type {contextType.Name} does not have a public parameterless constructor");
         }
 
         _configType = configType ?? throw new NullReferenceException( nameof( configType ) );
