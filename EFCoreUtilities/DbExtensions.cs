@@ -20,9 +20,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable ExplicitCallerInfoArgument
 
@@ -62,5 +65,82 @@ public static class DbExtensions
         retVal.Append($"\n\tLine number:\t{callerLineNum}");
 
         return retVal.ToString();
+    }
+
+    public static List<Type> GetEntityTypes( this DbContext dbContext ) =>
+        dbContext.Model.GetEntityTypes().Select( et => et.ClrType ).ToList();
+
+    public static List<Type> GetEntityTypes<TContext>()
+        where TContext : DbContext =>
+        typeof( TContext ).GetProperties()
+                          .Select( pi =>
+                           {
+                               if( !pi.PropertyType.IsGenericType )
+                                   return null;
+
+                               var genTypeDef = pi.PropertyType.GetGenericTypeDefinition();
+                               if( genTypeDef != typeof( DbSet<> ) )
+                                   return null;
+
+                               return pi.PropertyType.GetGenericArguments()[ 0 ];
+                           } )
+                          .Where( et => et != null )
+                          .Select( et => et! )
+                          .ToList();
+
+    public static bool TryGetEntityType(this DbContext dbContext, string entityName, out Type? entityType)
+    {
+        entityType = null;
+
+        foreach (var curType in dbContext.Model.GetEntityTypes())
+        {
+            if (!curType.Name.Equals(entityName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            entityType = curType.ClrType;
+            return true;
+        }
+
+        return false;
+    }
+
+    public static bool TryGetEntityName(this DbContext dbContext, Type entityType, out string? entityName)
+    {
+        entityName = null;
+
+        foreach (var curType in dbContext.Model.GetEntityTypes())
+        {
+            if (curType.ClrType != entityType)
+                continue;
+
+            entityName = curType.Name;
+            return true;
+        }
+
+        return false;
+    }
+
+    public static bool TryGetEntitySingleFieldPrimaryKey(this DbContext dbContext, Type entityType, out string? keyField)
+    {
+        keyField = null;
+
+        foreach (var curType in dbContext.Model.GetEntityTypes())
+        {
+            if (curType.ClrType != entityType)
+                continue;
+
+            foreach (var key in curType.GetKeys())
+            {
+                if (!key.IsPrimaryKey() || key.Properties.Count != 1)
+                    continue;
+
+                keyField = key.Properties[0].Name;
+                return true;
+            }
+
+            return false;
+        }
+
+        return false;
     }
 }
