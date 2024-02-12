@@ -79,10 +79,7 @@ public static class DbExtensions
                                    return null;
 
                                var genTypeDef = pi.PropertyType.GetGenericTypeDefinition();
-                               if( genTypeDef != typeof( DbSet<> ) )
-                                   return null;
-
-                               return pi.PropertyType.GetGenericArguments()[ 0 ];
+                               return genTypeDef != typeof( DbSet<> ) ? null : pi.PropertyType.GetGenericArguments()[ 0 ];
                            } )
                           .Where( et => et != null )
                           .Select( et => et! )
