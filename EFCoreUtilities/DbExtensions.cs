@@ -140,4 +140,20 @@ public static class DbExtensions
 
         return false;
     }
+
+    public static bool TryGetSet<TEntity>( this DbContext dbContext, out DbSet<TEntity>? result )
+        where TEntity : class
+    {
+        result = null;
+
+        try
+        {
+            result = dbContext.Set<TEntity>();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
