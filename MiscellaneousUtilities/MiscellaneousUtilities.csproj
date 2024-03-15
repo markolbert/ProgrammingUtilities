@@ -18,15 +18,35 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="range-tick2\FactorInfo.cs" />
+	  <Compile Remove="range-tick2\ITickRange.cs" />
+	  <Compile Remove="range-tick2\ITickRangeConfig.cs" />
+	  <Compile Remove="range-tick2\MonthlyTickRange.cs" />
+	  <Compile Remove="range-tick2\MonthRange.cs" />
+	  <Compile Remove="range-tick2\NumericRange.cs" />
+	  <Compile Remove="range-tick2\NumericTick.cs" />
+	  <Compile Remove="range-tick2\NumericTickRange.cs" />
+	  <Compile Remove="range-tick2\TickRanges.cs" />
+	  <Compile Remove="range-tick2\TickSizePreference.cs" />
 	  <Compile Remove="selectable-node\CollectionChangedHandler.cs" />
+	  <Compile Remove="selectable-node\DefaultSelectableEntityComparer.cs" />
+	  <Compile Remove="selectable-node\ISelectableEntity.cs" />
 	  <Compile Remove="selectable-node\ISelectableNode.cs" />
 	  <Compile Remove="selectable-node\ISelectableNodeFactory.cs" />
+	  <Compile Remove="selectable-node\ISelectableTree.cs" />
+	  <Compile Remove="selectable-node\SelectableEntityExtensions.cs" />
 	  <Compile Remove="selectable-node\SelectableNode.cs" />
 	  <Compile Remove="selectable-node\SelectableNodeFactory.cs" />
+	  <Compile Remove="selectable-node\SelectableTree.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="range-tick2\" />
+	  <Folder Include="selectable-node\" />
 	</ItemGroup>
 
 </Project>

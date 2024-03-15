@@ -8,7 +8,16 @@
 </PropertyGroup>
 
 <ItemGroup>
+  <Compile Remove="CombinedTest.cs" />
+  <Compile Remove="data\RangeSizeDates.cs" />
+  <Compile Remove="data\RangeSizeNumbers.cs" />
+  <Compile Remove="data\SingleSizeDates.cs" />
+  <Compile Remove="data\SingleSizeNumbers.cs" />
+  <Compile Remove="DateTest.cs" />
+  <Compile Remove="DIContainer.cs" />
+  <Compile Remove="NumericTest.cs" />
   <Compile Remove="RangeTickTest.cs" />
+  <Compile Remove="SingleTick.cs" />
 </ItemGroup>
 
 <ItemGroup>
