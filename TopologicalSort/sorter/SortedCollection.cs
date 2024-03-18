@@ -87,7 +87,7 @@ public abstract class SortedCollection<T> : ISortedCollection<T>
         switch( Available.Count )
         {
             case 0:
-                Logger?.LogError( "No root {0} defined", typeof( T ) );
+                Logger?.LogError( "No root {type} defined", typeof( T ) );
                 break;
 
             case 1:
@@ -99,12 +99,12 @@ public abstract class SortedCollection<T> : ISortedCollection<T>
                 if( TopologicalSorter.Sort( _items, out var result ) )
                     SortedSequence.AddRange( result! );
                 else
-                    Logger?.LogError( "Couldn't create execution sequence for {0}", typeof( T ) );
+                    Logger?.LogError( "Couldn't create execution sequence for {type}", typeof( T ) );
 
                 break;
 
             default:
-                Logger?.LogError( "Multiple root {0} objects defined", typeof( T ) );
+                Logger?.LogError( "Multiple root {type} objects defined", typeof( T ) );
                 break;
         }
 
@@ -130,7 +130,7 @@ public abstract class SortedCollection<T> : ISortedCollection<T>
 
         if( predecessor == null )
         {
-            Logger?.LogError( $"Couldn't find '{predecessorType}'", predecessorType );
+            Logger?.LogError( "Couldn't find '{predecessorType}'", predecessorType );
             return false;
         }
 
